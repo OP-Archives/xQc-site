@@ -2,33 +2,10 @@ import React, { useEffect } from "react";
 import SimpleBar from "simplebar-react";
 import { Box, Typography, useMediaQuery, Link, Paper } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import merch1 from "./assets/merch/merch1.png";
-import merch2 from "./assets/merch/merch2.png";
-import merch3 from "./assets/merch/merch3.png";
-import merch4 from "./assets/merch/merch4.png";
-import ErrorBoundary from "./ErrorBoundary.js";
+import ErrorBoundary from "./utils/ErrorBoundary";
 import AdSense from "react-adsense";
 import Footer from "./utils/Footer";
 import CustomLink from "./utils/CustomLink";
-
-const merchImages = [
-  {
-    image: merch1,
-    link: "https://metathreads.com/collections/pokelawls/products/pokelawls-smoke-black-tee",
-  },
-  {
-    image: merch2,
-    link: "https://metathreads.com/collections/pokelawls/products/pokelawls-kisses-black-tee",
-  },
-  {
-    image: merch3,
-    link: "https://metathreads.com/collections/pokelawls/products/pokelawls-kisses-white-tee",
-  },
-  {
-    image: merch4,
-    link: "https://metathreads.com/collections/pokelawls/products/pokelawls-kisses-black-hoodie",
-  },
-];
 
 export default function Frontpage(props) {
   const classes = useStyles();
@@ -166,17 +143,7 @@ export default function Frontpage(props) {
                   <Typography variant="h6">Merch</Typography>
                 </CustomLink>
               </Box>
-              <Box display="flex" flexWrap="nowrap">
-                {merchImages.map((item, index) => {
-                  return (
-                    <div key={index} className={classes.hover}>
-                      <a href={item.link} target="_blank" rel="noreferrer noopener">
-                        <img alt="" key={index} src={item.image} className={classes.image} />
-                      </a>
-                    </div>
-                  );
-                })}
-              </Box>
+              <Box display="flex" flexWrap="nowrap"></Box>
             </Paper>
           </Box>
         </Box>

@@ -4,7 +4,7 @@ import { withStyles } from "@mui/styles";
 import Youtube from "react-youtube";
 import SimpleBar from "simplebar-react";
 import canAutoPlay from "can-autoplay";
-import Logo from "./assets/jammin.gif";
+import Logo from "../assets/loading.gif";
 import { Resizable } from "re-resizable";
 import { useLocation, useParams } from "react-router-dom";
 

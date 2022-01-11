@@ -3,11 +3,11 @@ import { Box, Typography, useMediaQuery, Link, Container, Button, Menu, MenuItem
 import { makeStyles } from "@mui/styles";
 import SimpleBar from "simplebar-react";
 import ListIcon from "@mui/icons-material/List";
-import Logo from "./assets/jammin.gif";
-import ErrorBoundary from "./ErrorBoundary.js";
+import LoadingLogo from "../assets/loading.gif";
+import ErrorBoundary from "../utils/ErrorBoundary";
 import AdSense from "react-adsense";
-import CustomLink from "./utils/CustomLink";
-import Footer from "./utils/Footer";
+import CustomLink from "../utils/CustomLink";
+import Footer from "../utils/Footer";
 
 const limit = 50;
 
@@ -174,7 +174,7 @@ export default function Vods(props) {
     <div className={classes.parent}>
       <div style={{ textAlign: "center" }}>
         <div>
-          <img alt="" src={Logo} height="auto" width="75%" />
+          <img alt="" src={LoadingLogo} height="auto" width="75%" />
         </div>
         <CircularProgress style={{ marginTop: "2rem" }} size="2rem" />
       </div>

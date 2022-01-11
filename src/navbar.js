@@ -1,6 +1,6 @@
 import React from "react";
 import { AppBar, Toolbar, List, ListItem, ListItemText, Typography, Divider, IconButton, Drawer, useMediaQuery, Box } from "@mui/material";
-import Logo from "./assets/jammin.gif";
+import Logo from "./assets/loading.gif";
 import Menu from "@mui/icons-material/Menu";
 import discord from "./assets/discord.png";
 import twitter from "./assets/twitter.png";
