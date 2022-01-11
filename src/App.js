@@ -2,10 +2,10 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createTheme, ThemeProvider, responsiveFontSizes } from "@mui/material/styles";
 import { CssBaseline, styled } from "@mui/material";
 import { blue } from "@mui/material/colors";
-import Frontpage from "./frontpage";
 import Vods from "./vods/vods";
 import VodPlayer from "./vods/player";
 import Navbar from "./navbar";
+import NotFound from "./utils/NotFound";
 
 export default function App() {
   let darkTheme = createTheme({
@@ -41,18 +41,16 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route
-            exact
-            path="/"
+            path="*"
             element={
               <Parent>
-                <Navbar />
-                <Frontpage />
+                <NotFound />
               </Parent>
             }
           />
           <Route
             exact
-            path="/vods"
+            path="/"
             element={
               <Parent>
                 <Navbar />
