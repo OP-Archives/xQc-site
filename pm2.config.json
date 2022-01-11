@@ -1,0 +1,10 @@
+{
+  "apps": [
+    {
+      "name": "react",
+      "script": "npx",
+      "interpreter": "none",
+      "args": "serve -s prod -l 3000"
+    }
+  ]
+}
