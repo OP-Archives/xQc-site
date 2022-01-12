@@ -18,3 +18,13 @@ a:visited,
 a:hover {
   text-decoration: none !important;
 }
+
+.thumbnail {
+  vertical-align: top;
+  max-width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
