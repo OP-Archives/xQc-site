@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createTheme, ThemeProvider, responsiveFontSizes } from "@mui/material/styles";
 import { CssBaseline, styled } from "@mui/material";
 import Vods from "./vods/vods";
-import VodPlayer from "./vods/player";
+import YoutubeVod from "./vods/YoutubeVod";
 import Navbar from "./navbar";
 import NotFound from "./utils/NotFound";
 
@@ -36,7 +36,7 @@ export default function App() {
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
+      <CssBaseline enableColorScheme />
       <BrowserRouter>
         <Routes>
           <Route
@@ -59,19 +59,10 @@ export default function App() {
           />
           <Route
             exact
-            path="/vods/:vodId"
+            path="/youtube/:vodId"
             element={
               <Parent>
-                <VodPlayer />
-              </Parent>
-            }
-          />
-          <Route
-            exact
-            path="/live/:vodId"
-            element={
-              <Parent>
-                <VodPlayer />
+                <YoutubeVod type="live" />
               </Parent>
             }
           />

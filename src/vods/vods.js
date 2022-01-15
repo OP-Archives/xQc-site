@@ -7,7 +7,7 @@ import AdSense from "react-adsense";
 import CustomLink from "../utils/CustomLink";
 import Footer from "../utils/Footer";
 import Loading from "../utils/Loading";
-import Moment from "moment";
+import moment from "moment";
 import default_thumbnail from "../assets/default_thumbnail.png";
 
 const limit = 50;
@@ -64,9 +64,7 @@ export default function Vods() {
 
         setVods(
           response.data.map((vod, i) => {
-            const containsLiveVods = vod.youtube.some((data) => data.type === "live");
-            vod.youtube = vod.youtube.filter((data) => (containsLiveVods ? data.type === "live" : data.type === "vod"));
-            return <div key={vod.id}></div>;
+            return <Vod key={vod.id} vod={vod} />;
           })
         );
       })
@@ -117,7 +115,7 @@ const Vod = (props) => {
           },
         }}
       >
-        <Link href={`/live/${vod.id}`}>
+        <Link href={`/youtube/${vod.id}`}>
           <img className="thumbnail" alt="" src={vod.thumbnail_url ? vod.thumbnail_url : default_thumbnail} />
         </Link>
         <Box sx={{ pointerEvents: "none", position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
@@ -141,7 +139,7 @@ const Vod = (props) => {
             <Box>
               <Tooltip title={vod.title} placement="bottom">
                 <span>
-                  <CustomLink component={Button} href={`/live/${vod.id}`} sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
+                  <CustomLink component={Button} href={`/youtube/${vod.id}`} sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
                     <Typography variant="caption" color="primary">
                       {vod.title}
                     </Typography>
@@ -182,7 +180,7 @@ const PartsMenu = (props) => {
         {vod.youtube.map((data, _) => {
           if (data.type === "vod") return null;
           return (
-            <CustomLink key={data.id} href={`/live/${props.vod.id}?part=${data.part}`}>
+            <CustomLink key={data.id} href={`/youtube/${props.vod.id}?part=${data.part}`}>
               <MenuItem>Part {data.part}</MenuItem>
             </CustomLink>
           );
@@ -213,7 +211,7 @@ const ChaptersMenu = (props) => {
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
         {vod.chapters.map((data, _) => {
           return (
-            <CustomLink key={data.gameId + data.start} href={`/live/${props.vod.id}?duration=${data.start}`}>
+            <CustomLink key={data.gameId + data.start} href={`/youtube/${props.vod.id}?duration=${data.start}`}>
               <MenuItem>
                 <Box sx={{ display: "flex" }}>
                   <Box sx={{ mr: 1 }}>
@@ -221,7 +219,7 @@ const ChaptersMenu = (props) => {
                   </Box>
                   <Box sx={{ display: "flex", flexDirection: "column" }}>
                     <Typography color="inherit" variant="body2">{`${data.name}`}</Typography>
-                    <Typography variant="caption">{`${Moment.duration(data.end, "seconds").humanize()}`}</Typography>
+                    <Typography variant="caption">{`${moment.duration(data.end, "seconds").humanize()}`}</Typography>
                   </Box>
                 </Box>
               </MenuItem>
