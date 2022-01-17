@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, MenuItem, Tooltip, useMediaQuery, FormControl, InputLabel, Select, IconButton, Link, Collapse, styled, Menu } from "@mui/material";
+import { Box, Typography, MenuItem, Tooltip, useMediaQuery, FormControl, InputLabel, Select, IconButton, Link, Collapse, styled, Menu, Divider } from "@mui/material";
 import Loading from "../utils/Loading";
 import { useLocation, useParams } from "react-router-dom";
 import YoutubePlayer from "./YoutubePlayer";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import moment from "moment";
+import NotFound from "../utils/NotFound";
+import Chat from "./chat";
 
 const API_BASE = "https://api.xqc.wtf";
 
@@ -86,17 +88,23 @@ export default function Vod(props) {
 
   if (part === undefined) return <Loading />;
 
+  if (youtube.length === 0) return <NotFound />;
+
   return (
     <Box sx={{ height: "100%", width: "100%" }}>
       <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", height: "100%", width: "100%" }}>
-        <Box sx={{ display: "flex", height: "100%", width: "100%", flexDirection: "column" }}>
+        <Box sx={{ display: "flex", height: "100%", width: "100%", flexDirection: "column", alignItems: "flex-start", minWidth: 0, overflow: "hidden" }}>
           <YoutubePlayer playerRef={playerRef} part={part} youtube={youtube} setCurrentTime={setCurrentTime} setPart={setPart} />
-          <Box sx={{ position: "absolute", bottom: 0, left: "40%" }}>
-            <ExpandMore expand={showMenu} onClick={handleExpandClick} aria-expanded={showMenu} aria-label="show menu">
-              <ExpandMoreIcon />
-            </ExpandMore>
-          </Box>
-          <Collapse in={showMenu} timeout="auto" unmountOnExit sx={{ minHeight: "auto !important" }}>
+          {!isMobile && (
+            <Box sx={{ position: "absolute", bottom: 0, left: "40%" }}>
+              <Tooltip title={showMenu ? "Collapse" : "Expand"}>
+                <ExpandMore expand={showMenu} onClick={handleExpandClick} aria-expanded={showMenu} aria-label="show menu">
+                  <ExpandMoreIcon />
+                </ExpandMore>
+              </Tooltip>
+            </Box>
+          )}
+          <Collapse in={showMenu} timeout="auto" unmountOnExit sx={{ minHeight: "auto !important", width: "100%" }}>
             <Box sx={{ display: "flex", p: 1, alignItems: "center" }}>
               {chapter && <ChaptersMenu chapters={vod.chapters} chapter={chapter} setPart={setPart} youtube={youtube} setChapter={setChapter} />}
               <Tooltip title={vod.title}>
@@ -130,21 +138,26 @@ export default function Vod(props) {
             </Box>
           </Collapse>
         </Box>
+        {isMobile && <Divider />}
+        <Chat isMobile={isMobile} />
       </Box>
     </Box>
   );
 }
 
-const ExpandMore = styled((props) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  transform: !expand ? "rotate(0deg)" : "rotate(180deg)",
-  marginLeft: "auto",
-  transition: theme.transitions.create("transform", {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
+const ExpandMore = styled(React.forwardRef(({ expand, ...props }, ref) => <IconButton {...props} />))`
+  margin-left: auto;
+  transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+
+  ${(props) =>
+    props.expand
+      ? `
+          transform: rotate(180deg);
+        `
+      : `
+          transform: rotate(0deg);
+        `}
+`;
 
 const ChaptersMenu = (props) => {
   const { chapters, chapter, setPart, youtube, setChapter } = props;
@@ -178,7 +191,7 @@ const ChaptersMenu = (props) => {
     <Box>
       <Tooltip title={chapter.name}>
         <IconButton onClick={handleClick}>
-          <img alt="" src={chapter.image} />
+          <img alt="" src={chapter.image} style={{ width: "40px", height: "53px" }} />
         </IconButton>
       </Tooltip>
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose} sx={{ maxWidth: "280px", maxHeight: "400px" }}>
@@ -187,7 +200,7 @@ const ChaptersMenu = (props) => {
             <MenuItem onClick={() => handleChapterClick(data)} key={data.gameId + data.start} selected={data.start === chapter.start}>
               <Box sx={{ display: "flex" }}>
                 <Box sx={{ mr: 1 }}>
-                  <img alt="" src={data.image} sx={{ height: "auto", maxWidth: "100%" }} />
+                  <img alt="" src={data.image} style={{ width: "40px", height: "53px" }} />
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
                   <Typography color="inherit" variant="body2" noWrap>{`${data.name}`}</Typography>
