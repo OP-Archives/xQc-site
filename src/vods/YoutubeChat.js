@@ -333,10 +333,7 @@ export default function Chat(props) {
               <Box sx={{ display: "flex", alignItems: "flex-start" }}>
                 <Box sx={{ display: "inline", pl: 1, pr: 1 }}>
                   <Typography variant="caption" color="textSecondary">
-                    {moment
-                      .utc(comment.content_offset_seconds * 1000)
-                      .format("HH:mm:ss")
-                      .replace("00:", "")}
+                    {moment.utc(comment.content_offset_seconds * 1000).format("HH:mm:ss")}
                   </Typography>
                 </Box>
                 <Box sx={{ flexGrow: 1 }}>
@@ -384,7 +381,7 @@ export default function Chat(props) {
   };
 
   return (
-    <Box sx={{ height: "100%", background: "#131314", display: "flex", flexDirection: "column" }}>
+    <Box sx={{ height: "100%", background: "#131314", display: "flex", flexDirection: "column", minHeight: 0 }}>
       {showChat ? (
         <>
           <Box sx={{ display: "grid", alignItems: "center", p: 1 }}>
@@ -402,7 +399,7 @@ export default function Chat(props) {
             </Box>
           </Box>
           <Divider />
-          <CustomCollapse in={showChat} timeout="auto" unmountOnExit sx={{ minWidth: "340px", height: "100%" }}>
+          <CustomCollapse in={showChat} timeout="auto" unmountOnExit sx={{ minWidth: "340px" }}>
             {comments.length === 0 ? (
               <Loading />
             ) : (
