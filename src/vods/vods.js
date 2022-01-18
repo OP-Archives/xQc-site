@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Box, Typography, Button, Menu, MenuItem, Pagination, Grid, Tooltip, Link } from "@mui/material";
+import { Box, Typography, Button, Menu, MenuItem, Pagination, Grid, Tooltip, Link, styled } from "@mui/material";
 import SimpleBar from "simplebar-react";
 import ListIcon from "@mui/icons-material/List";
 import ErrorBoundary from "../utils/ErrorBoundary";
@@ -9,6 +9,7 @@ import Footer from "../utils/Footer";
 import Loading from "../utils/Loading";
 import moment from "moment";
 import default_thumbnail from "../assets/default_thumbnail.png";
+import { tooltipClasses } from "@mui/material/Tooltip";
 
 const limit = 50;
 const API_BASE = "https://api.xqc.wtf";
@@ -137,7 +138,7 @@ const Vod = (props) => {
         <Box sx={{ display: "flex", flexWrap: "nowrap", flexDirection: "column" }}>
           <Box sx={{ flexGrow: 1, flexShrink: 1, width: "100%", minWidth: 0 }}>
             <Box>
-              <Tooltip title={vod.title} placement="bottom">
+              <CustomWidthTooltip title={vod.title} placement="bottom">
                 <span>
                   <CustomLink component={Button} href={`/youtube/${vod.id}`} sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
                     <Typography variant="caption" color="primary">
@@ -145,7 +146,7 @@ const Vod = (props) => {
                     </Typography>
                   </CustomLink>
                 </span>
-              </Tooltip>
+              </CustomWidthTooltip>
             </Box>
           </Box>
           <Box sx={{ display: "flex" }}>
@@ -157,6 +158,12 @@ const Vod = (props) => {
     </Grid>
   );
 };
+
+const CustomWidthTooltip = styled(({ className, ...props }) => <Tooltip {...props} classes={{ popper: className }} />)({
+  [`& .${tooltipClasses.tooltip}`]: {
+    maxWidth: "none",
+  },
+});
 
 const PartsMenu = (props) => {
   const { vod } = props;

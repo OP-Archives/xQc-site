@@ -7,7 +7,8 @@ import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import moment from "moment";
 import NotFound from "../utils/NotFound";
-import Chat from "./chat";
+import Chat from "./YoutubeChat";
+import { tooltipClasses } from "@mui/material/Tooltip";
 
 const API_BASE = "https://api.xqc.wtf";
 
@@ -23,6 +24,8 @@ export default function Vod(props) {
   const [part, setPart] = useState(undefined);
   const [showMenu, setShowMenu] = useState(true);
   const [currentTime, setCurrentTime] = useState(undefined);
+  const [playing, setPlaying] = useState({ playing: false });
+  const [delay, setDelay] = useState(0);
   const playerRef = React.useRef(null);
 
   useEffect(() => {
@@ -77,6 +80,18 @@ export default function Vod(props) {
     }
   }, [currentTime, vod, playerRef]);
 
+  useEffect(() => {
+    if (!youtube || !vod) return;
+    const vodDuration = moment.duration(vod.duration, "HH:mm:ss").asSeconds();
+    let totalYoutubeDuration = 0;
+    for (let data of youtube) {
+      totalYoutubeDuration += data.duration;
+    }
+    const tmpDelay = vodDuration - totalYoutubeDuration < 0 ? 0 : vodDuration - totalYoutubeDuration;
+    console.info(`Chat Delay: ${tmpDelay} seconds`);
+    setDelay(tmpDelay);
+  }, [youtube, vod]);
+
   const handlePartChange = (evt) => {
     const tmpPart = evt.target.value + 1;
     setPart({ part: tmpPart, duration: 0 });
@@ -94,7 +109,7 @@ export default function Vod(props) {
     <Box sx={{ height: "100%", width: "100%" }}>
       <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", height: "100%", width: "100%" }}>
         <Box sx={{ display: "flex", height: "100%", width: "100%", flexDirection: "column", alignItems: "flex-start", minWidth: 0, overflow: "hidden" }}>
-          <YoutubePlayer playerRef={playerRef} part={part} youtube={youtube} setCurrentTime={setCurrentTime} setPart={setPart} />
+          <YoutubePlayer playerRef={playerRef} part={part} youtube={youtube} setCurrentTime={setCurrentTime} setPart={setPart} setPlaying={setPlaying} delay={delay} />
           {!isMobile && (
             <Box sx={{ position: "absolute", bottom: 0, left: "40%" }}>
               <Tooltip title={showMenu ? "Collapse" : "Expand"}>
@@ -107,11 +122,11 @@ export default function Vod(props) {
           <Collapse in={showMenu} timeout="auto" unmountOnExit sx={{ minHeight: "auto !important", width: "100%" }}>
             <Box sx={{ display: "flex", p: 1, alignItems: "center" }}>
               {chapter && <ChaptersMenu chapters={vod.chapters} chapter={chapter} setPart={setPart} youtube={youtube} setChapter={setChapter} />}
-              <Tooltip title={vod.title}>
+              <CustomWidthTooltip title={vod.title}>
                 <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", ml: 1 }}>
                   <Typography>{`${vod.title}`}</Typography>
                 </Box>
-              </Tooltip>
+              </CustomWidthTooltip>
               <Box sx={{ ml: 1 }}>
                 <FormControl variant="standard" sx={{ p: 1, maxWidth: "80px", minWidth: "40px" }}>
                   <InputLabel id="select-label">Part</InputLabel>
@@ -139,11 +154,17 @@ export default function Vod(props) {
           </Collapse>
         </Box>
         {isMobile && <Divider />}
-        <Chat isMobile={isMobile} />
+        <Chat isMobile={isMobile} vodId={vodId} playerRef={playerRef} playing={playing} currentTime={currentTime} delay={delay} youtube={youtube} part={part} />
       </Box>
     </Box>
   );
 }
+
+const CustomWidthTooltip = styled(({ className, ...props }) => <Tooltip {...props} classes={{ popper: className }} />)({
+  [`& .${tooltipClasses.tooltip}`]: {
+    maxWidth: "none",
+  },
+});
 
 const ExpandMore = styled(React.forwardRef(({ expand, ...props }, ref) => <IconButton {...props} />))`
   margin-left: auto;
