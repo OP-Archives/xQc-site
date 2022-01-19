@@ -7,7 +7,7 @@ import AdSense from "react-adsense";
 import CustomLink from "../utils/CustomLink";
 import Footer from "../utils/Footer";
 import Loading from "../utils/Loading";
-import moment from "moment";
+import humanize from "humanize-duration";
 import default_thumbnail from "../assets/default_thumbnail.png";
 import { tooltipClasses } from "@mui/material/Tooltip";
 
@@ -226,7 +226,7 @@ const ChaptersMenu = (props) => {
                   </Box>
                   <Box sx={{ display: "flex", flexDirection: "column" }}>
                     <Typography color="inherit" variant="body2">{`${data.name}`}</Typography>
-                    <Typography variant="caption">{`${moment.duration(data.end, "seconds").humanize()}`}</Typography>
+                    <Typography variant="caption">{`${humanize(data.end * 1000)}`}</Typography>
                   </Box>
                 </Box>
               </MenuItem>

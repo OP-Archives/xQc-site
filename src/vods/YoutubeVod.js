@@ -5,10 +5,10 @@ import { useLocation, useParams } from "react-router-dom";
 import YoutubePlayer from "./YoutubePlayer";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import moment from "moment";
 import NotFound from "../utils/NotFound";
 import Chat from "./YoutubeChat";
 import { tooltipClasses } from "@mui/material/Tooltip";
+import humanize from "humanize-duration";
 
 const API_BASE = "https://api.xqc.wtf";
 
@@ -82,7 +82,7 @@ export default function Vod(props) {
 
   useEffect(() => {
     if (!youtube || !vod) return;
-    const vodDuration = moment.duration(vod.duration, "HH:mm:ss").asSeconds();
+    const vodDuration = toSeconds(vod.duration);
     let totalYoutubeDuration = 0;
     for (let data of youtube) {
       totalYoutubeDuration += data.duration;
@@ -154,7 +154,7 @@ export default function Vod(props) {
           </Collapse>
         </Box>
         {isMobile && <Divider />}
-        <Chat isMobile={isMobile} vodId={vodId} playerRef={playerRef} playing={playing} currentTime={currentTime} delay={delay} youtube={youtube} part={part} />
+        <Chat isMobile={isMobile} vodId={vodId} playerRef={playerRef} playing={playing} currentTime={currentTime} delay={delay} youtube={youtube} part={part} setPart={setPart} />
       </Box>
     </Box>
   );
@@ -225,7 +225,7 @@ const ChaptersMenu = (props) => {
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
                   <Typography color="inherit" variant="body2" noWrap>{`${data.name}`}</Typography>
-                  <Typography variant="caption" color="textSecondary" noWrap>{`${moment.duration(data.end, "seconds").humanize()}`}</Typography>
+                  <Typography variant="caption" color="textSecondary" noWrap>{`${humanize(data.end * 1000)}`}</Typography>
                 </Box>
               </Box>
             </MenuItem>
@@ -234,4 +234,10 @@ const ChaptersMenu = (props) => {
       </Menu>
     </Box>
   );
+};
+
+const toSeconds = (hms) => {
+  const time = hms.split(":");
+
+  return +time[0] * 60 * 60 + +time[1] * 60 + +time[2];
 };

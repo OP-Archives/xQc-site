@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, createRef, useCallback } from "reac
 import { Box, Typography, Tooltip, Divider, Collapse, styled, IconButton } from "@mui/material";
 import SimpleBar from "simplebar-react";
 import Loading from "../utils/Loading";
-import moment from "moment";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { collapseClasses } from "@mui/material/Collapse";
 
@@ -27,8 +26,9 @@ export default function Chat(props) {
   const cursor = useRef();
   const loopRef = useRef();
   const playRef = useRef();
-  const chatRef = createRef();
+  const chatRef = useRef();
   const stoppedAtIndex = useRef(0);
+  const newMessages = useRef();
 
   useEffect(() => {
     const loadChannelBadges = () => {
@@ -98,10 +98,230 @@ export default function Chat(props) {
     return time;
   }, [playerRef, props.youtube, props.delay, props.part.part]);
 
+  const buildComments = useCallback(() => {
+    if (!playerRef.current || comments.current.length === 0 || !cursor.current || stoppedAtIndex.current === null) return;
+    if (playerRef.current.getPlayerState() !== 1) return;
+
+    const time = getCurrentTime();
+    let lastIndex = comments.current.length - 1;
+    for (let i = stoppedAtIndex.current.valueOf(); i < comments.current.length; i++) {
+      if (comments.current[i].content_offset_seconds > time) {
+        lastIndex = i;
+        break;
+      }
+    }
+
+    if (stoppedAtIndex.current === lastIndex && stoppedAtIndex.current !== 0) return;
+
+    const fetchNextComments = () => {
+      fetch(`${API_BASE}/v1/vods/${vodId}/comments?cursor=${cursor.current}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          stoppedAtIndex.current = 0;
+          comments.current = response.comments;
+          cursor.current = response.cursor;
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    };
+
+    const transformBadges = (badges) => {
+      const badgeWrapper = [];
+
+      for (const badge of badges) {
+        let foundBadge = false;
+        if (channelBadges.current) {
+          for (let channelBadge of channelBadges.current) {
+            if (badge._id !== channelBadge.set_id) continue;
+            for (let badgeVersion of channelBadge.versions) {
+              if (badgeVersion.id !== badge.version) continue;
+              badgeWrapper.push(
+                <img
+                  key={badgesCount++}
+                  crossOrigin="anonymous"
+                  style={{ display: "inline-block", minWidth: "1rem", height: "1rem", margin: "0 .2rem .1rem 0", backgroundPosition: "50%", verticalAlign: "middle" }}
+                  src={badgeVersion.image_url_1x}
+                  alt=""
+                />
+              );
+              foundBadge = true;
+            }
+          }
+          if (foundBadge) continue;
+        }
+
+        if (!globalTwitchBadges.current) continue;
+        const twitchBadge = globalTwitchBadges.current[badge._id];
+        if (!twitchBadge) continue;
+        badgeWrapper.push(
+          <img
+            key={badgesCount++}
+            crossOrigin="anonymous"
+            style={{ display: "inline-block", minWidth: "1rem", height: "1rem", margin: "0 .2rem .1rem 0", backgroundPosition: "50%", verticalAlign: "middle" }}
+            src={`${BASE_TWITCH_CDN}/badges/v1/${twitchBadge.versions[badge.version] ? twitchBadge.versions[badge.version].image_url_1x : twitchBadge.versions[0].image_url_1x}`}
+            alt=""
+          />
+        );
+      }
+
+      return <Box sx={{ display: "inline" }}>{badgeWrapper}</Box>;
+    };
+
+    const transformMessage = (message) => {
+      if (!message) return;
+      const textFragments = [];
+      for (let i = 0; i < message.length; i++) {
+        const fragment = message[i];
+        if (!fragment.emoticon) {
+          let textArray = fragment.text.split(" ");
+
+          for (let text of textArray) {
+            let found;
+            for (let j = 0; j < emotes.current.ffz_emotes.length; j++) {
+              const emote = emotes.current.ffz_emotes[j];
+              if (text === emote.code) {
+                found = true;
+                textFragments.push(
+                  <Box key={messageCount++} style={{ display: "inline" }}>
+                    <img
+                      crossOrigin="anonymous"
+                      style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
+                      src={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1`}
+                      srcSet={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1 1x, ${BASE_FFZ_EMOTE_CDN}/${emote.id}/2 2x, ${BASE_FFZ_EMOTE_CDN}/${emote.id}/4 4x`}
+                      alt=""
+                    />
+                    {` `}
+                  </Box>
+                );
+                break;
+              }
+              if (found) continue;
+            }
+
+            if (emotes.current.bttv_emotes) {
+              for (let j = 0; j < emotes.current.bttv_emotes.length; j++) {
+                const emote = emotes.current.bttv_emotes[j];
+                if (text === emote.code) {
+                  found = true;
+                  textFragments.push(
+                    <Box key={messageCount++} style={{ display: "inline" }}>
+                      <img
+                        style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
+                        src={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x`}
+                        srcSet={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/4x 4x`}
+                        alt=""
+                      />
+                      {` `}
+                    </Box>
+                  );
+                  break;
+                }
+              }
+              if (found) continue;
+            }
+
+            if (emotes.current["7tv_emotes"]) {
+              for (let j = 0; j < emotes.current["7tv_emotes"].length; j++) {
+                const emote = emotes.current["7tv_emotes"][j];
+                if (text === emote.code) {
+                  found = true;
+                  textFragments.push(
+                    <Box key={messageCount++} style={{ display: "inline" }}>
+                      <img
+                        crossOrigin="anonymous"
+                        style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
+                        src={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x`}
+                        srcSet={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/4x 4x`}
+                        alt=""
+                      />
+                      {` `}
+                    </Box>
+                  );
+                  break;
+                }
+              }
+              if (found) continue;
+            }
+
+            textFragments.push(<Typography variant="body1" display="inline" key={messageCount++}>{`${text} `}</Typography>);
+          }
+          continue;
+        }
+        textFragments.push(
+          <Box key={i + fragment.emoticon.emoticon_id} sx={{ display: "inline" }}>
+            <img
+              crossOrigin="anonymous"
+              style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
+              src={`${BASE_TWITCH_CDN}/emoticons/v2/${fragment.emoticon.emoticon_id}/default/dark/1.0`}
+              srcSet={
+                fragment.emoticon.emoticon_set_id &&
+                `${BASE_TWITCH_CDN}/emoticons/v2/${fragment.emoticon.emoticon_set_id}/default/dark/1.0 1x, ${BASE_TWITCH_CDN}/emoticons/v2/${fragment.emoticon.emoticon_set_id}/default/dark/2.0 2x`
+              }
+              alt=""
+            />
+          </Box>
+        );
+      }
+      return <Box sx={{ display: "inline" }}>{textFragments}</Box>;
+    };
+
+    const messages = [];
+    for (let i = stoppedAtIndex.current.valueOf(); i < lastIndex; i++) {
+      const comment = comments.current[i];
+      if (!comment.message) continue;
+      messages.push(
+        <Box key={comment.id} ref={createRef()} sx={{ width: "100%" }}>
+          <Box sx={{ alignItems: "flex-start", display: "flex", flexWrap: "nowrap", width: "100%", pl: 0.5, pt: 0.5, pr: 0.5 }}>
+            <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+              <Box sx={{ display: "inline", pl: 1, pr: 1 }}>
+                <Typography variant="caption" color="textSecondary">
+                  {toHHMMSS(comment.content_offset_seconds)}
+                </Typography>
+              </Box>
+              <Box sx={{ flexGrow: 1 }}>
+                {comment.user_badges && transformBadges(comment.user_badges)}
+                <Box sx={{ textDecoration: "none", display: "inline" }}>
+                  <span style={{ color: comment.user_color, fontWeight: 600 }}>{comment.display_name}</span>
+                </Box>
+                <Box sx={{ display: "inline" }}>
+                  <span>: </span>
+                  {transformMessage(comment.message)}
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      );
+    }
+
+    newMessages.current = messages;
+
+    setShownMessages((shownMessages) => {
+      const concatMessages = shownMessages.concat(messages);
+      if (concatMessages.length > 200) concatMessages.splice(0, messages.length);
+
+      return concatMessages;
+    });
+    stoppedAtIndex.current = lastIndex;
+    if (comments.current.length - 1 === lastIndex) fetchNextComments();
+  }, [getCurrentTime, playerRef, vodId]);
+
+  const loop = useCallback(() => {
+    if (loopRef.current !== null) clearInterval(loopRef.current);
+    buildComments();
+    loopRef.current = setInterval(buildComments, 1000);
+  }, [buildComments]);
+
   useEffect(() => {
     if (!playing.playing || stoppedAtIndex.current === undefined) return;
-    const fetchComments = async (offset = 0) => {
-      await fetch(`${API_BASE}/v1/vods/${vodId}/comments?content_offset_seconds=${offset}`, {
+    const fetchComments = (offset = 0) => {
+      fetch(`${API_BASE}/v1/vods/${vodId}/comments?content_offset_seconds=${offset}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -128,253 +348,43 @@ export default function Chat(props) {
           stoppedAtIndex.current = 0;
           setShownMessages([]);
         }
+        loop();
         return;
       }
     }
     if (playRef.current) clearTimeout(playRef.current);
     playRef.current = setTimeout(() => {
+      stopLoop();
       stoppedAtIndex.current = 0;
       comments.current = [];
       cursor.current = null;
       setShownMessages([]);
       fetchComments(time);
+      loop();
     }, 300);
-  }, [playing, vodId, getCurrentTime]);
-
-  useEffect(() => {
-    const loop = () => {
-      if (loopRef.current !== null) clearTimeout(loopRef.current);
-      loopRef.current = setTimeout(() => {
-        buildComments();
-        loop();
-      }, 750);
-    };
-
-    const fetchNextComments = async () => {
-      await fetch(`${API_BASE}/v1/vods/${vodId}/comments?cursor=${cursor.current}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          comments.current = comments.current.concat(response.comments);
-          cursor.current = response.cursor;
-        })
-        .catch((e) => {
-          console.error(e);
-        });
-    };
-
-    const buildComments = async () => {
-      if (!playerRef.current || comments.current.length === 0 || !cursor.current || stoppedAtIndex.current === null) return;
-      if (playerRef.current.getPlayerState() !== 1) return;
-
-      const time = getCurrentTime();
-      let lastIndex = comments.current.length - 1;
-      for (let i = stoppedAtIndex.current.valueOf(); i < comments.current.length; i++) {
-        if (comments.current[i].content_offset_seconds > time) {
-          lastIndex = i;
-          break;
-        }
-      }
-
-      if (comments.current.length - 1 === lastIndex) await fetchNextComments();
-      if (stoppedAtIndex.current === lastIndex && stoppedAtIndex.current !== 0) return;
-
-      const transformBadges = (badges) => {
-        const badgeWrapper = [];
-
-        for (const badge of badges) {
-          let foundBadge = false;
-          if (channelBadges.current) {
-            for (let channelBadge of channelBadges.current) {
-              if (badge._id !== channelBadge.set_id) continue;
-              for (let badgeVersion of channelBadge.versions) {
-                if (badgeVersion.id !== badge.version) continue;
-                badgeWrapper.push(
-                  <img
-                    key={badgesCount++}
-                    crossOrigin="anonymous"
-                    style={{ display: "inline-block", minWidth: "1rem", height: "1rem", margin: "0 .2rem .1rem 0", backgroundPosition: "50%", verticalAlign: "middle" }}
-                    src={badgeVersion.image_url_1x}
-                    alt=""
-                  />
-                );
-                foundBadge = true;
-              }
-            }
-            if (foundBadge) continue;
-          }
-
-          if (!globalTwitchBadges.current) continue;
-          const twitchBadge = globalTwitchBadges.current[badge._id];
-          if (!twitchBadge) continue;
-          badgeWrapper.push(
-            <img
-              key={badgesCount++}
-              crossOrigin="anonymous"
-              style={{ display: "inline-block", minWidth: "1rem", height: "1rem", margin: "0 .2rem .1rem 0", backgroundPosition: "50%", verticalAlign: "middle" }}
-              src={`${BASE_TWITCH_CDN}/badges/v1/${twitchBadge.versions[badge.version] ? twitchBadge.versions[badge.version].image_url_1x : twitchBadge.versions[0].image_url_1x}`}
-              alt=""
-            />
-          );
-        }
-
-        return <Box sx={{ display: "inline" }}>{badgeWrapper}</Box>;
-      };
-
-      const transformMessage = (message) => {
-        if (!message) return;
-        const textFragments = [];
-        for (let i = 0; i < message.length; i++) {
-          const fragment = message[i];
-          if (!fragment.emoticon) {
-            let textArray = fragment.text.split(" ");
-
-            for (let text of textArray) {
-              let found;
-              for (let j = 0; j < emotes.current.ffz_emotes.length; j++) {
-                const emote = emotes.current.ffz_emotes[j];
-                if (text === emote.code) {
-                  found = true;
-                  textFragments.push(
-                    <Box key={messageCount++} style={{ display: "inline" }}>
-                      <img
-                        crossOrigin="anonymous"
-                        style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-                        src={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1`}
-                        srcSet={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1 1x, ${BASE_FFZ_EMOTE_CDN}/${emote.id}/2 2x, ${BASE_FFZ_EMOTE_CDN}/${emote.id}/4 4x`}
-                        alt=""
-                      />
-                      {` `}
-                    </Box>
-                  );
-                  break;
-                }
-                if (found) continue;
-              }
-
-              if (emotes.current.bttv_emotes) {
-                for (let j = 0; j < emotes.current.bttv_emotes.length; j++) {
-                  const emote = emotes.current.bttv_emotes[j];
-                  if (text === emote.code) {
-                    found = true;
-                    textFragments.push(
-                      <Box key={messageCount++} style={{ display: "inline" }}>
-                        <img
-                          style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-                          src={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x`}
-                          srcSet={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/4x 4x`}
-                          alt=""
-                        />
-                        {` `}
-                      </Box>
-                    );
-                    break;
-                  }
-                }
-                if (found) continue;
-              }
-
-              if (emotes.current["7tv_emotes"]) {
-                for (let j = 0; j < emotes.current["7tv_emotes"].length; j++) {
-                  const emote = emotes.current["7tv_emotes"][j];
-                  if (text === emote.code) {
-                    found = true;
-                    textFragments.push(
-                      <Box key={messageCount++} style={{ display: "inline" }}>
-                        <img
-                          crossOrigin="anonymous"
-                          style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-                          src={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x`}
-                          srcSet={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/4x 4x`}
-                          alt=""
-                        />
-                        {` `}
-                      </Box>
-                    );
-                    break;
-                  }
-                }
-                if (found) continue;
-              }
-
-              textFragments.push(<Typography variant="body1" display="inline" key={messageCount++}>{`${text} `}</Typography>);
-            }
-            continue;
-          }
-          textFragments.push(
-            <Box key={i + fragment.emoticon.emoticon_id} sx={{ display: "inline" }}>
-              <img
-                crossOrigin="anonymous"
-                style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-                src={`${BASE_TWITCH_CDN}/emoticons/v2/${fragment.emoticon.emoticon_id}/default/dark/1.0`}
-                srcSet={
-                  fragment.emoticon.emoticon_set_id &&
-                  `${BASE_TWITCH_CDN}/emoticons/v2/${fragment.emoticon.emoticon_set_id}/default/dark/1.0 1x, ${BASE_TWITCH_CDN}/emoticons/v2/${fragment.emoticon.emoticon_set_id}/default/dark/2.0 2x`
-                }
-                alt=""
-              />
-            </Box>
-          );
-        }
-        return <Box sx={{ display: "inline" }}>{textFragments}</Box>;
-      };
-
-      const messages = [];
-      for (let i = stoppedAtIndex.current.valueOf(); i < lastIndex; i++) {
-        const comment = comments.current[i];
-        if (!comment.message) continue;
-        messages.push(
-          <Box key={comment.id} sx={{ width: "100%" }}>
-            <Box sx={{ alignItems: "flex-start", display: "flex", flexWrap: "nowrap", width: "100%", pl: 0.5, pt: 0.5, pr: 0.5 }}>
-              <Box sx={{ display: "flex", alignItems: "flex-start" }}>
-                <Box sx={{ display: "inline", pl: 1, pr: 1 }}>
-                  <Typography variant="caption" color="textSecondary">
-                    {moment.utc(comment.content_offset_seconds * 1000).format("HH:mm:ss")}
-                  </Typography>
-                </Box>
-                <Box sx={{ flexGrow: 1 }}>
-                  {comment.user_badges && transformBadges(comment.user_badges)}
-                  <Box sx={{ textDecoration: "none", display: "inline" }}>
-                    <span style={{ color: comment.user_color, fontWeight: 600 }}>{comment.display_name}</span>
-                  </Box>
-                  <Box sx={{ display: "inline" }}>
-                    <span>: </span>
-                    {transformMessage(comment.message)}
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-          </Box>
-        );
-      }
-
-      setShownMessages((shownMessages) => {
-        const concatMessages = shownMessages.concat(messages);
-        if (concatMessages.length > 200) concatMessages.splice(0, concatMessages.length - 200);
-
-        return concatMessages;
-      });
-      stoppedAtIndex.current = lastIndex;
-    };
-    buildComments();
-    loop();
     return () => {
       stopLoop();
     };
-  }, [getCurrentTime, playerRef, vodId]);
+  }, [playing, vodId, getCurrentTime, loop]);
 
   const stopLoop = () => {
-    if (loopRef.current !== null) clearTimeout(loopRef.current);
+    if (loopRef.current !== null) clearInterval(loopRef.current);
   };
 
   useEffect(() => {
-    if (!chatRef.current) return;
-    chatRef.current.scrollTop = chatRef.current.scrollHeight;
-  }, [shownMessages, chatRef]);
+    if (!chatRef.current || shownMessages.length === 0) return;
+    if (chatRef.current.scrollHeight === chatRef.current.offsetHeight) return;
+
+    let messageHeight = 0;
+    for (let message of newMessages.current) {
+      if (!message.ref.current) continue;
+      messageHeight += message.ref.current.scrollHeight;
+    }
+
+    if (chatRef.current.scrollHeight - messageHeight <= chatRef.current.scrollTop + chatRef.current.offsetHeight + 300) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }
+  }, [shownMessages]);
 
   const handleExpandClick = () => {
     setShowChat(!showChat);
@@ -425,6 +435,18 @@ export default function Chat(props) {
     </Box>
   );
 }
+
+const toHHMMSS = (secs) => {
+  var sec_num = parseInt(secs, 10);
+  var hours = Math.floor(sec_num / 3600);
+  var minutes = Math.floor(sec_num / 60) % 60;
+  var seconds = sec_num % 60;
+
+  return [hours, minutes, seconds]
+    .map((v) => (v < 10 ? "0" + v : v))
+    .filter((v, i) => v !== "00" || i > 0)
+    .join(":");
+};
 
 const CustomCollapse = styled(({ _, ...props }) => <Collapse {...props} />)({
   [`& .${collapseClasses.wrapper}`]: {
