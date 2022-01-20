@@ -78,7 +78,7 @@ export default function Vods() {
   return (
     <SimpleBar style={{ height: "calc(100% - 64px)" }}>
       <Box sx={{ padding: 2 }}>
-        <Box sx={{ mt: 1, justifyContent: "center" }}>
+        <Box sx={{ display: "flex", mt: 1, justifyContent: "center" }}>
           <ErrorBoundary>
             <AdSense.Google client="ca-pub-8093490837210586" slot="3667265818" style={{ display: "block" }} format="auto" responsive="true" layoutKey="-gw-1+2a-9x+5c" />
           </ErrorBoundary>
@@ -86,7 +86,7 @@ export default function Vods() {
         <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
           {vods}
         </Grid>
-        <Box sx={{ mt: 1, justifyContent: "center" }}>
+        <Box sx={{ display: "flex", mt: 1, justifyContent: "center" }}>
           <ErrorBoundary>
             <AdSense.Google client="ca-pub-8093490837210586" slot="3667265818" style={{ display: "block" }} format="auto" responsive="true" layoutKey="-gw-1+2a-9x+5c" />
           </ErrorBoundary>
