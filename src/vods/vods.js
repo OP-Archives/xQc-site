@@ -226,7 +226,7 @@ const ChaptersMenu = (props) => {
                   </Box>
                   <Box sx={{ display: "flex", flexDirection: "column" }}>
                     <Typography color="inherit" variant="body2">{`${data.name}`}</Typography>
-                    <Typography variant="caption">{`${humanize(data.end * 1000)}`}</Typography>
+                    <Typography variant="caption">{`${humanize(data.end * 1000, { largest: 2 })}`}</Typography>
                   </Box>
                 </Box>
               </MenuItem>

@@ -5,6 +5,7 @@ import Vods from "./vods/vods";
 import YoutubeVod from "./vods/YoutubeVod";
 import Navbar from "./navbar";
 import NotFound from "./utils/NotFound";
+import CustomVod from "./vods/CustomVod";
 
 export default function App() {
   let darkTheme = createTheme({
@@ -63,6 +64,24 @@ export default function App() {
             element={
               <Parent>
                 <YoutubeVod type="live" />
+              </Parent>
+            }
+          />
+          <Route
+            exact
+            path="/manual/:vodId"
+            element={
+              <Parent>
+                <CustomVod type="manual" />
+              </Parent>
+            }
+          />
+          <Route
+            exact
+            path="/cdn/:vodId"
+            element={
+              <Parent>
+                <CustomVod type="cdn" />
               </Parent>
             }
           />
