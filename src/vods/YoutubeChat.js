@@ -183,70 +183,74 @@ export default function Chat(props) {
 
           for (let text of textArray) {
             let found;
-            for (let j = 0; j < emotes.current.ffz_emotes.length; j++) {
-              const emote = emotes.current.ffz_emotes[j];
-              if (text === emote.code) {
-                found = true;
-                textFragments.push(
-                  <Box key={messageCount++} style={{ display: "inline" }}>
-                    <img
-                      crossOrigin="anonymous"
-                      style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-                      src={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1`}
-                      srcSet={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1 1x, ${BASE_FFZ_EMOTE_CDN}/${emote.id}/2 2x, ${BASE_FFZ_EMOTE_CDN}/${emote.id}/4 4x`}
-                      alt=""
-                    />
-                    {` `}
-                  </Box>
-                );
-                break;
-              }
-              if (found) continue;
-            }
-
-            if (emotes.current.bttv_emotes) {
-              for (let j = 0; j < emotes.current.bttv_emotes.length; j++) {
-                const emote = emotes.current.bttv_emotes[j];
-                if (text === emote.code) {
-                  found = true;
-                  textFragments.push(
-                    <Box key={messageCount++} style={{ display: "inline" }}>
-                      <img
-                        style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-                        src={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x`}
-                        srcSet={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/4x 4x`}
-                        alt=""
-                      />
-                      {` `}
-                    </Box>
-                  );
-                  break;
+            if (emotes.current) {
+              if (emotes.current.ffz_emotes) {
+                for (let j = 0; j < emotes.current.ffz_emotes.length; j++) {
+                  const emote = emotes.current.ffz_emotes[j];
+                  if (text === emote.code) {
+                    found = true;
+                    textFragments.push(
+                      <Box key={messageCount++} style={{ display: "inline" }}>
+                        <img
+                          crossOrigin="anonymous"
+                          style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
+                          src={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1`}
+                          srcSet={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1 1x, ${BASE_FFZ_EMOTE_CDN}/${emote.id}/2 2x, ${BASE_FFZ_EMOTE_CDN}/${emote.id}/4 4x`}
+                          alt=""
+                        />
+                        {` `}
+                      </Box>
+                    );
+                    break;
+                  }
+                  if (found) continue;
                 }
               }
-              if (found) continue;
-            }
 
-            if (emotes.current["7tv_emotes"]) {
-              for (let j = 0; j < emotes.current["7tv_emotes"].length; j++) {
-                const emote = emotes.current["7tv_emotes"][j];
-                if (text === emote.code) {
-                  found = true;
-                  textFragments.push(
-                    <Box key={messageCount++} style={{ display: "inline" }}>
-                      <img
-                        crossOrigin="anonymous"
-                        style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-                        src={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x`}
-                        srcSet={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/4x 4x`}
-                        alt=""
-                      />
-                      {` `}
-                    </Box>
-                  );
-                  break;
+              if (emotes.current.bttv_emotes) {
+                for (let j = 0; j < emotes.current.bttv_emotes.length; j++) {
+                  const emote = emotes.current.bttv_emotes[j];
+                  if (text === emote.code) {
+                    found = true;
+                    textFragments.push(
+                      <Box key={messageCount++} style={{ display: "inline" }}>
+                        <img
+                          style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
+                          src={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x`}
+                          srcSet={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/4x 4x`}
+                          alt=""
+                        />
+                        {` `}
+                      </Box>
+                    );
+                    break;
+                  }
                 }
+                if (found) continue;
               }
-              if (found) continue;
+
+              if (emotes.current["7tv_emotes"]) {
+                for (let j = 0; j < emotes.current["7tv_emotes"].length; j++) {
+                  const emote = emotes.current["7tv_emotes"][j];
+                  if (text === emote.code) {
+                    found = true;
+                    textFragments.push(
+                      <Box key={messageCount++} style={{ display: "inline" }}>
+                        <img
+                          crossOrigin="anonymous"
+                          style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
+                          src={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x`}
+                          srcSet={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/4x 4x`}
+                          alt=""
+                        />
+                        {` `}
+                      </Box>
+                    );
+                    break;
+                  }
+                }
+                if (found) continue;
+              }
             }
 
             textFragments.push(<Typography variant="body1" display="inline" key={messageCount++}>{`${text} `}</Typography>);
