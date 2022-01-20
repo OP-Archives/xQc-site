@@ -23,7 +23,7 @@ export default function Vod(props) {
   const [currentTime, setCurrentTime] = useState(undefined);
   const [playing, setPlaying] = useState({ playing: false });
   const search = new URLSearchParams(location.search);
-  const initalDuration = search.get("duration") !== null ? parseInt(search.get("duration")) : 0;
+  const [initalDuration, setInitalDuration] = useState(search.get("duration") !== null ? parseInt(search.get("duration")) : 0);
   const [delay, setDelay] = useState(undefined);
   const playerRef = React.useRef(null);
 
@@ -87,7 +87,7 @@ export default function Vod(props) {
           )}
           <Collapse in={showMenu} timeout="auto" unmountOnExit sx={{ minHeight: "auto !important", width: "100%" }}>
             <Box sx={{ display: "flex", p: 1, alignItems: "center" }}>
-              {chapter && <ChaptersMenu chapters={vod.chapters} chapter={chapter} setChapter={setChapter} />}
+              {chapter && <ChaptersMenu chapters={vod.chapters} chapter={chapter} setChapter={setChapter} setInitalDuration={setInitalDuration} />}
               <CustomWidthTooltip title={vod.title}>
                 <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", ml: 1 }}>
                   <Typography>{`${vod.title}`}</Typography>
@@ -133,7 +133,7 @@ const ExpandMore = styled(React.forwardRef(({ expand, ...props }, ref) => <IconB
 `;
 
 const ChaptersMenu = (props) => {
-  const { chapters, chapter, setPart, youtube, setChapter } = props;
+  const { chapters, chapter, setInitalDuration, setChapter } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleClose = () => {
@@ -145,18 +145,8 @@ const ChaptersMenu = (props) => {
   };
 
   const handleChapterClick = (data) => {
-    let part = 1,
-      duration = data.start;
-    if (duration > 0) {
-      for (let data of youtube) {
-        if (data.duration > duration) {
-          part = data.part;
-          break;
-        }
-        duration -= data.duration;
-      }
-    }
-    setPart({ part: part, duration: duration });
+    let duration = data.start;
+    setInitalDuration(duration);
     setChapter(data);
   };
 
