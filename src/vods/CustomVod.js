@@ -145,9 +145,9 @@ const ChaptersMenu = (props) => {
   };
 
   const handleChapterClick = (data) => {
-    let duration = data.start;
-    setInitalDuration(duration);
+    setInitalDuration(data.start);
     setChapter(data);
+    setAnchorEl(null);
   };
 
   return (
