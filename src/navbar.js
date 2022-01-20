@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { AppBar, Toolbar, Box, Typography, MenuItem, Autocomplete, TextField, CircularProgress } from "@mui/material";
+import { AppBar, Toolbar, Box, Typography, MenuItem, Autocomplete, TextField, CircularProgress, useMediaQuery } from "@mui/material";
 import Logo from "./assets/logo.png";
 import CustomLink from "./utils/CustomLink";
 import default_thumbnail from "./assets/default_thumbnail.png";
@@ -7,6 +7,7 @@ import default_thumbnail from "./assets/default_thumbnail.png";
 const API_BASE = "https://api.xqc.wtf";
 
 export default function NavBar() {
+  const isMobile = useMediaQuery("(max-width: 600px)");
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState(undefined);
   const [searchResults, setSearchResults] = useState([]);
@@ -46,7 +47,7 @@ export default function NavBar() {
   }, [search]);
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flex: 1 }}>
       <AppBar position="static">
         <Toolbar>
           <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
@@ -63,48 +64,52 @@ export default function NavBar() {
             </Typography>
           </Box>
 
-          <Autocomplete
-            freeSolo
-            disableClearable
-            options={searchResults}
-            getOptionLabel={(vod) => (vod ? vod.id : "")}
-            filterOptions={(options, _) => options}
-            loading={loading}
-            renderOption={(props, vod) => {
-              return (
-                <MenuItem {...props}>
-                  <CustomLink href={vod.youtube.length > 0 ? `/youtube/${vod.id}` : `/manual/${vod.id}`} sx={{ width: "100%", display: "flex" }}>
-                    <Box sx={{ mr: 1 }}>
-                      <img alt="" src={vod.thumbnail_url ? vod.thumbnail_url : default_thumbnail} style={{ width: "128px", height: "72px" }} />
-                    </Box>
-                    <Box sx={{ width: "100%", display: "flex", flexDirection: "column", minWidth: 0 }}>
-                      <Typography color="inherit" variant="body2" noWrap>{`${vod.title}`}</Typography>
-                      <Typography color="textSecondary" variant="caption" noWrap>{`${vod.date}`}</Typography>
-                    </Box>
-                  </CustomLink>
-                </MenuItem>
-              );
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Search"
-                InputProps={{
-                  ...params.InputProps,
-                  type: "search",
-                  endAdornment: (
-                    <React.Fragment>
-                      {loading ? <CircularProgress color="inherit" size={20} /> : null}
-                      {params.InputProps.endAdornment}
-                    </React.Fragment>
-                  ),
+          {!isMobile && (
+            <>
+              <Autocomplete
+                freeSolo
+                disableClearable
+                options={searchResults}
+                getOptionLabel={(vod) => (vod ? vod.id : "")}
+                filterOptions={(options, _) => options}
+                loading={loading}
+                renderOption={(props, vod) => {
+                  return (
+                    <MenuItem {...props}>
+                      <CustomLink href={vod.youtube.length > 0 ? `/youtube/${vod.id}` : `/manual/${vod.id}`} sx={{ width: "100%", display: "flex" }}>
+                        <Box sx={{ mr: 1 }}>
+                          <img alt="" src={vod.thumbnail_url ? vod.thumbnail_url : default_thumbnail} style={{ width: "128px", height: "72px" }} />
+                        </Box>
+                        <Box sx={{ width: "100%", display: "flex", flexDirection: "column", minWidth: 0 }}>
+                          <Typography color="inherit" variant="body2" noWrap>{`${vod.title}`}</Typography>
+                          <Typography color="textSecondary" variant="caption" noWrap>{`${vod.date}`}</Typography>
+                        </Box>
+                      </CustomLink>
+                    </MenuItem>
+                  );
                 }}
-                onChange={onChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Search"
+                    InputProps={{
+                      ...params.InputProps,
+                      type: "search",
+                      endAdornment: (
+                        <React.Fragment>
+                          {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </React.Fragment>
+                      ),
+                    }}
+                    onChange={onChange}
+                  />
+                )}
+                sx={{ flex: 1, pt: 1, pb: 1 }}
               />
-            )}
-            sx={{ flex: 1, pt: 1, pb: 1 }}
-          />
-          <Box sx={{ flex: 1 }} />
+              <Box sx={{ flex: 1 }} />
+            </>
+          )}
         </Toolbar>
       </AppBar>
     </Box>
