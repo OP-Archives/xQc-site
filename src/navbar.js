@@ -88,7 +88,7 @@ export default function NavBar() {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Search input"
+                label="Search"
                 InputProps={{
                   ...params.InputProps,
                   type: "search",
