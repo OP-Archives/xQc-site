@@ -98,4 +98,7 @@ const Parent = styled((props) => <div {...props} />)`
   bottom: 0;
   left: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 `;
