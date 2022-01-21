@@ -92,7 +92,7 @@ export default function Player(props) {
 
     const set = async () => {
       let playerDuration = playerRef.current.duration();
-      while (isNaN(playerDuration)) {
+      while (isNaN(playerDuration) || playerDuration === 0) {
         playerDuration = playerRef.current.duration();
         await sleep(100);
       }
