@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Box, Typography, Button, MenuItem, Pagination, Grid, Tooltip, Paper, styled, Modal } from "@mui/material";
+import { Box, Typography, Button, MenuItem, Pagination, Grid, Tooltip, Paper, styled, Modal, useMediaQuery } from "@mui/material";
 import SimpleBar from "simplebar-react";
 import ErrorBoundary from "../utils/ErrorBoundary";
 import AdSense from "react-adsense";
@@ -16,6 +16,7 @@ const limit = 50;
 const API_BASE = "https://api.xqc.wtf";
 
 export default function Vods() {
+  const isMobile = useMediaQuery("(max-width: 600px)");
   const [vods, setVods] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [page, setPage] = React.useState(null);
@@ -33,11 +34,7 @@ export default function Vods() {
         .then((response) => response.json())
         .then((response) => {
           setPage(1);
-          setVods(
-            response.data.map((vod, i) => {
-              return <Vod key={vod.id} vod={vod} />;
-            })
-          );
+          setVods(response.data);
           setTotalPages(Math.floor(response.total / limit));
           setLoading(false);
         })
@@ -63,12 +60,7 @@ export default function Vods() {
       .then((response) => response.json())
       .then((response) => {
         if (response.data.length === 0) return;
-
-        setVods(
-          response.data.map((vod, i) => {
-            return <Vod key={vod.id} vod={vod} />;
-          })
-        );
+        setVods(response.data);
       })
       .catch((e) => {
         console.error(e);
@@ -86,7 +78,9 @@ export default function Vods() {
           </ErrorBoundary>
         </Box>
         <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
-          {vods}
+          {vods.map((vod, i) => (
+            <Vod key={vod.id} vod={vod} isMobile={isMobile} />
+          ))}
         </Grid>
         <Box sx={{ display: "flex", mt: 1, justifyContent: "center" }}>
           <ErrorBoundary>
@@ -103,7 +97,7 @@ export default function Vods() {
 }
 
 const Vod = (props) => {
-  const { vod } = props;
+  const { vod, isMobile } = props;
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -165,7 +159,7 @@ const Vod = (props) => {
           <Box sx={{ m: 1, display: "flex", justifyContent: "center", textTransform: "uppercase" }}>
             <Typography variant="h5">Watch on</Typography>
           </Box>
-          <Box sx={{ display: "flex", m: 1 }}>
+          <Box sx={{ display: "flex", m: 1, flexDirection: isMobile ? "column" : "row" }}>
             {vod.youtube.length > 0 && (
               <CustomLink href={`/youtube/${props.vod.id}`}>
                 <MenuItem>
