@@ -10,6 +10,7 @@ const BASE_TWITCH_CDN = "https://static-cdn.jtvnw.net";
 const BASE_FFZ_EMOTE_CDN = "https://cdn.frankerfacez.com/emote";
 const BASE_BTTV_EMOTE_CDN = "https://cdn.betterttv.net/emote";
 const BASE_7TV_EMOTE_CDN = "https://cdn.7tv.app/emote";
+const BASE_CORS_BYPASS = "https://cors.xqc.wtf";
 const API_BASE = "https://api.xqc.wtf";
 
 let messageCount = 0;
@@ -211,9 +212,10 @@ export default function Chat(props) {
                     textFragments.push(
                       <Box key={messageCount++} style={{ display: "inline" }}>
                         <img
+                          crossOrigin="anonymous"
                           style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-                          src={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x`}
-                          srcSet={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/4x 4x`}
+                          src={`${BASE_CORS_BYPASS}/${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x`}
+                          srcSet={`${BASE_CORS_BYPASS}/${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/4x 4x`}
                           alt=""
                         />
                         {` `}
