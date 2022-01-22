@@ -219,7 +219,7 @@ export default function Chat(props) {
                           crossOrigin="anonymous"
                           style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
                           src={`${BASE_CORS_BYPASS}/${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x`}
-                          srcSet={`${BASE_CORS_BYPASS}/${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/4x 4x`}
+                          srcSet={`${BASE_CORS_BYPASS}/${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_CORS_BYPASS}/${BASE_BTTV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_CORS_BYPASS}/${BASE_BTTV_EMOTE_CDN}/${emote.id}/4x 4x`}
                           alt=""
                         />
                         {` `}
