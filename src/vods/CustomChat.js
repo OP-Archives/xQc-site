@@ -188,13 +188,7 @@ export default function Chat(props) {
                     found = true;
                     textFragments.push(
                       <Box key={messageCount++} style={{ display: "inline" }}>
-                        <img
-                          crossOrigin="anonymous"
-                          style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-                          src={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1`}
-                          srcSet={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1 1x, ${BASE_FFZ_EMOTE_CDN}/${emote.id}/2 2x, ${BASE_FFZ_EMOTE_CDN}/${emote.id}/4 4x`}
-                          alt=""
-                        />
+                        <img crossOrigin="anonymous" style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }} src={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1`} alt="" />
                         {` `}
                       </Box>
                     );
@@ -211,13 +205,7 @@ export default function Chat(props) {
                     found = true;
                     textFragments.push(
                       <Box key={messageCount++} style={{ display: "inline" }}>
-                        <img
-                          crossOrigin="anonymous"
-                          style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-                          src={`${BASE_CORS_BYPASS}/${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x`}
-                          srcSet={`${BASE_CORS_BYPASS}/${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_CORS_BYPASS}/${BASE_BTTV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_CORS_BYPASS}/${BASE_BTTV_EMOTE_CDN}/${emote.id}/3x 3x`}
-                          alt=""
-                        />
+                        <img crossOrigin="anonymous" style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }} src={`${BASE_CORS_BYPASS}/${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x`} alt="" />
                         {` `}
                       </Box>
                     );
@@ -234,13 +222,7 @@ export default function Chat(props) {
                     found = true;
                     textFragments.push(
                       <Box key={messageCount++} style={{ display: "inline" }}>
-                        <img
-                          crossOrigin="anonymous"
-                          style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-                          src={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x`}
-                          srcSet={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/4x 4x`}
-                          alt=""
-                        />
+                        <img crossOrigin="anonymous" style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }} src={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x`} alt="" />
                         {` `}
                       </Box>
                     );
@@ -261,10 +243,6 @@ export default function Chat(props) {
               crossOrigin="anonymous"
               style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
               src={`${BASE_TWITCH_CDN}/emoticons/v2/${fragment.emoticon.emoticon_id}/default/dark/1.0`}
-              srcSet={
-                fragment.emoticon.emoticon_set_id &&
-                `${BASE_TWITCH_CDN}/emoticons/v2/${fragment.emoticon.emoticon_set_id}/default/dark/1.0 1x, ${BASE_TWITCH_CDN}/emoticons/v2/${fragment.emoticon.emoticon_set_id}/default/dark/2.0 2x`
-              }
               alt=""
             />
           </Box>
