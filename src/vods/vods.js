@@ -71,7 +71,7 @@ export default function Vods() {
   if (loading) return <Loading />;
 
   return (
-    <SimpleBar style={{ height: "100%" }}>
+    <SimpleBar style={{ maxHeight: "calc(100% - 4rem)" }}>
       <Box sx={{ padding: 2 }}>
         <Box sx={{ display: "flex", mt: 1, justifyContent: "center" }}>
           <ErrorBoundary>
