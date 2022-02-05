@@ -61,6 +61,7 @@ export default function Vods() {
       .then((response) => {
         if (response.data.length === 0) return;
         setVods(response.data);
+        setLoading(false);
       })
       .catch((e) => {
         console.error(e);
