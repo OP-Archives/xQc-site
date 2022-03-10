@@ -353,6 +353,7 @@ export default function Chat(props) {
 
   useEffect(() => {
     if (!chatRef.current || shownMessages.length === 0) return;
+    /*
     if (chatRef.current.scrollHeight === chatRef.current.offsetHeight) return;
 
     let messageHeight = 0;
@@ -363,7 +364,9 @@ export default function Chat(props) {
 
     if (chatRef.current.scrollHeight - messageHeight <= chatRef.current.scrollTop + chatRef.current.offsetHeight + 300) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }
+    }*/
+
+    chatRef.current.scrollTop = chatRef.current.scrollHeight;
   }, [shownMessages]);
 
   const handleExpandClick = () => {
