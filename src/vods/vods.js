@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Box, Typography, Button, MenuItem, Pagination, Grid, Tooltip, Paper, styled, Modal, useMediaQuery } from "@mui/material";
+import { Box, Typography, Button, MenuItem, Pagination, Grid, Tooltip, styled, useMediaQuery, Menu, Link } from "@mui/material";
 import SimpleBar from "simplebar-react";
 import ErrorBoundary from "../utils/ErrorBoundary";
 import AdSense from "react-adsense";
@@ -11,6 +11,7 @@ import { tooltipClasses } from "@mui/material/Tooltip";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import OndemandVideoIcon from "@mui/icons-material/OndemandVideo";
 import OpenInBrowserIcon from "@mui/icons-material/OpenInBrowser";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
 const limit = 50;
 const API_BASE = "https://api.xqc.wtf";
@@ -98,95 +99,64 @@ export default function Vods() {
 }
 
 const Vod = (props) => {
-  const { vod, isMobile } = props;
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const { vod } = props;
 
   return (
-    <>
-      <Grid item xs={2} sx={{ maxWidth: "18rem", flexBasis: "18rem" }}>
-        <Box
-          sx={{
-            overflow: "hidden",
-            height: 0,
-            paddingTop: "56.25%",
-            position: "relative",
-            "&:hover": {
-              boxShadow: "0 0 8px #fff",
-            },
-          }}
-        >
-          <Box sx={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
-            <Button onClick={handleOpen} sx={{ height: "100%", width: "100%" }}>
-              <img className="thumbnail" alt="" src={vod.thumbnail_url ? vod.thumbnail_url : default_thumbnail} />
-            </Button>
+    <Grid item xs={2} sx={{ maxWidth: "18rem", flexBasis: "18rem" }}>
+      <Box
+        sx={{
+          overflow: "hidden",
+          height: 0,
+          paddingTop: "56.25%",
+          position: "relative",
+          "&:hover": {
+            boxShadow: "0 0 8px #fff",
+          },
+        }}
+      >
+        <Link href={vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 ? `/cdn/${vod.id}` : `/manual/${vod.id}`}>
+          <img className="thumbnail" alt="" src={vod.thumbnail_url ? vod.thumbnail_url : default_thumbnail} />
+        </Link>
+        <Box sx={{ pointerEvents: "none", position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
+          <Box sx={{ position: "absolute", bottom: 0, left: 0 }}>
+            <Typography variant="caption" sx={{ padding: "0 .2rem", backgroundColor: "rgba(0,0,0,.6)" }}>
+              {`${vod.date}`}
+            </Typography>
           </Box>
-          <Box sx={{ pointerEvents: "none", position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
-            <Box sx={{ position: "absolute", bottom: 0, left: 0 }}>
-              <Typography variant="caption" sx={{ padding: "0 .2rem", backgroundColor: "rgba(0,0,0,.6)" }}>
-                {`${vod.date}`}
-              </Typography>
-            </Box>
+        </Box>
+        <Box sx={{ pointerEvents: "none", position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
+          <Box sx={{ position: "absolute", bottom: 0, right: 0 }}>
+            <Typography variant="caption" sx={{ padding: "0 .2rem", backgroundColor: "rgba(0,0,0,.6)" }}>
+              {`${vod.duration}`}
+            </Typography>
           </Box>
-          <Box sx={{ pointerEvents: "none", position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
-            <Box sx={{ position: "absolute", bottom: 0, right: 0 }}>
-              <Typography variant="caption" sx={{ padding: "0 .2rem", backgroundColor: "rgba(0,0,0,.6)" }}>
-                {`${vod.duration}`}
-              </Typography>
+        </Box>
+      </Box>
+      <Box sx={{ mt: 1, mb: 1 }}>
+        <Box sx={{ display: "flex", flexWrap: "nowrap", flexDirection: "column" }}>
+          <Box sx={{ flexGrow: 1, flexShrink: 1, width: "100%", minWidth: 0 }}>
+            <Box>
+              <CustomWidthTooltip title={vod.title} placement="bottom">
+                <span>
+                  <CustomLink
+                    component={Button}
+                    href={vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 ? `/cdn/${vod.id}` : `/manual/${vod.id}`}
+                    sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}
+                  >
+                    <Typography variant="caption" color="primary">
+                      {vod.title}
+                    </Typography>
+                  </CustomLink>
+                </span>
+              </CustomWidthTooltip>
             </Box>
           </Box>
         </Box>
-        <Box sx={{ mt: 1, mb: 1 }}>
-          <Box sx={{ display: "flex", flexWrap: "nowrap", flexDirection: "column" }}>
-            <Box sx={{ flexGrow: 1, flexShrink: 1, width: "100%", minWidth: 0 }}>
-              <Box>
-                <CustomWidthTooltip title={vod.title} placement="bottom">
-                  <span>
-                    <Button onClick={handleOpen} sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", width: "100%" }}>
-                      <Typography variant="caption" color="primary">
-                        {vod.title}
-                      </Typography>
-                    </Button>
-                  </span>
-                </CustomWidthTooltip>
-              </Box>
-            </Box>
-          </Box>
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <WatchMenu vod={vod} />
         </Box>
-      </Grid>
-      <Modal keepMounted open={open} onClose={handleClose} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-        <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-          <Box sx={{ m: 1, display: "flex", justifyContent: "center", textTransform: "uppercase" }}>
-            <Typography variant="h5">Watch on</Typography>
-          </Box>
-          <Box sx={{ display: "flex", m: 1, flexDirection: isMobile ? "column" : "row" }}>
-            {vod.youtube.length > 0 && (
-              <CustomLink href={`/youtube/${props.vod.id}`}>
-                <MenuItem>
-                  <YouTubeIcon sx={{ mr: 1 }} />
-                  Youtube
-                </MenuItem>
-              </CustomLink>
-            )}
-            {Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 && (
-              <CustomLink href={`/cdn/${props.vod.id}`}>
-                <MenuItem>
-                  <OndemandVideoIcon sx={{ mr: 1 }} />
-                  CDN
-                </MenuItem>
-              </CustomLink>
-            )}
-            <CustomLink href={`/manual/${props.vod.id}`}>
-              <MenuItem>
-                <OpenInBrowserIcon sx={{ mr: 1 }} />
-                Manual
-              </MenuItem>
-            </CustomLink>
-          </Box>
-        </Paper>
-      </Modal>
-    </>
+      </Box>
+    </Grid>
   );
 };
 
@@ -195,3 +165,49 @@ const CustomWidthTooltip = styled(({ className, ...props }) => <Tooltip {...prop
     maxWidth: "none",
   },
 });
+
+const WatchMenu = (props) => {
+  const { vod } = props;
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  return (
+    <Box>
+      <Button onClick={handleClick}>
+        <Typography variant="h7">Watch</Typography>
+        <PlayArrowIcon />
+      </Button>
+      <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
+        {vod.youtube.length > 0 && (
+          <CustomLink href={`/youtube/${props.vod.id}`}>
+            <MenuItem>
+              <YouTubeIcon sx={{ mr: 1 }} />
+              Youtube
+            </MenuItem>
+          </CustomLink>
+        )}
+        {Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 && (
+          <CustomLink href={`/cdn/${props.vod.id}`}>
+            <MenuItem>
+              <OndemandVideoIcon sx={{ mr: 1 }} />
+              CDN
+            </MenuItem>
+          </CustomLink>
+        )}
+        <CustomLink href={`/manual/${props.vod.id}`}>
+          <MenuItem>
+            <OpenInBrowserIcon sx={{ mr: 1 }} />
+            Manual
+          </MenuItem>
+        </CustomLink>
+      </Menu>
+    </Box>
+  );
+};
