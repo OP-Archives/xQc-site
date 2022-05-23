@@ -136,7 +136,7 @@ const Vod = (props) => {
         <Box sx={{ display: "flex", flexWrap: "nowrap", flexDirection: "column" }}>
           <Box sx={{ flexGrow: 1, flexShrink: 1, width: "100%", minWidth: 0 }}>
             <Box>
-              <CustomWidthTooltip title={vod.title} placement="bottom">
+              <CustomWidthTooltip title={vod.title} placement="top">
                 <span>
                   <CustomLink
                     component={Button}
