@@ -36,7 +36,7 @@ export default function Vods() {
         .then((response) => {
           setPage(1);
           setVods(response.data);
-          setTotalPages(Math.floor(response.total / limit));
+          setTotalPages(Math.ceil(response.total / limit));
           setLoading(false);
         })
         .catch((e) => {
