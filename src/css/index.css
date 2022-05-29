@@ -15,8 +15,10 @@ ul {
 
 a,
 a:visited,
-a:hover {
+a:hover,
+a:active {
   text-decoration: none !important;
+  color: inherit;
 }
 
 .thumbnail {
