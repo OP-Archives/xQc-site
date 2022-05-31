@@ -100,5 +100,4 @@ const Parent = styled((props) => <div {...props} />)`
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 `;
