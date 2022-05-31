@@ -12,6 +12,7 @@ import YouTubeIcon from "@mui/icons-material/YouTube";
 import OndemandVideoIcon from "@mui/icons-material/OndemandVideo";
 import OpenInBrowserIcon from "@mui/icons-material/OpenInBrowser";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import Chapters from "./Chapters";
 
 const limit = 50;
 const API_BASE = "https://api.xqc.wtf";
@@ -132,28 +133,31 @@ const Vod = (props) => {
           </Box>
         </Box>
       </Box>
-      <Box sx={{ mt: 1, mb: 1 }}>
-        <Box sx={{ display: "flex", flexWrap: "nowrap", flexDirection: "column" }}>
-          <Box sx={{ flexGrow: 1, flexShrink: 1, width: "100%", minWidth: 0 }}>
-            <Box>
-              <CustomWidthTooltip title={vod.title} placement="top">
-                <span>
-                  <CustomLink
-                    component={Button}
-                    href={vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 ? `/cdn/${vod.id}` : `/manual/${vod.id}`}
-                    sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}
-                  >
-                    <Typography variant="caption" color="primary">
-                      {vod.title}
-                    </Typography>
-                  </CustomLink>
-                </span>
-              </CustomWidthTooltip>
+      <Box sx={{ mt: 1, mb: 1, display: "flex", }}>
+        {vod.chapters && vod.chapters.length > 0 && <Chapters vod={vod} />}
+        <Box sx={{minWidth: 0}}>
+          <Box sx={{ display: "flex", flexWrap: "nowrap", flexDirection: "column" }}>
+            <Box sx={{ flexGrow: 1, flexShrink: 1, width: "100%", minWidth: 0 }}>
+              <Box>
+                <CustomWidthTooltip title={vod.title} placement="top">
+                  <span>
+                    <CustomLink
+                      component={Button}
+                      href={vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 ? `/cdn/${vod.id}` : `/manual/${vod.id}`}
+                      sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}
+                    >
+                      <Typography variant="caption" color="primary">
+                        {vod.title}
+                      </Typography>
+                    </CustomLink>
+                  </span>
+                </CustomWidthTooltip>
+              </Box>
             </Box>
           </Box>
-        </Box>
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <WatchMenu vod={vod} />
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <WatchMenu vod={vod} />
+          </Box>
         </Box>
       </Box>
     </Grid>
