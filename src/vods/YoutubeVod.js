@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Box, Typography, MenuItem, Tooltip, useMediaQuery, FormControl, InputLabel, Select, IconButton, Link, Collapse, styled, Menu, Divider } from "@mui/material";
+import React, { useEffect, useState, useMemo } from "react";
+import { Box, Typography, MenuItem, Tooltip, useMediaQuery, IconButton, Link, Collapse, styled, Menu, Divider, TextField, InputAdornment, FormControl, InputLabel, Select } from "@mui/material";
 import Loading from "../utils/Loading";
 import { useLocation, useParams } from "react-router-dom";
 import YoutubePlayer from "./YoutubePlayer";
@@ -9,6 +9,7 @@ import NotFound from "../utils/NotFound";
 import Chat from "./YoutubeChat";
 import { tooltipClasses } from "@mui/material/Tooltip";
 import humanize from "humanize-duration";
+import debounce from "lodash.debounce";
 
 const API_BASE = "https://api.xqc.wtf";
 
@@ -26,6 +27,7 @@ export default function Vod(props) {
   const [currentTime, setCurrentTime] = useState(undefined);
   const [playing, setPlaying] = useState({ playing: false });
   const [delay, setDelay] = useState(0);
+  const [userChatDelay, setUserChatDelay] = useState(0);
   const playerRef = React.useRef(null);
 
   useEffect(() => {
@@ -88,7 +90,6 @@ export default function Vod(props) {
       totalYoutubeDuration += data.duration;
     }
     const tmpDelay = vodDuration - totalYoutubeDuration < 0 ? 0 : vodDuration - totalYoutubeDuration;
-    console.info(`Chat Delay: ${tmpDelay} seconds`);
     setDelay(tmpDelay);
   }, [youtube, vod]);
 
@@ -100,6 +101,19 @@ export default function Vod(props) {
   const handleExpandClick = () => {
     setShowMenu(!showMenu);
   };
+
+  const delayChange = (evt) => {
+    if (evt.target.value.length === 0) return;
+    const value = Number(evt.target.value);
+    if (isNaN(value)) return;
+    setUserChatDelay(value);
+  };
+
+  const debouncedDelay = useMemo(() => debounce(delayChange, 300), []);
+
+  useEffect(() => {
+    console.info(`Chat Delay: ${userChatDelay + delay} seconds`);
+  }, [userChatDelay, delay]);
 
   if (vod === undefined || drive === undefined || chapter === undefined || part === undefined) return <Loading />;
 
@@ -150,11 +164,25 @@ export default function Vod(props) {
                   </Tooltip>
                 )}
               </Box>
+              <Box sx={{ ml: 1, mr: 1 }}>
+                <TextField
+                  inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                  InputProps={{
+                    endAdornment: <InputAdornment position="start">secs</InputAdornment>,
+                  }}
+                  sx={{ width: 100 }}
+                  onChange={debouncedDelay}
+                  label="Chat Delay"
+                  variant="filled"
+                  size="small"
+                  defaultValue={userChatDelay}
+                />
+              </Box>
             </Box>
           </Collapse>
         </Box>
         {isMobile && <Divider />}
-        <Chat isMobile={isMobile} vodId={vodId} playerRef={playerRef} playing={playing} delay={delay} youtube={youtube} part={part} setPart={setPart} />
+        <Chat isMobile={isMobile} vodId={vodId} playerRef={playerRef} playing={playing} delay={delay} youtube={youtube} part={part} setPart={setPart} userChatDelay={userChatDelay} />
       </Box>
     </Box>
   );

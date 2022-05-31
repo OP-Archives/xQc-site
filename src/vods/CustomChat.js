@@ -16,7 +16,7 @@ let messageCount = 0;
 let badgesCount = 0;
 
 export default function Chat(props) {
-  const { isMobile, vodId, playerRef, playing } = props;
+  const { isMobile, vodId, playerRef, playing, userChatDelay, delay } = props;
   const [showChat, setShowChat] = useState(true);
   const [shownMessages, setShownMessages] = useState([]);
   const comments = useRef([]);
@@ -90,12 +90,13 @@ export default function Chat(props) {
     if (!playerRef.current) return 0;
     let time = 0;
     time += playerRef.current.currentTime();
-    time += props.delay;
+    time += delay;
+    time += userChatDelay;
     return time;
-  }, [playerRef, props.delay]);
+  }, [playerRef, delay, userChatDelay]);
 
   const buildComments = useCallback(() => {
-    if (!playerRef.current || comments.current.length === 0 || !cursor.current || stoppedAtIndex.current === null) return;
+    if (!playerRef.current || !comments.current || comments.current.length === 0 || !cursor.current || stoppedAtIndex.current === null) return;
     if (playerRef.current.paused()) return;
 
     const time = getCurrentTime();
