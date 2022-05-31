@@ -135,7 +135,7 @@ const Vod = (props) => {
       </Box>
       <Box sx={{ mt: 1, mb: 1, display: "flex", }}>
         {vod.chapters && vod.chapters.length > 0 && <Chapters vod={vod} />}
-        <Box sx={{minWidth: 0}}>
+        <Box sx={{minWidth: 0, width: "100%"}}>
           <Box sx={{ display: "flex", flexWrap: "nowrap", flexDirection: "column" }}>
             <Box sx={{ flexGrow: 1, flexShrink: 1, width: "100%", minWidth: 0 }}>
               <Box>
