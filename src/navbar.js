@@ -5,6 +5,7 @@ import CustomLink from "./utils/CustomLink";
 import default_thumbnail from "./assets/default_thumbnail.png";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import SvgIcon from "@mui/material/SvgIcon";
+import RedditIcon from "@mui/icons-material/Reddit";
 
 const API_BASE = "https://api.xqc.wtf";
 
@@ -114,6 +115,11 @@ export default function NavBar() {
             )}
           </Box>
           <Box sx={{ display: "flex", justifyContent: "end", flex: 1 }}>
+            <Box sx={{ mr: 2 }}>
+              <a href="https://reddit.com/r/xqcow" rel="noopener noreferrer" target="_blank">
+                <RedditIcon />
+              </a>
+            </Box>
             <Box sx={{ mr: 2 }}>
               <a href="https://twitter.com/xqc" rel="noopener noreferrer" target="_blank">
                 <TwitterIcon />
