@@ -244,8 +244,8 @@ export default function Chat(props) {
             }
 
             textFragments.push(
-              <Twemoji noWrapper options={{ className: "twemoji" }}>
-                <Typography variant="body1" display="inline" key={messageCount++}>{`${text} `}</Typography>
+              <Twemoji key={messageCount++} noWrapper options={{ className: "twemoji" }}>
+                <Typography variant="body1" display="inline">{`${text} `}</Typography>
               </Twemoji>
             );
           }
