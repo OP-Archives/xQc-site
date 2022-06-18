@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useRef, createRef, useCallback } from "react";
-import { Box, Typography, Tooltip, Divider, Collapse, styled } from "@mui/material";
+import { Box, Typography, Tooltip, Divider, Collapse, styled, IconButton } from "@mui/material";
 import SimpleBar from "simplebar-react";
 import Loading from "../utils/Loading";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { collapseClasses } from "@mui/material/Collapse";
-import ExpandMore from "../utils/CustomExpandMore";
 import Twemoji from "react-twemoji";
 
 const GLOBAL_TWITCH_BADGES_API = "https://badges.twitch.tv/v1/badges/global/display?language=en";
@@ -451,3 +450,16 @@ const CustomCollapse = styled(({ _, ...props }) => <Collapse {...props} />)({
     height: "100%",
   },
 });
+
+const ExpandMore = styled(React.forwardRef(({ expand, ...props }, ref) => <IconButton {...props} />))`
+  margin-left: auto;
+  transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  ${(props) =>
+    props.expand
+      ? `
+          transform: rotate(-90deg);
+        `
+      : `
+          transform: rotate(90deg);
+        `}
+`;
