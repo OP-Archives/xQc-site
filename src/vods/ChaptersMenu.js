@@ -1,11 +1,12 @@
-import React from "react";
+import { useState } from "react";
 import { Box, IconButton, Menu, MenuItem, Typography, Tooltip } from "@mui/material";
 import CustomLink from "../utils/CustomLink";
 import humanize from "humanize-duration";
 
 export default function Chapters(props) {
   const { vod } = props;
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const DEFAULT_VOD = vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 ? `/cdn/${vod.id}` : `/manual/${vod.id}`;
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -25,20 +26,11 @@ export default function Chapters(props) {
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
         {vod.chapters.map((data, _) => {
           return (
-            <CustomLink
-              key={data.gameId + data.start}
-              href={
-                vod.youtube.length > 0
-                  ? `/youtube/${vod.id}?duration=${data.start}`
-                  : Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000
-                  ? `/cdn/${vod.id}?duration=${data.start}`
-                  : `/manual/${vod.id}?duration=${data.start}`
-              }
-            >
+            <CustomLink key={data.gameId + data.start} href={`${DEFAULT_VOD}?duration=${data?.start || 0}`}>
               <MenuItem>
                 <Box sx={{ display: "flex" }}>
                   <Box sx={{ mr: 1 }}>
-                    <img alt="" src={data.image} sx={{ height: "auto", maxWidth: "100%" }} />
+                    <img alt="" src={data.image} style={{ width: "40px", height: "53px" }} />
                   </Box>
                   <Box sx={{ display: "flex", flexDirection: "column" }}>
                     <Typography color="inherit" variant="body2">{`${data.name}`}</Typography>

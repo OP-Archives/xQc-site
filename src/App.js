@@ -1,9 +1,9 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createTheme, ThemeProvider, responsiveFontSizes } from "@mui/material/styles";
 import { CssBaseline, styled } from "@mui/material";
-import Vods from "./vods/vods";
+import Vods from "./vods/Vods";
 import YoutubeVod from "./vods/YoutubeVod";
-import Navbar from "./navbar";
+import Navbar from "./navbar/Navbar";
 import NotFound from "./utils/NotFound";
 import CustomVod from "./vods/CustomVod";
 
@@ -51,6 +51,16 @@ export default function App() {
           <Route
             exact
             path="/"
+            element={
+              <Parent>
+                <Navbar />
+                <Vods />
+              </Parent>
+            }
+          />
+          <Route
+            exact
+            path="/vods"
             element={
               <Parent>
                 <Navbar />
