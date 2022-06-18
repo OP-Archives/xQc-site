@@ -39,3 +39,10 @@ a:active {
 *:focus {
   outline: none;
 }
+
+.twemoji {
+  height: 20px;
+  width: 20px;
+  vertical-align: middle;
+  border: none;
+}

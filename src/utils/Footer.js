@@ -1,25 +1,37 @@
-import { styled, Typography } from "@mui/material";
+import { styled, Typography, Box } from "@mui/material";
 import CustomLink from "./CustomLink";
 import xqcL from "../assets/xqcL.png";
 
 const Footer = styled((props) => (
-  <div {...props}>
-    <div style={{ marginTop: "0.5rem" }}>
+  <Box {...props}>
+    <Box sx={{ mt: 0.5 }}>
       <Typography variant="caption" color="textSecondary">
         {`xQc © ${new Date().getFullYear()}`}
       </Typography>
-    </div>
+    </Box>
     <CustomLink href="https://twitter.com/overpowered" rel="noopener noreferrer" target="_blank">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
         <Typography variant="caption" color="textSecondary">
           made by OP with
         </Typography>
-        <div style={{ marginLeft: "6px" }}>
+        <Box sx={{ ml: 0.5 }}>
           <img alt="" src={xqcL} height="24" width="24" />
-        </div>
-      </div>
+        </Box>
+      </Box>
     </CustomLink>
-  </div>
+    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", mt: 1, mb: 1 }}>
+      <CustomLink href="https://twemoji.twitter.com/" rel="noopener noreferrer" target="_blank" sx={{ mr: 0.5 }}>
+        <Typography variant="caption" color="textSecondary">
+          Twemoji graphics made by Twitter and other contributors,
+        </Typography>
+      </CustomLink>
+      <CustomLink href="https://creativecommons.org/licenses/by/4.0/" rel="noopener noreferrer" target="_blank">
+        <Typography variant="caption" color="textSecondary">
+          Licensed under CC-BY 4.0
+        </Typography>
+      </CustomLink>
+    </Box>
+  </Box>
 ))`
   display: flex;
   flex-direction: column;
