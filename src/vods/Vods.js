@@ -8,7 +8,7 @@ import Loading from "../utils/Loading";
 import Vod from "./Vod";
 import Search from "./Search";
 
-const limit = 50;
+const limit = 20;
 const API_BASE = "https://api.xqc.wtf";
 
 export default function Vods() {
