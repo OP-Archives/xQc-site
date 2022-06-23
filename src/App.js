@@ -6,7 +6,7 @@ import Loading from "./utils/Loading";
 
 const Vods = lazy(() => import("./vods/Vods"));
 const YoutubeVod = lazy(() => import("./vods/YoutubeVod"));
-const CustomVod = lazy(() => import("./utils/NotFound"));
+const CustomVod = lazy(() => import("./vods/CustomVod"));
 const Navbar = lazy(() => import("./navbar/Navbar"));
 const NotFound = lazy(() => import("./utils/NotFound"));
 
