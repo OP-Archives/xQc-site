@@ -10,6 +10,7 @@ import Chat from "./Chat";
 import Chapters from "./VodChapters";
 import ExpandMore from "../utils/CustomExpandMore";
 import CustomWidthTooltip from "../utils/CustomToolTip";
+import { parse } from "tinyduration";
 
 const API_BASE = "https://api.xqc.wtf";
 
@@ -25,7 +26,7 @@ export default function Vod(props) {
   const [currentTime, setCurrentTime] = useState(undefined);
   const [playing, setPlaying] = useState({ playing: false });
   const search = new URLSearchParams(location.search);
-  const [initalDuration, setInitalDuration] = useState(search.get("duration") !== null ? parseInt(search.get("duration")) : 0);
+  const [timestamp, setTimestamp] = useState(search.get("t") !== null ? convertTimestamp(search.get("t")) : 0);
   const [delay, setDelay] = useState(undefined);
   const [userChatDelay, setUserChatDelay] = useState(0);
   const playerRef = React.useRef(null);
@@ -93,7 +94,7 @@ export default function Vod(props) {
     <Box sx={{ height: "100%", width: "100%" }}>
       <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", height: "100%", width: "100%" }}>
         <Box sx={{ display: "flex", height: "100%", width: "100%", flexDirection: "column", alignItems: "flex-start", minWidth: 0, overflow: "hidden" }}>
-          <CustomPlayer playerRef={playerRef} setCurrentTime={setCurrentTime} setPlaying={setPlaying} delay={delay} setDelay={setDelay} type={type} vod={vod} initalDuration={initalDuration} />
+          <CustomPlayer playerRef={playerRef} setCurrentTime={setCurrentTime} setPlaying={setPlaying} delay={delay} setDelay={setDelay} type={type} vod={vod} timestamp={timestamp} />
           {!isMobile && (
             <Box sx={{ position: "absolute", bottom: 0, left: "40%" }}>
               <Tooltip title={showMenu ? "Collapse" : "Expand"}>
@@ -105,7 +106,7 @@ export default function Vod(props) {
           )}
           <Collapse in={showMenu} timeout="auto" unmountOnExit sx={{ minHeight: "auto !important", width: "100%" }}>
             <Box sx={{ display: "flex", p: 1, alignItems: "center" }}>
-              {chapter && <Chapters chapters={vod.chapters} chapter={chapter} setChapter={setChapter} setInitalDuration={setInitalDuration} />}
+              {chapter && <Chapters chapters={vod.chapters} chapter={chapter} setChapter={setChapter} setTimestamp={setTimestamp} />}
               <CustomWidthTooltip title={vod.title}>
                 <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", ml: 1 }}>
                   <Typography>{`${vod.title}`}</Typography>
@@ -143,3 +144,17 @@ export default function Vod(props) {
     </Box>
   );
 }
+
+/**
+ * Parse Timestamp (1h2m3s) to seconds.
+ */
+const convertTimestamp = (timestamp) => {
+  try {
+    timestamp = parse(`PT${timestamp.toUpperCase()}`);
+    timestamp = (timestamp?.hours || 0) * 60 * 60 + (timestamp?.minutes || 0) * 60 + (timestamp?.seconds || 0);
+  } catch {
+    timestamp = 0;
+  }
+
+  return timestamp;
+};

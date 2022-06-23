@@ -23,6 +23,7 @@
     "react-youtube": "^9.0.2",
     "simplebar-react": "^2.4.1",
     "styled-components": "^5.3.5",
+    "tinyduration": "^3.2.2",
     "video.js": "^7.19.2",
     "videojs-hotkeys": "^0.2.27",
     "web-vitals": "^2.1.4"

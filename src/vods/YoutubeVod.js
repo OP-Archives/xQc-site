@@ -11,6 +11,7 @@ import debounce from "lodash.debounce";
 import Chapters from "./VodChapters";
 import ExpandMore from "../utils/CustomExpandMore";
 import CustomToolTip from "../utils/CustomToolTip";
+import { parse } from "tinyduration";
 
 const API_BASE = "https://api.xqc.wtf";
 
@@ -63,18 +64,18 @@ export default function Vod(props) {
       setDrive(vod.drive.filter((data) => data.type === type));
     }
     const search = new URLSearchParams(location.search);
-    let duration = search.get("duration") !== null ? parseInt(search.get("duration")) : 0;
+    let timestamp = search.get("t") !== null ? convertTimestamp(search.get("t")) : 0;
     let tmpPart = search.get("part") !== null ? parseInt(search.get("part")) : 1;
-    if (duration > 0) {
+    if (timestamp > 0) {
       for (let data of vod.youtube) {
-        if (data.duration > duration) {
+        if (data.duration > timestamp) {
           tmpPart = data?.part || vod.youtube.indexOf(data) + 1;
           break;
         }
-        duration -= data.duration;
+        timestamp -= data.duration;
       }
     }
-    setPart({ part: tmpPart, duration: duration });
+    setPart({ part: tmpPart, timestamp: timestamp });
     setChapter(vod.chapters ? vod.chapters[0] : null);
     return;
   }, [vod, type, location.search]);
@@ -201,4 +202,18 @@ const toSeconds = (hms) => {
   const time = hms.split(":");
 
   return +time[0] * 60 * 60 + +time[1] * 60 + +time[2];
+};
+
+/**
+ * Parse Timestamp (1h2m3s) to seconds.
+ */
+const convertTimestamp = (timestamp) => {
+  try {
+    timestamp = parse(`PT${timestamp.toUpperCase()}`);
+    timestamp = (timestamp?.hours || 0) * 60 * 60 + (timestamp?.minutes || 0) * 60 + (timestamp?.seconds || 0);
+  } catch {
+    timestamp = 0;
+  }
+
+  return timestamp;
 };

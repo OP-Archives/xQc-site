@@ -7,7 +7,7 @@ import "videojs-hotkeys";
 const CDN_BASE = "https://cdn.xqc.wtf";
 
 export default function Player(props) {
-  const { playerRef, setCurrentTime, setPlaying, type, vod, initalDuration, delay, setDelay } = props;
+  const { playerRef, setCurrentTime, setPlaying, type, vod, timestamp, delay, setDelay } = props;
   const timeUpdateRef = useRef(null);
   const [source, setSource] = useState(undefined);
   const [fileError, setFileError] = useState(undefined);
@@ -88,7 +88,7 @@ export default function Player(props) {
   useEffect(() => {
     if (!source || !playerRef.current) return;
     playerRef.current.src(source);
-    if (initalDuration) playerRef.current.currentTime(initalDuration);
+    if (timestamp) playerRef.current.currentTime(timestamp);
 
     const set = async () => {
       let playerDuration = playerRef.current.duration();
@@ -102,7 +102,7 @@ export default function Player(props) {
     };
 
     set();
-  }, [source, playerRef, initalDuration, vod, setDelay]);
+  }, [source, playerRef, timestamp, vod, setDelay]);
 
   return (
     <Box sx={{ height: "100%", width: "100%" }}>

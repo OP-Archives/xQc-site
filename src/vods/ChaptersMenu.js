@@ -26,7 +26,7 @@ export default function Chapters(props) {
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
         {vod.chapters.map((data, _) => {
           return (
-            <CustomLink key={data.gameId + data.start} href={`${DEFAULT_VOD}?duration=${data?.start || 0}`}>
+            <CustomLink key={data.gameId + data.start} href={`${DEFAULT_VOD}?t=${toHMS(data?.start || 1)}`}>
               <MenuItem>
                 <Box sx={{ display: "flex" }}>
                   <Box sx={{ mr: 1 }}>
@@ -49,4 +49,14 @@ export default function Chapters(props) {
 //Support older vods that had {width}x{height} in the link
 const getImage = (link) => {
   return link.replace("{width}x{height}", "40x53");
+};
+
+//Parse seconds to 1h2m3s format
+const toHMS = (secs) => {
+  let sec_num = parseInt(secs, 10);
+  let hours = Math.floor(sec_num / 3600);
+  let minutes = Math.floor(sec_num / 60) % 60;
+  let seconds = sec_num % 60;
+
+  return `${hours}h${minutes}m${seconds}s`;
 };
