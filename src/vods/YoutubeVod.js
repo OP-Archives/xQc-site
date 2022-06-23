@@ -68,7 +68,7 @@ export default function Vod(props) {
     if (duration > 0) {
       for (let data of vod.youtube) {
         if (data.duration > duration) {
-          tmpPart = data.part;
+          tmpPart = data?.part || vod.youtube.indexOf(data) + 1;
           break;
         }
         duration -= data.duration;
@@ -157,7 +157,7 @@ export default function Vod(props) {
                     {youtube.map((data, i) => {
                       return (
                         <MenuItem key={data.id} value={i}>
-                          {data.part || i + 1}
+                          {data?.part || i + 1}
                         </MenuItem>
                       );
                     })}
