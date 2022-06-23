@@ -20,7 +20,7 @@ export default function Chapters(props) {
     <Box>
       <Tooltip title={vod.chapters[0].name}>
         <IconButton onClick={handleClick}>
-          <img alt="" src={vod.chapters[0].image} style={{ width: "40px", height: "53px" }} />
+          <img alt="" src={getImage(vod.chapters[0].image)} style={{ width: "40px", height: "53px" }} />
         </IconButton>
       </Tooltip>
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
@@ -30,7 +30,7 @@ export default function Chapters(props) {
               <MenuItem>
                 <Box sx={{ display: "flex" }}>
                   <Box sx={{ mr: 1 }}>
-                    <img alt="" src={data.image} style={{ width: "40px", height: "53px" }} />
+                    <img alt="" src={getImage(data.image)} style={{ width: "40px", height: "53px" }} />
                   </Box>
                   <Box sx={{ display: "flex", flexDirection: "column" }}>
                     <Typography color="inherit" variant="body2">{`${data.name}`}</Typography>
@@ -45,3 +45,8 @@ export default function Chapters(props) {
     </Box>
   );
 }
+
+//Support older vods that had {width}x{height} in the link
+const getImage = (link) => {
+  return link.replace("{width}x{height}", "40x53");
+};
