@@ -8,7 +8,7 @@ import CustomWidthTooltip from "../utils/CustomToolTip";
 
 export default function Vod(props) {
   const { vod, gridSize } = props;
-  const DEFAULT_VOD = vod.youtube.length > 0 ? `/youtube/${vod.id}` : `/manual/${vod.id}`;
+  const DEFAULT_VOD = vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 ? `/cdn/${vod.id}` : `/manual/${vod.id}`;
 
   return (
     <Grid item xs={gridSize} sx={{ maxWidth: "18rem", flexBasis: "18rem" }}>
