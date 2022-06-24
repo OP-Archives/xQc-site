@@ -69,7 +69,7 @@ export default function Vods() {
   const totalPages = Math.ceil(totalVods / limit);
 
   return (
-    <SimpleBar style={{ minHeight: 0 }}>
+    <SimpleBar style={{ minHeight: 0, height: "100%" }}>
       <Box sx={{ padding: 2 }}>
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Typography variant="h4" color="primary" sx={{ textTransform: "uppercase", fontWeight: "550" }}>
