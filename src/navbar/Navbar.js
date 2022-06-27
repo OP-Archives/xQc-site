@@ -35,7 +35,7 @@ const socials = [
 ];
 
 export default function Navbar() {
-  const isMobile = useMediaQuery("(max-width: 800px)");
+  const isMobile = useMediaQuery("(max-width: 900px)");
 
   return (
     <Box sx={{ flex: 1 }}>

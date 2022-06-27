@@ -12,7 +12,7 @@ const limit = 20;
 const API_BASE = "https://api.xqc.wtf";
 
 export default function Vods() {
-  const isMobile = useMediaQuery("(max-width: 600px)");
+  const isMobile = useMediaQuery("(max-width: 900px)");
   const [vods, setVods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(null);
