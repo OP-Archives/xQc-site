@@ -17,7 +17,7 @@ const API_BASE = "https://api.xqc.wtf";
 
 export default function Vod(props) {
   const location = useLocation();
-  const isMobile = useMediaQuery("(max-width: 900px)");
+  const isMobile = useMediaQuery("(max-width: 800px)");
   const { vodId } = useParams();
   const { type } = props;
   const [vod, setVod] = useState(undefined);
