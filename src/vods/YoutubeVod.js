@@ -17,7 +17,7 @@ const API_BASE = "https://api.xqc.wtf";
 
 export default function Vod(props) {
   const location = useLocation();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isPortrait = useMediaQuery("(orientation: portrait)");
   const { vodId } = useParams();
   const { type } = props;
   const [vod, setVod] = useState(undefined);
@@ -131,10 +131,10 @@ export default function Vod(props) {
 
   return (
     <Box sx={{ height: "100%", width: "100%" }}>
-      <Box sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", height: "100%", width: "100%" }}>
+      <Box sx={{ display: "flex", flexDirection: isPortrait ? "column" : "row", height: "100%", width: "100%" }}>
         <Box sx={{ display: "flex", height: "100%", width: "100%", flexDirection: "column", alignItems: "flex-start", minWidth: 0, overflow: "hidden" }}>
           <YoutubePlayer playerRef={playerRef} part={part} youtube={youtube} setCurrentTime={setCurrentTime} setPart={setPart} setPlaying={setPlaying} delay={delay} />
-          {!isMobile && (
+          {!isPortrait && (
             <Box sx={{ position: "absolute", bottom: 0, left: "40%" }}>
               <Tooltip title={showMenu ? "Collapse" : "Expand"}>
                 <ExpandMore expand={showMenu} onClick={handleExpandClick} aria-expanded={showMenu} aria-label="show menu">
@@ -191,8 +191,8 @@ export default function Vod(props) {
             </Box>
           </Collapse>
         </Box>
-        {isMobile && <Divider />}
-        <Chat isMobile={isMobile} vodId={vodId} playerRef={playerRef} playing={playing} delay={delay} userChatDelay={userChatDelay} youtube={youtube} part={part} setPart={setPart} />
+        {isPortrait && <Divider />}
+        <Chat isPortrait={isPortrait} vodId={vodId} playerRef={playerRef} playing={playing} delay={delay} userChatDelay={userChatDelay} youtube={youtube} part={part} setPart={setPart} />
       </Box>
     </Box>
   );
