@@ -93,17 +93,15 @@ export default function Vod(props) {
   return (
     <Box sx={{ height: "100%", width: "100%" }}>
       <Box sx={{ display: "flex", flexDirection: isPortrait ? "column" : "row", height: "100%", width: "100%" }}>
-        <Box sx={{ display: "flex", height: "100%", width: "100%", flexDirection: "column", alignItems: "flex-start", minWidth: 0, overflow: "hidden" }}>
+        <Box sx={{ display: "flex", height: "100%", width: "100%", flexDirection: "column", alignItems: "flex-start", minWidth: 0, overflow: "hidden", position: "relative" }}>
           <CustomPlayer playerRef={playerRef} setCurrentTime={setCurrentTime} setPlaying={setPlaying} delay={delay} setDelay={setDelay} type={type} vod={vod} timestamp={timestamp} />
-          {!isPortrait && (
-            <Box sx={{ position: "absolute", bottom: 0, left: "40%" }}>
-              <Tooltip title={showMenu ? "Collapse" : "Expand"}>
-                <ExpandMore expand={showMenu} onClick={handleExpandClick} aria-expanded={showMenu} aria-label="show menu">
-                  <ExpandMoreIcon />
-                </ExpandMore>
-              </Tooltip>
-            </Box>
-          )}
+          <Box sx={{ position: "absolute", bottom: 0, left: "50%", width: "100%" }}>
+            <Tooltip title={showMenu ? "Collapse" : "Expand"}>
+              <ExpandMore expand={showMenu} onClick={handleExpandClick} aria-expanded={showMenu} aria-label="show menu">
+                <ExpandMoreIcon />
+              </ExpandMore>
+            </Tooltip>
+          </Box>
           <Collapse in={showMenu} timeout="auto" unmountOnExit sx={{ minHeight: "auto !important", width: "100%" }}>
             <Box sx={{ display: "flex", p: 1, alignItems: "center" }}>
               {chapter && <Chapters chapters={vod.chapters} chapter={chapter} setChapter={setChapter} setTimestamp={setTimestamp} />}
