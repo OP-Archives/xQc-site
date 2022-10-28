@@ -42,7 +42,7 @@ export default function Vod(props) {
         .then((response) => response.json())
         .then((response) => {
           setVod(response);
-          document.title = `${response.id} - xQc`;
+          document.title = `${response.date} - xQc`;
         })
         .catch((e) => {
           console.error(e);
