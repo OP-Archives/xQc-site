@@ -57,6 +57,7 @@
     "babel-plugin-import": "^1.13.5",
     "cross-env": "^7.0.3",
     "customize-cra": "^1.0.0",
-    "react-app-rewired": "^2.2.1"
+    "react-app-rewired": "^2.2.1",
+    "react-git-info": "^2.0.1"
   }
 }

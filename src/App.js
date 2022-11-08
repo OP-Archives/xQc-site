@@ -7,6 +7,7 @@ import Loading from "./utils/Loading";
 const Vods = lazy(() => import("./vods/Vods"));
 const YoutubeVod = lazy(() => import("./vods/YoutubeVod"));
 const CustomVod = lazy(() => import("./vods/CustomVod"));
+const Games = lazy(() => import("./games/Games"));
 const Navbar = lazy(() => import("./navbar/Navbar"));
 const NotFound = lazy(() => import("./utils/NotFound"));
 
@@ -69,6 +70,7 @@ export default function App() {
               <Route exact path="/youtube/:vodId" element={<YoutubeVod type="live" />} />
               <Route exact path="/manual/:vodId" element={<CustomVod type="manual" />} />
               <Route exact path="/cdn/:vodId" element={<CustomVod type="cdn" />} />
+              <Route exact path="/games/:vodId" element={<Games />} />
             </Routes>
           </Suspense>
         </Parent>

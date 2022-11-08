@@ -1,14 +1,22 @@
 import React from "react";
 import { Box, Typography, Link, Grid } from "@mui/material";
 import CustomLink from "../utils/CustomLink";
-import default_thumbnail from "../assets/default_thumbnail.png";
+import Thumbnail from "../assets/default_thumbnail.png";
 import Chapters from "./ChaptersMenu";
 import WatchMenu from "./WatchMenu";
 import CustomWidthTooltip from "../utils/CustomToolTip";
 
 export default function Vod(props) {
   const { vod, gridSize } = props;
-  const DEFAULT_VOD = vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 ? `/cdn/${vod.id}` : `/manual/${vod.id}`;
+  const DEFAULT_VOD =
+    vod.youtube.length > 0
+      ? `/youtube/${vod.id}`
+      : Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000
+      ? `/cdn/${vod.id}`
+      : vod.games.length > 0
+      ? `/games/${vod.id}`
+      : `/manual/${vod.id}`;
+  const DEFAULT_THUMBNAIL = vod.thumbnail_url ? vod.thumbnail_url : vod.games.length > 0 ? vod.games[0].thumbnail_url : Thumbnail;
 
   return (
     <Grid item xs={gridSize} sx={{ maxWidth: "18rem", flexBasis: "18rem" }}>
@@ -24,7 +32,7 @@ export default function Vod(props) {
         }}
       >
         <Link href={DEFAULT_VOD}>
-          <img className="thumbnail" alt="" src={vod.thumbnail_url ? vod.thumbnail_url : default_thumbnail} />
+          <img className="thumbnail" alt="" src={DEFAULT_THUMBNAIL} />
         </Link>
         <Box sx={{ pointerEvents: "none", position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
           <Box sx={{ position: "absolute", bottom: 0, left: 0 }}>

@@ -9,7 +9,7 @@ import Vod from "./Vod";
 import Search from "./Search";
 
 const limit = 20;
-const API_BASE = "https://api.xqc.wtf";
+const API_BASE = process.env.REACT_APP_VODS_API_BASE;
 
 export default function Vods() {
   const isMobile = useMediaQuery("(max-width: 900px)");

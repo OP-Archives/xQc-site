@@ -26,22 +26,30 @@ export default function WatchMenu(props) {
       </Button>
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
         {vod.youtube.length > 0 && (
-          <CustomLink href={`/youtube/${props.vod.id}`}>
+          <CustomLink href={`/youtube/${vod.id}`}>
             <MenuItem>
               <YouTubeIcon sx={{ mr: 1 }} />
               Youtube
             </MenuItem>
           </CustomLink>
         )}
+        {vod.games.length > 0 && (
+          <CustomLink href={`/games/${vod.id}`}>
+            <MenuItem>
+              <YouTubeIcon sx={{ mr: 1 }} />
+              Only Games
+            </MenuItem>
+          </CustomLink>
+        )}
         {Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 && (
-          <CustomLink href={`/cdn/${props.vod.id}`}>
+          <CustomLink href={`/cdn/${vod.id}`}>
             <MenuItem>
               <OndemandVideo sx={{ mr: 1 }} />
               CDN
             </MenuItem>
           </CustomLink>
         )}
-        <CustomLink href={`/manual/${props.vod.id}`}>
+        <CustomLink href={`/manual/${vod.id}`}>
           <MenuItem>
             <OpenInBrowserIcon sx={{ mr: 1 }} />
             Manual

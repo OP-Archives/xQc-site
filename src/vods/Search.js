@@ -4,7 +4,7 @@ import default_thumbnail from "../assets/default_thumbnail.png";
 import CustomLink from "../utils/CustomLink";
 import debounce from "lodash.debounce";
 
-const API_BASE = "https://api.xqc.wtf";
+const API_BASE = process.env.REACT_APP_VODS_API_BASE;
 
 export default function Search() {
   const [loading, setLoading] = useState(false);

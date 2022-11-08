@@ -1,33 +1,30 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Box, Typography, Tooltip, useMediaQuery, IconButton, Link, Collapse, Divider, TextField, InputAdornment } from "@mui/material";
+import { Box, Typography, MenuItem, Tooltip, useMediaQuery, FormControl, InputLabel, Select, IconButton, Link, Collapse, Divider, TextField, InputAdornment } from "@mui/material";
 import Loading from "../utils/Loading";
 import { useLocation, useParams } from "react-router-dom";
+import YoutubePlayer from "./Youtube";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import CustomPlayer from "./CustomPlayer";
+import NotFound from "../utils/NotFound";
+import Chat from "../vods/Chat";
 import debounce from "lodash.debounce";
-import Chat from "./Chat";
-import Chapters from "./VodChapters";
 import ExpandMore from "../utils/CustomExpandMore";
-import CustomWidthTooltip from "../utils/CustomToolTip";
-import { parse } from "tinyduration";
+import CustomToolTip from "../utils/CustomToolTip";
 
+const delay = 0;
 const API_BASE = process.env.REACT_APP_VODS_API_BASE;
 
-export default function Vod(props) {
+export default function Games(props) {
   const location = useLocation();
   const isPortrait = useMediaQuery("(orientation: portrait)");
   const { vodId } = useParams();
-  const { type } = props;
+  const { channel } = props;
   const [vod, setVod] = useState(undefined);
+  const [games, setGames] = useState(undefined);
   const [drive, setDrive] = useState(undefined);
-  const [chapter, setChapter] = useState(undefined);
+  const [part, setPart] = useState(undefined);
   const [showMenu, setShowMenu] = useState(true);
-  const [currentTime, setCurrentTime] = useState(undefined);
   const [playing, setPlaying] = useState({ playing: false });
-  const search = new URLSearchParams(location.search);
-  const [timestamp, setTimestamp] = useState(search.get("t") !== null ? convertTimestamp(search.get("t")) : 0);
-  const [delay, setDelay] = useState(undefined);
   const [userChatDelay, setUserChatDelay] = useState(0);
   const playerRef = React.useRef(null);
 
@@ -42,7 +39,7 @@ export default function Vod(props) {
         .then((response) => response.json())
         .then((response) => {
           setVod(response);
-          document.title = `${response.id} - xQc`;
+          document.title = `${response.id} - ${channel}`;
         })
         .catch((e) => {
           console.error(e);
@@ -50,24 +47,22 @@ export default function Vod(props) {
     };
     fetchVod();
     return;
-  }, [vodId]);
+  }, [vodId, channel]);
 
   useEffect(() => {
     if (!vod) return;
-    setDrive(vod.drive.filter((data) => data.type === "live"));
-    setChapter(vod.chapters ? vod.chapters[0] : null);
+    setDrive(vod.drive.filter((data) => data.type === "vod"));
+    setGames(vod.games);
+    const search = new URLSearchParams(location.search);
+    let tmpPart = search.get("part") !== null ? parseInt(search.get("part")) : 1;
+    setPart({ part: tmpPart, timestamp: 0 });
     return;
-  }, [vod, type, location.search]);
+  }, [vod, location.search]);
 
-  useEffect(() => {
-    if (!playerRef.current || !vod || !vod.chapters) return;
-    for (let chapter of vod.chapters) {
-      if (currentTime > chapter.start && currentTime < chapter.start + chapter.end) {
-        setChapter(chapter);
-        break;
-      }
-    }
-  }, [currentTime, vod, playerRef]);
+  const handlePartChange = (evt) => {
+    const tmpPart = evt.target.value + 1;
+    setPart({ part: tmpPart, timestamp: 0 });
+  };
 
   const handleExpandClick = () => {
     setShowMenu(!showMenu);
@@ -84,17 +79,18 @@ export default function Vod(props) {
   }, []);
 
   useEffect(() => {
-    if (delay === undefined) return;
     console.info(`Chat Delay: ${userChatDelay + delay} seconds`);
-  }, [userChatDelay, delay]);
+  }, [userChatDelay]);
 
-  if (vod === undefined || drive === undefined || chapter === undefined) return <Loading />;
+  if (vod === undefined || drive === undefined || part === undefined || delay === undefined) return <Loading />;
+
+  if (games.length === 0) return <NotFound channel={channel} />;
 
   return (
     <Box sx={{ height: "100%", width: "100%" }}>
       <Box sx={{ display: "flex", flexDirection: isPortrait ? "column" : "row", height: "100%", width: "100%" }}>
         <Box sx={{ display: "flex", height: "100%", width: "100%", flexDirection: "column", alignItems: "flex-start", minWidth: 0, overflow: "hidden", position: "relative" }}>
-          <CustomPlayer playerRef={playerRef} setCurrentTime={setCurrentTime} setPlaying={setPlaying} delay={delay} setDelay={setDelay} type={type} vod={vod} timestamp={timestamp} />
+          <YoutubePlayer playerRef={playerRef} part={part} games={games} setPart={setPart} setPlaying={setPlaying} delay={delay} />
           <Box sx={{ position: "absolute", bottom: 0, left: "50%", width: "100%" }}>
             <Tooltip title={showMenu ? "Collapse" : "Expand"}>
               <ExpandMore expand={showMenu} onClick={handleExpandClick} aria-expanded={showMenu} aria-label="show menu">
@@ -104,12 +100,25 @@ export default function Vod(props) {
           </Box>
           <Collapse in={showMenu} timeout="auto" unmountOnExit sx={{ minHeight: "auto !important", width: "100%" }}>
             <Box sx={{ display: "flex", p: 1, alignItems: "center" }}>
-              {chapter && <Chapters chapters={vod.chapters} chapter={chapter} setChapter={setChapter} setTimestamp={setTimestamp} />}
-              <CustomWidthTooltip title={vod.title}>
+              <CustomToolTip title={vod.title}>
                 <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", ml: 1 }}>
                   <Typography>{`${vod.title}`}</Typography>
                 </Box>
-              </CustomWidthTooltip>
+              </CustomToolTip>
+              <Box sx={{ ml: 1 }}>
+                <FormControl variant="standard" sx={{ p: 1, minWidth: "40px" }}>
+                  <InputLabel id="select-label">Game</InputLabel>
+                  <Select labelId="select-label" value={part.part - 1} onChange={handlePartChange} autoWidth>
+                    {games.map((data, i) => {
+                      return (
+                        <MenuItem key={data.id} value={i}>
+                          {data.game_name}
+                        </MenuItem>
+                      );
+                    })}
+                  </Select>
+                </FormControl>
+              </Box>
               <Box sx={{ ml: 1 }}>
                 {drive && drive[0] && (
                   <Tooltip title={`Download Vod`}>
@@ -137,22 +146,19 @@ export default function Vod(props) {
           </Collapse>
         </Box>
         {isPortrait && <Divider />}
-        {<Chat isPortrait={isPortrait} vodId={vodId} playerRef={playerRef} playing={playing} currentTime={currentTime} delay={delay} userChatDelay={userChatDelay} />}
+        <Chat
+          isPortrait={isPortrait}
+          vodId={vodId}
+          playerRef={playerRef}
+          playing={playing}
+          delay={delay}
+          userChatDelay={userChatDelay}
+          part={part}
+          setPart={setPart}
+          channel={channel}
+          games={games}
+        />
       </Box>
     </Box>
   );
 }
-
-/**
- * Parse Timestamp (1h2m3s) to seconds.
- */
-const convertTimestamp = (timestamp) => {
-  try {
-    timestamp = parse(`PT${timestamp.toUpperCase()}`);
-    timestamp = (timestamp?.hours || 0) * 60 * 60 + (timestamp?.minutes || 0) * 60 + (timestamp?.seconds || 0);
-  } catch {
-    timestamp = 0;
-  }
-
-  return timestamp;
-};
