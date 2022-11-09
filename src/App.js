@@ -41,7 +41,7 @@ export default function App() {
 
   return (
     <ThemeProvider theme={darkTheme}>
-      <CssBaseline enableColorScheme />
+      <CssBaseline />
       <BrowserRouter>
         <Parent>
           <Suspense fallback={<Loading />}>
