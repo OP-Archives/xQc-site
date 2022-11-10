@@ -18,7 +18,6 @@ export default function Games(props) {
   const location = useLocation();
   const isPortrait = useMediaQuery("(orientation: portrait)");
   const { vodId } = useParams();
-  const { channel } = props;
   const [vod, setVod] = useState(undefined);
   const [games, setGames] = useState(undefined);
   const [drive, setDrive] = useState(undefined);
@@ -39,7 +38,7 @@ export default function Games(props) {
         .then((response) => response.json())
         .then((response) => {
           setVod(response);
-          document.title = `${response.id} - ${channel}`;
+          document.title = `${response.id} - xQc`;
         })
         .catch((e) => {
           console.error(e);
@@ -47,7 +46,7 @@ export default function Games(props) {
     };
     fetchVod();
     return;
-  }, [vodId, channel]);
+  }, [vodId]);
 
   useEffect(() => {
     if (!vod) return;
@@ -84,7 +83,7 @@ export default function Games(props) {
 
   if (vod === undefined || drive === undefined || part === undefined || delay === undefined) return <Loading />;
 
-  if (games.length === 0) return <NotFound channel={channel} />;
+  if (games.length === 0) return <NotFound />;
 
   return (
     <Box sx={{ height: "100%", width: "100%" }}>
@@ -146,18 +145,7 @@ export default function Games(props) {
           </Collapse>
         </Box>
         {isPortrait && <Divider />}
-        <Chat
-          isPortrait={isPortrait}
-          vodId={vodId}
-          playerRef={playerRef}
-          playing={playing}
-          delay={delay}
-          userChatDelay={userChatDelay}
-          part={part}
-          setPart={setPart}
-          channel={channel}
-          games={games}
-        />
+        <Chat isPortrait={isPortrait} vodId={vodId} playerRef={playerRef} playing={playing} delay={delay} userChatDelay={userChatDelay} part={part} setPart={setPart} games={games} />
       </Box>
     </Box>
   );
