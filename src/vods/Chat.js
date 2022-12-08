@@ -145,10 +145,11 @@ export default function Chat(props) {
       const badgeWrapper = [];
 
       for (const badge of badges) {
+        const badgeId = badge._id ?? badge.setID;
         let foundBadge = false;
         if (channelBadges.current) {
           for (let channelBadge of channelBadges.current) {
-            if (badge._id !== channelBadge.set_id) continue;
+            if (badgeId !== channelBadge.set_id) continue;
             for (let badgeVersion of channelBadge.versions) {
               if (badgeVersion.id !== badge.version) continue;
               badgeWrapper.push(
@@ -167,7 +168,7 @@ export default function Chat(props) {
         }
 
         if (!globalTwitchBadges.current) continue;
-        const twitchBadge = globalTwitchBadges.current[badge._id];
+        const twitchBadge = globalTwitchBadges.current[badgeId];
         if (!twitchBadge) continue;
         badgeWrapper.push(
           <img
