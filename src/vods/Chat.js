@@ -175,7 +175,7 @@ export default function Chat(props) {
             key={badgesCount++}
             crossOrigin="anonymous"
             style={{ display: "inline-block", minWidth: "1rem", height: "1rem", margin: "0 .2rem .1rem 0", backgroundPosition: "50%", verticalAlign: "middle" }}
-            src={`${BASE_TWITCH_CDN}/badges/v1/${twitchBadge.versions[badge.version] ? twitchBadge.versions[badge.version].image_url_1x : twitchBadge.versions[0].image_url_1x}`}
+            src={`${twitchBadge.versions[badge.version] ? twitchBadge.versions[badge.version].image_url_1x : twitchBadge.versions[0].image_url_1x}`}
             alt=""
           />
         );
@@ -256,11 +256,11 @@ export default function Chat(props) {
           continue;
         }
         textFragments.push(
-          <Box key={i + fragment.emoticon.emoticon_id} sx={{ display: "inline" }}>
+          <Box key={i + fragment.emote.emoteID} sx={{ display: "inline" }}>
             <img
               crossOrigin="anonymous"
               style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-              src={`${BASE_TWITCH_CDN}/emoticons/v2/${fragment.emoticon.emoticon_id}/default/dark/1.0`}
+              src={`${BASE_TWITCH_CDN}/emoticons/v2/${fragment.emote.emoteID}/default/dark/1.0`}
               alt=""
             />
           </Box>
