@@ -11,10 +11,10 @@ export default function Vod(props) {
   const DEFAULT_VOD =
     vod.youtube.length > 0
       ? `/youtube/${vod.id}`
-      : Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000
-      ? `/cdn/${vod.id}`
       : vod.games.length > 0
       ? `/games/${vod.id}`
+      : Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000
+      ? `/cdn/${vod.id}`
       : `/manual/${vod.id}`;
   const DEFAULT_THUMBNAIL = vod.thumbnail_url ? vod.thumbnail_url : vod.games.length > 0 ? vod.games[0].thumbnail_url : Thumbnail;
 
