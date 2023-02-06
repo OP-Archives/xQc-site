@@ -22,7 +22,7 @@ export default function App() {
         main: "#fff",
       },
       secondary: {
-        main: "#b39ddb",
+        main: "#d62e29",
       },
     },
     components: {

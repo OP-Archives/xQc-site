@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Box, Typography, Tooltip, useMediaQuery, IconButton, Link, Collapse, Divider, TextField, InputAdornment } from "@mui/material";
+import { Box, Typography, Tooltip, useMediaQuery, IconButton, Collapse, Divider, TextField, InputAdornment } from "@mui/material";
 import Loading from "../utils/Loading";
 import { useLocation, useParams } from "react-router-dom";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
@@ -113,7 +113,7 @@ export default function Vod(props) {
               <Box sx={{ ml: 1 }}>
                 {drive && drive[0] && (
                   <Tooltip title={`Download Vod`}>
-                    <IconButton component={Link} href={`https://drive.google.com/u/2/open?id=${drive[0].id}`} color="primary" aria-label="Download Vod" rel="noopener noreferrer" target="_blank">
+                    <IconButton href={`https://drive.google.com/u/2/open?id=${drive[0].id}`} color="secondary" aria-label="Download Vod" rel="noopener noreferrer" target="_blank">
                       <CloudDownloadIcon />
                     </IconButton>
                   </Tooltip>
