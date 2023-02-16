@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Pagination, Grid, useMediaQuery } from "@mui/material";
+import { Box, Typography, Pagination, Grid, useMediaQuery, Alert, AlertTitle } from "@mui/material";
 import SimpleBar from "simplebar-react";
 import ErrorBoundary from "../utils/ErrorBoundary";
 import AdSense from "react-adsense";
@@ -76,7 +76,11 @@ export default function Vods() {
             <AdSense.Google client="ca-pub-8093490837210586" slot="3667265818" style={{ display: "block" }} format="auto" responsive="true" layoutKey="-gw-1+2a-9x+5c" />
           </ErrorBoundary>
         </Box>
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2, flexDirection: "column", alignItems: "center" }}>
+          <Alert severity="error">
+            <AlertTitle>CDN Playback is currently disabled! Despairge</AlertTitle>
+            Won't be back until xQc answers DMs! Bug him if you want it fixed!
+          </Alert>
           <Typography variant="h4" color="primary" sx={{ textTransform: "uppercase", fontWeight: "550" }}>
             {`${totalVods} Vods Archived`}
           </Typography>
