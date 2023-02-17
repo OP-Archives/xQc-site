@@ -17,6 +17,7 @@ export default function Vods() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(null);
   const [totalVods, setTotalVods] = useState(null);
+  const [cdn, setCdn] = useState(null);
 
   useEffect(() => {
     document.title = `VODS - xQc`;
@@ -39,6 +40,24 @@ export default function Vods() {
         });
     };
     fetchVods();
+
+    const fetchCDNStatus = async () => {
+      await fetch(`${API_BASE}/cdn`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          setCdn(response);
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    };
+    fetchCDNStatus();
+
     return;
   }, []);
 
@@ -77,10 +96,12 @@ export default function Vods() {
           </ErrorBoundary>
         </Box>
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2, flexDirection: "column", alignItems: "center" }}>
-          <Alert severity="error">
-            <AlertTitle>CDN Playback is currently disabled! Despairge</AlertTitle>
-            Won't be back until xQc answers DMs! Bug him if you want it fixed!
-          </Alert>
+          {cdn && cdn.enabled && !cdn.available && (
+            <Alert severity="warning">
+              <AlertTitle>CDN Playback is currently disabled due to 50TB Bandwidth Monthly Cap! Despairge.</AlertTitle>
+              Consider using the "Manual" playback and Download the Vod using the Download button.
+            </Alert>
+          )}
           <Typography variant="h4" color="primary" sx={{ textTransform: "uppercase", fontWeight: "550" }}>
             {`${totalVods} Vods Archived`}
           </Typography>
