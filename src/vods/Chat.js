@@ -23,11 +23,7 @@ export default function Chat(props) {
   const comments = useRef([]);
   const channelBadges = useRef();
   const globalTwitchBadges = useRef();
-  const emotes = useRef({
-    BTTV: [],
-    FFZ: [],
-    "7TV": [],
-  });
+  const emotes = useRef({ ffz_emotes: [], bttv_emotes: [], "7tv_emotes": [] });
   const cursor = useRef();
   const loopRef = useRef();
   const playRef = useRef();
