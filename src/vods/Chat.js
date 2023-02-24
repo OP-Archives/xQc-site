@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, createRef, useCallback } from "react";
-import { Box, Typography, Tooltip, Divider, Collapse, styled, IconButton } from "@mui/material";
+import { Box, Typography, Tooltip, Divider, Collapse, styled, IconButton, Button } from "@mui/material";
 import SimpleBar from "simplebar-react";
 import Loading from "../utils/Loading";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -23,13 +23,33 @@ export default function Chat(props) {
   const comments = useRef([]);
   const channelBadges = useRef();
   const globalTwitchBadges = useRef();
-  const emotes = useRef();
+  const emotes = useRef({
+    BTTV: [],
+    FFZ: [],
+    "7TV": [],
+  });
   const cursor = useRef();
   const loopRef = useRef();
   const playRef = useRef();
   const chatRef = useRef();
   const stoppedAtIndex = useRef(0);
   const newMessages = useRef();
+  const [scrolling, setScrolling] = useState(false);
+
+  useEffect(() => {
+    if (chatRef && chatRef.current) {
+      const ref = chatRef.current;
+      const handleScroll = (e) => {
+        e.stopPropagation();
+        const atBottom = ref.scrollHeight - ref.clientHeight - ref.scrollTop < 256;
+        setScrolling(!atBottom);
+      };
+
+      ref.addEventListener("scroll", handleScroll);
+
+      return () => ref.removeEventListener("scroll", handleScroll);
+    }
+  });
 
   useEffect(() => {
     const loadChannelBadges = () => {
@@ -144,51 +164,57 @@ export default function Chat(props) {
     const transformBadges = (badges) => {
       const badgeWrapper = [];
 
-      for (const badge of badges) {
-        const badgeId = badge._id ?? badge.setID;
-        let foundBadge = false;
+      for (const textBadge of badges) {
+        const badgeId = textBadge._id ?? textBadge.setID;
+        const version = textBadge.version;
+
         if (channelBadges.current) {
-          for (let channelBadge of channelBadges.current) {
-            if (badgeId !== channelBadge.set_id) continue;
-            for (let badgeVersion of channelBadge.versions) {
-              if (badgeVersion.id !== badge.version) continue;
+          const badge = channelBadges.current.find((channelBadge) => channelBadge.set_id === badgeId);
+          if (badge) {
+            const badgeVersion = badge.versions.find((badgeVersion) => badgeVersion.id === version);
+            if (badgeVersion) {
               badgeWrapper.push(
                 <img
                   key={badgesCount++}
                   crossOrigin="anonymous"
                   style={{ display: "inline-block", minWidth: "1rem", height: "1rem", margin: "0 .2rem .1rem 0", backgroundPosition: "50%", verticalAlign: "middle" }}
+                  srcSet={`${badgeVersion.image_url_1x} 1x, ${badgeVersion.image_url_2x} 2x, ${badgeVersion.image_url_4x} 4x`}
                   src={badgeVersion.image_url_1x}
                   alt=""
                 />
               );
-              foundBadge = true;
+              continue;
             }
           }
-          if (foundBadge) continue;
         }
 
-        if (!globalTwitchBadges.current) continue;
-        const twitchBadge = globalTwitchBadges.current[badgeId];
-        if (!twitchBadge) continue;
-        badgeWrapper.push(
-          <img
-            key={badgesCount++}
-            crossOrigin="anonymous"
-            style={{ display: "inline-block", minWidth: "1rem", height: "1rem", margin: "0 .2rem .1rem 0", backgroundPosition: "50%", verticalAlign: "middle" }}
-            src={`${twitchBadge.versions[badge.version] ? twitchBadge.versions[badge.version].image_url_1x : twitchBadge.versions[0].image_url_1x}`}
-            alt=""
-          />
-        );
+        if (globalTwitchBadges.current) {
+          const twitchBadge = globalTwitchBadges.current[badgeId];
+          if (twitchBadge) {
+            badgeWrapper.push(
+              <img
+                key={badgesCount++}
+                crossOrigin="anonymous"
+                style={{ display: "inline-block", minWidth: "1rem", height: "1rem", margin: "0 .2rem .1rem 0", backgroundPosition: "50%", verticalAlign: "middle" }}
+                srcSet={`${twitchBadge.versions[version].image_url_1x} 1x, ${twitchBadge.versions[version].image_url_2x} 2x, ${twitchBadge.versions[version].image_url_4x} 4x`}
+                src={twitchBadge.image1x}
+                alt=""
+              />
+            );
+            continue;
+          }
+        }
       }
 
       return <Box sx={{ display: "inline" }}>{badgeWrapper}</Box>;
     };
 
-    const transformMessage = (message) => {
-      if (!message) return;
+    const transformMessage = (fragments) => {
+      if (!fragments) return;
+
       const textFragments = [];
-      for (let i = 0; i < message.length; i++) {
-        const fragment = message[i];
+      for (let i = 0; i < fragments.length; i++) {
+        const fragment = fragments[i];
         if (fragment.emote) {
           textFragments.push(
             <Box key={i + fragment.emote.emoteID} sx={{ display: "inline" }}>
@@ -220,57 +246,63 @@ export default function Chat(props) {
         let textArray = fragment.text.split(" ");
 
         for (let text of textArray) {
-          let found;
           if (emotes.current) {
-            if (emotes.current.ffz_emotes) {
-              for (let j = 0; j < emotes.current.ffz_emotes.length; j++) {
-                const emote = emotes.current.ffz_emotes[j];
-                if (text === emote.code || text === emote.name) {
-                  found = true;
-                  textFragments.push(
-                    <Box key={messageCount++} style={{ display: "inline" }}>
-                      <img crossOrigin="anonymous" style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }} src={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1`} alt="" />
-                      {` `}
-                    </Box>
-                  );
-                  break;
-                }
-                if (found) continue;
+            const SEVENTV_EMOTES = emotes.current["7tv_emotes"];
+            const BTTV_EMOTES = emotes.current["bttv_emotes"];
+            const FFZ_EMOTES = emotes.current["ffz_emotes"];
+
+            if (SEVENTV_EMOTES) {
+              const emote = SEVENTV_EMOTES.find((SEVENTV_EMOTE) => SEVENTV_EMOTE.name === text || SEVENTV_EMOTE.code === text);
+              if (emote) {
+                textFragments.push(
+                  <Box key={messageCount++} style={{ display: "inline" }}>
+                    <img
+                      crossOrigin="anonymous"
+                      style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
+                      src={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x`}
+                      srcSet={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/4x 4x`}
+                      alt=""
+                    />{" "}
+                  </Box>
+                );
+                continue;
               }
             }
 
-            if (emotes.current.bttv_emotes) {
-              for (let j = 0; j < emotes.current.bttv_emotes.length; j++) {
-                const emote = emotes.current.bttv_emotes[j];
-                if (text === emote.code || text === emote.name) {
-                  found = true;
-                  textFragments.push(
-                    <Box key={messageCount++} style={{ display: "inline" }}>
-                      <img crossOrigin="anonymous" style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }} src={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x`} alt="" />
-                      {` `}
-                    </Box>
-                  );
-                  break;
-                }
+            if (FFZ_EMOTES) {
+              const emote = FFZ_EMOTES.find((FFZ_EMOTE) => FFZ_EMOTE.name === text || FFZ_EMOTE.code === text);
+              if (emote) {
+                textFragments.push(
+                  <Box key={messageCount++} style={{ display: "inline" }}>
+                    <img
+                      crossOrigin="anonymous"
+                      style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
+                      src={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1`}
+                      srcSet={`${BASE_FFZ_EMOTE_CDN}/${emote.id}/1 1x, ${BASE_FFZ_EMOTE_CDN}/${emote.id}/2 2x, ${BASE_FFZ_EMOTE_CDN}/${emote.id}/4 4x`}
+                      alt=""
+                    />{" "}
+                  </Box>
+                );
+                continue;
               }
-              if (found) continue;
             }
 
-            if (emotes.current["7tv_emotes"]) {
-              for (let j = 0; j < emotes.current["7tv_emotes"].length; j++) {
-                const emote = emotes.current["7tv_emotes"][j];
-                if (text === emote.code || text === emote.name) {
-                  found = true;
-                  textFragments.push(
-                    <Box key={messageCount++} style={{ display: "inline" }}>
-                      <img crossOrigin="anonymous" style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }} src={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x`} alt="" />
-                      {` `}
-                    </Box>
-                  );
-                  break;
-                }
+            if (BTTV_EMOTES) {
+              const emote = BTTV_EMOTES.find((BTTV_EMOTE) => BTTV_EMOTE.name === text || BTTV_EMOTE.code === text);
+              if (emote) {
+                textFragments.push(
+                  <Box key={messageCount++} style={{ display: "inline" }}>
+                    <img
+                      crossOrigin="anonymous"
+                      style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
+                      src={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x`}
+                      srcSet={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/4x 4x`}
+                      alt=""
+                    />{" "}
+                  </Box>
+                );
+                continue;
               }
-              if (found) continue;
             }
           }
 
@@ -386,21 +418,21 @@ export default function Chat(props) {
 
   useEffect(() => {
     if (!chatRef.current || shownMessages.length === 0) return;
-    /*
-    if (chatRef.current.scrollHeight === chatRef.current.offsetHeight) return;
 
     let messageHeight = 0;
     for (let message of newMessages.current) {
       if (!message.ref.current) continue;
       messageHeight += message.ref.current.scrollHeight;
     }
-
-    if (chatRef.current.scrollHeight - messageHeight <= chatRef.current.scrollTop + chatRef.current.offsetHeight + 300) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
-    }*/
-
-    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    const height = chatRef.current.scrollHeight - chatRef.current.clientHeight - chatRef.current.scrollTop - messageHeight;
+    const atBottom = height < 256;
+    if (atBottom) chatRef.current.scrollTop = chatRef.current.scrollHeight;
   }, [shownMessages]);
+
+  const scrollToBottom = () => {
+    setScrolling(false);
+    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  };
 
   const handleExpandClick = () => {
     setShowChat(!showChat);
@@ -429,11 +461,22 @@ export default function Chat(props) {
             {comments.length === 0 ? (
               <Loading />
             ) : (
-              <SimpleBar scrollableNodeProps={{ ref: chatRef }} style={{ height: "100%", overflowX: "hidden" }}>
-                <Box sx={{ display: "flex", justifyContent: "flex-end", flexDirection: "column" }}>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", minHeight: 0, alignItems: "flex-end" }}>{shownMessages}</Box>
-                </Box>
-              </SimpleBar>
+              <>
+                <SimpleBar scrollableNodeProps={{ ref: chatRef }} style={{ height: "100%", overflowX: "hidden" }}>
+                  <Box sx={{ display: "flex", justifyContent: "flex-end", flexDirection: "column" }}>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", minHeight: 0, alignItems: "flex-end" }}>{shownMessages}</Box>
+                  </Box>
+                </SimpleBar>
+                {scrolling && (
+                  <Box sx={{ position: "relative", display: "flex", justifyContent: "center" }}>
+                    <Box sx={{ background: "rgba(0,0,0,.6)", minHeight: 0, borderRadius: 1, mb: 1, bottom: 0, position: "absolute" }}>
+                      <Button size="small" onClick={scrollToBottom}>
+                        Chat Paused
+                      </Button>
+                    </Box>
+                  </Box>
+                )}
+              </>
             )}
           </CustomCollapse>
         </>
