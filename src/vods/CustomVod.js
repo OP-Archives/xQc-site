@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Typography, Tooltip, useMediaQuery, IconButton, Collapse, Divider } from "@mui/material";
 import Loading from "../utils/Loading";
 import { useLocation, useParams } from "react-router-dom";
-import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import DownloadIcon from "@mui/icons-material/Download";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CustomPlayer from "./CustomPlayer";
 import Chat from "./Chat";
@@ -101,24 +101,26 @@ export default function Vod(props) {
               {chapter && <Chapters chapters={vod.chapters} chapter={chapter} setChapter={setChapter} setTimestamp={setTimestamp} />}
               <CustomWidthTooltip title={vod.title}>
                 <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", ml: 1 }}>
-                  <Typography>{`${vod.title}`}</Typography>
+                  <Typography fontWeight={550} variant="body1">{`${vod.title}`}</Typography>
                 </Box>
               </CustomWidthTooltip>
-              <Box sx={{ ml: 1 }}>
-                {drive && drive[0] && (
-                  <Tooltip title={`Download Vod`}>
-                    <IconButton href={`https://drive.google.com/u/2/open?id=${drive[0].id}`} color="secondary" aria-label="Download Vod" rel="noopener noreferrer" target="_blank">
-                      <CloudDownloadIcon />
+              <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+                <Box sx={{ ml: 0.5 }}>
+                  {drive && drive[0] && (
+                    <Tooltip title={`Download Vod`}>
+                      <IconButton href={`https://drive.google.com/u/2/open?id=${drive[0].id}`} color="secondary" aria-label="Download Vod" rel="noopener noreferrer" target="_blank">
+                        <DownloadIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </Box>
+                <Box sx={{ ml: 0.5 }}>
+                  <Tooltip title={`Copy Current Timestamp`}>
+                    <IconButton onClick={copyTimestamp} color="primary" aria-label="Copy Current Timestamp" rel="noopener noreferrer" target="_blank">
+                      <ContentCopyIcon />
                     </IconButton>
                   </Tooltip>
-                )}
-              </Box>
-              <Box sx={{ ml: 1 }}>
-                <Tooltip title={`Copy Current Timestamp`}>
-                  <IconButton onClick={copyTimestamp} color="primary" aria-label="Copy Current Timestamp" rel="noopener noreferrer" target="_blank">
-                    <ContentCopyIcon />
-                  </IconButton>
-                </Tooltip>
+                </Box>
               </Box>
             </Box>
           </Collapse>

@@ -3,7 +3,7 @@ import { Box, Typography, MenuItem, Tooltip, useMediaQuery, FormControl, InputLa
 import Loading from "../utils/Loading";
 import { useLocation, useParams } from "react-router-dom";
 import YoutubePlayer from "./YoutubePlayer";
-import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
+import DownloadIcon from "@mui/icons-material/Download";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import NotFound from "../utils/NotFound";
 import Chat from "./Chat";
@@ -140,13 +140,13 @@ export default function Vod(props) {
               {chapter && <Chapters chapters={vod.chapters} chapter={chapter} setPart={setPart} youtube={youtube} setChapter={setChapter} />}
               <CustomToolTip title={vod.title}>
                 <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", ml: 1 }}>
-                  <Typography>{`${vod.title}`}</Typography>
+                  <Typography fontWeight={550} variant="body1">{`${vod.title}`}</Typography>
                 </Box>
               </CustomToolTip>
               <Box sx={{ ml: 1 }}>
-                <FormControl variant="standard" sx={{ p: 1, maxWidth: "80px", minWidth: "40px" }}>
+                <FormControl variant="standard">
                   <InputLabel id="select-label">Part</InputLabel>
-                  <Select labelId="select-label" value={part.part - 1} onChange={handlePartChange} autoWidth>
+                  <Select labelId="select-label" label="Part" value={part.part - 1} onChange={handlePartChange} autoWidth>
                     {youtube.map((data, i) => {
                       return (
                         <MenuItem key={data.id} value={i}>
@@ -157,21 +157,23 @@ export default function Vod(props) {
                   </Select>
                 </FormControl>
               </Box>
-              <Box sx={{ ml: 1 }}>
-                {drive && drive[0] && (
-                  <Tooltip title={`Download Vod`}>
-                    <IconButton href={`https://drive.google.com/u/2/open?id=${drive[0].id}`} color="secondary" aria-label="Download Vod" rel="noopener noreferrer" target="_blank">
-                      <CloudDownloadIcon />
+              <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+                <Box sx={{ ml: 0.5 }}>
+                  {drive && drive[0] && (
+                    <Tooltip title={`Download Vod`}>
+                      <IconButton href={`https://drive.google.com/u/2/open?id=${drive[0].id}`} color="secondary" aria-label="Download Vod" rel="noopener noreferrer" target="_blank">
+                        <DownloadIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </Box>
+                <Box sx={{ ml: 0.5 }}>
+                  <Tooltip title={`Copy Current Timestamp`}>
+                    <IconButton onClick={copyTimestamp} color="primary" aria-label="Copy Current Timestamp" rel="noopener noreferrer" target="_blank">
+                      <ContentCopyIcon />
                     </IconButton>
                   </Tooltip>
-                )}
-              </Box>
-              <Box sx={{ ml: 1 }}>
-                <Tooltip title={`Copy Current Timestamp`}>
-                  <IconButton onClick={copyTimestamp} color="primary" aria-label="Copy Current Timestamp" rel="noopener noreferrer" target="_blank">
-                    <ContentCopyIcon />
-                  </IconButton>
-                </Tooltip>
+                </Box>
               </Box>
             </Box>
           </Collapse>
