@@ -5,6 +5,9 @@ import Loading from "../utils/Loading";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { collapseClasses } from "@mui/material/Collapse";
 import Twemoji from "react-twemoji";
+import Settings from "./Settings";
+import { toHHMMSS } from "../utils/helpers";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 const GLOBAL_TWITCH_BADGES_API = "https://badges.twitch.tv/v1/badges/global/display?language=en";
 const BASE_TWITCH_CDN = "https://static-cdn.jtvnw.net";
@@ -31,6 +34,8 @@ export default function Chat(props) {
   const stoppedAtIndex = useRef(0);
   const newMessages = useRef();
   const [scrolling, setScrolling] = useState(false);
+  const [showTimestamp, setShowTimestamp] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (chatRef && chatRef.current) {
@@ -320,11 +325,13 @@ export default function Chat(props) {
         <Box key={comment.id} ref={createRef()} sx={{ width: "100%" }}>
           <Box sx={{ alignItems: "flex-start", display: "flex", flexWrap: "nowrap", width: "100%", pl: 0.5, pt: 0.5, pr: 0.5 }}>
             <Box sx={{ display: "flex", alignItems: "flex-start" }}>
-              <Box sx={{ display: "inline", pl: 1, pr: 1 }}>
-                <Typography variant="caption" color="textSecondary">
-                  {toHHMMSS(comment.content_offset_seconds)}
-                </Typography>
-              </Box>
+              {showTimestamp && (
+                <Box sx={{ display: "inline", pl: 1, pr: 1 }}>
+                  <Typography variant="caption" color="textSecondary">
+                    {toHHMMSS(comment.content_offset_seconds)}
+                  </Typography>
+                </Box>
+              )}
               <Box sx={{ flexGrow: 1 }}>
                 {comment.user_badges && transformBadges(comment.user_badges)}
                 <Box sx={{ textDecoration: "none", display: "inline" }}>
@@ -351,7 +358,7 @@ export default function Chat(props) {
     });
     stoppedAtIndex.current = lastIndex;
     if (comments.current.length - 1 === lastIndex) fetchNextComments();
-  }, [getCurrentTime, playerRef, vodId, youtube, games]);
+  }, [getCurrentTime, playerRef, vodId, youtube, games, showTimestamp]);
 
   const loop = useCallback(() => {
     if (loopRef.current !== null) clearInterval(loopRef.current);
@@ -451,6 +458,11 @@ export default function Chat(props) {
             <Box sx={{ justifySelf: "center", gridColumnStart: 1, gridRowStart: 1 }}>
               <Typography variant="body1">Chat Replay</Typography>
             </Box>
+            <Box sx={{ justifySelf: "end", gridColumnStart: 1, gridRowStart: 1 }}>
+              <IconButton title="Settings" onClick={() => setShowModal(true)} color="primary">
+                <SettingsIcon />
+              </IconButton>
+            </Box>
           </Box>
           <Divider />
           <CustomCollapse in={showChat} timeout="auto" unmountOnExit sx={{ minWidth: "340px" }}>
@@ -487,21 +499,17 @@ export default function Chat(props) {
           </Box>
         )
       )}
+      <Settings
+        userChatDelay={userChatDelay}
+        setUserChatDelay={props.setUserChatDelay}
+        showModal={showModal}
+        setShowModal={setShowModal}
+        showTimestamp={showTimestamp}
+        setShowTimestamp={setShowTimestamp}
+      />
     </Box>
   );
 }
-
-const toHHMMSS = (secs) => {
-  var sec_num = parseInt(secs, 10);
-  var hours = Math.floor(sec_num / 3600);
-  var minutes = Math.floor(sec_num / 60) % 60;
-  var seconds = sec_num % 60;
-
-  return [hours, minutes, seconds]
-    .map((v) => (v < 10 ? "0" + v : v))
-    .filter((v, i) => v !== "00" || i > 0)
-    .join(":");
-};
 
 const CustomCollapse = styled(({ _, ...props }) => <Collapse {...props} />)({
   [`& .${collapseClasses.wrapper}`]: {

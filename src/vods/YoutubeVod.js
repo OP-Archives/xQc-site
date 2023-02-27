@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { Box, Typography, MenuItem, Tooltip, useMediaQuery, FormControl, InputLabel, Select, IconButton, Collapse, Divider, TextField, InputAdornment } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, Typography, MenuItem, Tooltip, useMediaQuery, FormControl, InputLabel, Select, IconButton, Collapse, Divider } from "@mui/material";
 import Loading from "../utils/Loading";
 import { useLocation, useParams } from "react-router-dom";
 import YoutubePlayer from "./YoutubePlayer";
@@ -7,7 +7,6 @@ import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import NotFound from "../utils/NotFound";
 import Chat from "./Chat";
-import debounce from "lodash.debounce";
 import Chapters from "./VodChapters";
 import ExpandMore from "../utils/CustomExpandMore";
 import CustomToolTip from "../utils/CustomToolTip";
@@ -111,16 +110,6 @@ export default function Vod(props) {
     setShowMenu(!showMenu);
   };
 
-  const debouncedDelay = useMemo(() => {
-    const delayChange = (evt) => {
-      if (evt.target.value.length === 0) return;
-      const value = Number(evt.target.value);
-      if (isNaN(value)) return;
-      setUserChatDelay(value);
-    };
-    return debounce(delayChange, 300);
-  }, []);
-
   useEffect(() => {
     if (delay === undefined) return;
     console.info(`Chat Delay: ${userChatDelay + delay} seconds`);
@@ -177,20 +166,6 @@ export default function Vod(props) {
                   </Tooltip>
                 )}
               </Box>
-              <Box sx={{ ml: 1, mr: 1 }}>
-                <TextField
-                  inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-                  InputProps={{
-                    endAdornment: <InputAdornment position="start">secs</InputAdornment>,
-                  }}
-                  sx={{ width: 100 }}
-                  onChange={debouncedDelay}
-                  label="Chat Delay"
-                  variant="filled"
-                  size="small"
-                  defaultValue={userChatDelay}
-                />
-              </Box>
               <Box sx={{ ml: 1 }}>
                 <Tooltip title={`Copy Current Timestamp`}>
                   <IconButton onClick={copyTimestamp} color="primary" aria-label="Copy Current Timestamp" rel="noopener noreferrer" target="_blank">
@@ -202,7 +177,18 @@ export default function Vod(props) {
           </Collapse>
         </Box>
         {isPortrait && <Divider />}
-        <Chat isPortrait={isPortrait} vodId={vodId} playerRef={playerRef} playing={playing} delay={delay} userChatDelay={userChatDelay} youtube={youtube} part={part} setPart={setPart} />
+        <Chat
+          isPortrait={isPortrait}
+          vodId={vodId}
+          playerRef={playerRef}
+          playing={playing}
+          delay={delay}
+          userChatDelay={userChatDelay}
+          youtube={youtube}
+          part={part}
+          setPart={setPart}
+          setUserChatDelay={setUserChatDelay}
+        />
       </Box>
     </Box>
   );
