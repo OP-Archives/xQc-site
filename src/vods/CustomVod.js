@@ -10,7 +10,8 @@ import Chat from "./Chat";
 import Chapters from "./VodChapters";
 import ExpandMore from "../utils/CustomExpandMore";
 import CustomWidthTooltip from "../utils/CustomToolTip";
-import { parse } from "tinyduration";
+import { toHMS, convertTimestamp } from "../utils/helpers";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 const API_BASE = process.env.REACT_APP_VODS_API_BASE;
 
@@ -27,7 +28,7 @@ export default function Vod(props) {
   const [playing, setPlaying] = useState({ playing: false });
   const search = new URLSearchParams(location.search);
   const [timestamp, setTimestamp] = useState(search.get("t") !== null ? convertTimestamp(search.get("t")) : 0);
-  const [delay, setDelay] = useState(undefined);
+  const [delay, setDelay] = useState(0);
   const [userChatDelay, setUserChatDelay] = useState(0);
   const playerRef = React.useRef(null);
 
@@ -88,6 +89,10 @@ export default function Vod(props) {
     console.info(`Chat Delay: ${userChatDelay + delay} seconds`);
   }, [userChatDelay, delay]);
 
+  const copyTimestamp = () => {
+    navigator.clipboard.writeText(`${window.location.origin}${window.location.pathname}?t=${toHMS(currentTime)}`);
+  };
+
   if (vod === undefined || drive === undefined || chapter === undefined) return <Loading />;
 
   return (
@@ -133,6 +138,13 @@ export default function Vod(props) {
                   defaultValue={userChatDelay}
                 />
               </Box>
+              <Box sx={{ ml: 1 }}>
+                <Tooltip title={`Copy Current Timestamp`}>
+                  <IconButton onClick={copyTimestamp} color="primary" aria-label="Copy Current Timestamp" rel="noopener noreferrer" target="_blank">
+                    <ContentCopyIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
             </Box>
           </Collapse>
         </Box>
@@ -142,17 +154,3 @@ export default function Vod(props) {
     </Box>
   );
 }
-
-/**
- * Parse Timestamp (1h2m3s) to seconds.
- */
-const convertTimestamp = (timestamp) => {
-  try {
-    timestamp = parse(`PT${timestamp.toUpperCase()}`);
-    timestamp = (timestamp?.hours || 0) * 60 * 60 + (timestamp?.minutes || 0) * 60 + (timestamp?.seconds || 0);
-  } catch {
-    timestamp = 0;
-  }
-
-  return timestamp;
-};

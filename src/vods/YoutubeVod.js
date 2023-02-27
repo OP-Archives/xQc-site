@@ -11,7 +11,8 @@ import debounce from "lodash.debounce";
 import Chapters from "./VodChapters";
 import ExpandMore from "../utils/CustomExpandMore";
 import CustomToolTip from "../utils/CustomToolTip";
-import { parse } from "tinyduration";
+import { toHMS, convertTimestamp, toSeconds } from "../utils/helpers";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 const API_BASE = "https://api.xqc.wtf";
 
@@ -125,6 +126,10 @@ export default function Vod(props) {
     console.info(`Chat Delay: ${userChatDelay + delay} seconds`);
   }, [userChatDelay, delay]);
 
+  const copyTimestamp = () => {
+    navigator.clipboard.writeText(`${window.location.origin}${window.location.pathname}?t=${toHMS(currentTime)}`);
+  };
+
   if (vod === undefined || drive === undefined || chapter === undefined || part === undefined || delay === undefined) return <Loading />;
 
   if (youtube.length === 0) return <NotFound />;
@@ -186,6 +191,13 @@ export default function Vod(props) {
                   defaultValue={userChatDelay}
                 />
               </Box>
+              <Box sx={{ ml: 1 }}>
+                <Tooltip title={`Copy Current Timestamp`}>
+                  <IconButton onClick={copyTimestamp} color="primary" aria-label="Copy Current Timestamp" rel="noopener noreferrer" target="_blank">
+                    <ContentCopyIcon />
+                  </IconButton>
+                </Tooltip>
+              </Box>
             </Box>
           </Collapse>
         </Box>
@@ -195,23 +207,3 @@ export default function Vod(props) {
     </Box>
   );
 }
-
-const toSeconds = (hms) => {
-  const time = hms.split(":");
-
-  return +time[0] * 60 * 60 + +time[1] * 60 + +time[2];
-};
-
-/**
- * Parse Timestamp (1h2m3s) to seconds.
- */
-const convertTimestamp = (timestamp) => {
-  try {
-    timestamp = parse(`PT${timestamp.toUpperCase()}`);
-    timestamp = (timestamp?.hours || 0) * 60 * 60 + (timestamp?.minutes || 0) * 60 + (timestamp?.seconds || 0);
-  } catch {
-    timestamp = 0;
-  }
-
-  return timestamp;
-};
