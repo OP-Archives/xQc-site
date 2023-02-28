@@ -49,7 +49,7 @@ export default function Vod(props) {
           </Box>
         </Box>
       </Box>
-      <Box sx={{ mt: 1, mb: 1, display: "flex" }}>
+      <Box sx={{ mt: 1, mb: 1, display: "flex", alignItems: "center" }}>
         {vod.chapters && vod.chapters.length > 0 && <Chapters vod={vod} />}
         <Box sx={{ minWidth: 0, width: "100%" }}>
           <Box sx={{ p: 0.5 }}>
@@ -63,7 +63,7 @@ export default function Vod(props) {
               </span>
             </CustomWidthTooltip>
           </Box>
-          <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 0.5 }}>
             <WatchMenu vod={vod} />
           </Box>
         </Box>

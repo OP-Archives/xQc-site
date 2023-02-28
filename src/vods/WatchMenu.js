@@ -20,9 +20,10 @@ export default function WatchMenu(props) {
 
   return (
     <Box>
-      <Button onClick={handleClick}>
-        <Typography variant="h7">Watch</Typography>
-        <PlayArrowIcon />
+      <Button color="primary" variant="outlined" onClick={handleClick} endIcon={<PlayArrowIcon />}>
+        <Typography fontWeight={600} variant="body1">
+          Watch
+        </Typography>
       </Button>
       <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
         {vod.youtube.length > 0 && (

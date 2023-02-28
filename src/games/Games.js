@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Box, Typography, MenuItem, Tooltip, useMediaQuery, FormControl, InputLabel, Select, IconButton, Link, Collapse, Divider } from "@mui/material";
 import Loading from "../utils/Loading";
 import { useLocation, useParams } from "react-router-dom";
@@ -24,7 +24,7 @@ export default function Games(props) {
   const [showMenu, setShowMenu] = useState(true);
   const [playing, setPlaying] = useState({ playing: false });
   const [userChatDelay, setUserChatDelay] = useState(0);
-  const playerRef = React.useRef(null);
+  const playerRef = useRef(null);
 
   useEffect(() => {
     const fetchVod = async () => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Box, Typography, MenuItem, Tooltip, useMediaQuery, FormControl, InputLabel, Select, IconButton, Collapse, Divider } from "@mui/material";
 import Loading from "../utils/Loading";
 import { useLocation, useParams } from "react-router-dom";
@@ -30,7 +30,7 @@ export default function Vod(props) {
   const [playing, setPlaying] = useState({ playing: false });
   const [delay, setDelay] = useState(undefined);
   const [userChatDelay, setUserChatDelay] = useState(0);
-  const playerRef = React.useRef(null);
+  const playerRef = useRef(null);
 
   useEffect(() => {
     const fetchVod = async () => {
