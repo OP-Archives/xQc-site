@@ -25,12 +25,19 @@ export const convertTimestamp = (timestamp) => {
 };
 
 /**
- * HHMMSS to seconds
+ * HHMMSS/MMSS to seconds
  */
 export const toSeconds = (hms) => {
-  const time = hms.split(":");
+  var p = hms.split(":"),
+    s = 0,
+    m = 1;
 
-  return +time[0] * 60 * 60 + +time[1] * 60 + +time[2];
+  while (p.length > 0) {
+    s += m * parseInt(p.pop(), 10);
+    m *= 60;
+  }
+
+  return s;
 };
 
 /**

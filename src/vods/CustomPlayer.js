@@ -3,6 +3,7 @@ import canAutoPlay from "can-autoplay";
 import { Button, Box, Alert, Paper } from "@mui/material";
 import VideoJS from "./VideoJS";
 import "videojs-hotkeys";
+import { toSeconds } from "../utils/helpers";
 
 const CDN_BASE = "https://cdn.xqc.wtf";
 
@@ -126,10 +127,4 @@ export default function Player(props) {
 
 const sleep = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
-};
-
-const toSeconds = (hms) => {
-  const time = hms.split(":");
-
-  return +time[0] * 60 * 60 + +time[1] * 60 + +time[2];
 };
