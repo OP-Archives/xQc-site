@@ -12,6 +12,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 const GLOBAL_TWITCH_BADGES_API = "https://badges.twitch.tv/v1/badges/global/display?language=en";
 const BASE_TWITCH_CDN = "https://static-cdn.jtvnw.net";
 const BASE_FFZ_EMOTE_CDN = "https://cdn.frankerfacez.com/emote";
+//Needs CORS for mobile devices.
 const BASE_BTTV_EMOTE_CDN = "https://bttv.xqc.wtf";
 const BASE_7TV_EMOTE_CDN = "https://cdn.7tv.app/emote";
 const API_BASE = process.env.REACT_APP_VODS_API_BASE;
@@ -260,8 +261,8 @@ export default function Chat(props) {
                     <img
                       crossOrigin="anonymous"
                       style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
-                      src={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x`}
-                      srcSet={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/4x 4x`}
+                      src={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x.webp`}
+                      srcSet={`${BASE_7TV_EMOTE_CDN}/${emote.id}/1x.webp 1x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/2x.webp 2x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/3x.webp 3x, ${BASE_7TV_EMOTE_CDN}/${emote.id}/4x.webp 4x`}
                       alt=""
                     />{" "}
                   </Box>
@@ -297,7 +298,7 @@ export default function Chat(props) {
                       crossOrigin="anonymous"
                       style={{ verticalAlign: "middle", border: "none", maxWidth: "100%" }}
                       src={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x`}
-                      srcSet={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/4x 4x`}
+                      srcSet={`${BASE_BTTV_EMOTE_CDN}/${emote.id}/1x 1x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/2x 2x, ${BASE_BTTV_EMOTE_CDN}/${emote.id}/3x 3x`}
                       alt=""
                     />{" "}
                   </Box>
