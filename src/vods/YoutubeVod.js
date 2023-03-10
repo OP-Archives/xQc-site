@@ -143,21 +143,21 @@ export default function Vod(props) {
                   <Typography fontWeight={550} variant="body1">{`${vod.title}`}</Typography>
                 </Box>
               </CustomToolTip>
-              <Box sx={{ ml: 1 }}>
-                <FormControl variant="standard">
-                  <InputLabel id="select-label">Part</InputLabel>
-                  <Select labelId="select-label" label="Part" value={part.part - 1} onChange={handlePartChange} autoWidth>
-                    {youtube.map((data, i) => {
-                      return (
-                        <MenuItem key={data.id} value={i}>
-                          {data?.part || i + 1}
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
-              </Box>
               <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
+                <Box sx={{ ml: 0.5 }}>
+                  <FormControl variant="outlined">
+                    <InputLabel id="select-label">Part</InputLabel>
+                    <Select labelId="select-label" label="Part" value={part.part - 1} onChange={handlePartChange} autoWidth>
+                      {youtube.map((data, i) => {
+                        return (
+                          <MenuItem key={data.id} value={i}>
+                            {data?.part || i + 1}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                </Box>
                 <Box sx={{ ml: 0.5 }}>
                   {drive && drive[0] && (
                     <Tooltip title={`Download Vod`}>
