@@ -1,62 +1,43 @@
-import { useState } from "react";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import OpenInBrowserIcon from "@mui/icons-material/OpenInBrowser";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { Box, Button, Typography, MenuItem, Menu } from "@mui/material";
-import CustomLink from "../utils/CustomLink";
+import { Menu, Button, Box } from "@mui/material";
 import OndemandVideo from "@mui/icons-material/OndemandVideo";
 
 export default function WatchMenu(props) {
-  const { vod } = props;
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const { vod, anchorEl, setAnchorEl } = props;
 
   return (
-    <Box>
-      <Button color="primary" variant="outlined" onClick={handleClick} endIcon={<PlayArrowIcon />}>
-        <Typography fontWeight={600} variant="body1">
-          Watch
-        </Typography>
-      </Button>
-      <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleClose}>
-        {vod.youtube.length > 0 && (
-          <CustomLink href={`/youtube/${vod.id}`}>
-            <MenuItem>
-              <YouTubeIcon sx={{ mr: 1 }} />
-              Youtube
-            </MenuItem>
-          </CustomLink>
-        )}
-        {vod.games.length > 0 && (
-          <CustomLink href={`/games/${vod.id}`}>
-            <MenuItem>
-              <YouTubeIcon sx={{ mr: 1 }} />
-              Only Games
-            </MenuItem>
-          </CustomLink>
-        )}
-        {Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 && (
-          <CustomLink href={`/cdn/${vod.id}`}>
-            <MenuItem>
-              <OndemandVideo sx={{ mr: 1 }} />
-              CDN
-            </MenuItem>
-          </CustomLink>
-        )}
-        <CustomLink href={`/manual/${vod.id}`}>
-          <MenuItem>
-            <OpenInBrowserIcon sx={{ mr: 1 }} />
-            Manual
-          </MenuItem>
-        </CustomLink>
-      </Menu>
-    </Box>
+    <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
+      <Box sx={{ pl: 1 }}>
+        <Box>
+          <Button color="primary" disabled={vod.youtube.length === 0} href={`/youtube/${vod.id}`} startIcon={<YouTubeIcon />} size="large" fullWidth sx={{ justifyContent: "flex-start" }}>
+            Youtube (Vod)
+          </Button>
+        </Box>
+        <Box>
+          <Button
+            color="primary"
+            disabled={Date.now() - new Date(vod.createdAt).getTime() >= 14 * 24 * 60 * 60 * 1000}
+            href={`/cdn/${vod.id}`}
+            startIcon={<OndemandVideo />}
+            size="large"
+            fullWidth
+            sx={{ justifyContent: "flex-start" }}
+          >
+            CDN (VOD)
+          </Button>
+        </Box>
+        <Box>
+          <Button color="primary" href={`/manual/${vod.id}`} startIcon={<OpenInBrowserIcon />} size="large" fullWidth sx={{ justifyContent: "flex-start" }}>
+            Manual (VOD)
+          </Button>
+        </Box>
+        <Box>
+          <Button color="primary" disabled={vod.games.length === 0} href={`/games/${vod.id}`} startIcon={<YouTubeIcon />} size="large" fullWidth sx={{ justifyContent: "flex-start" }}>
+            Youtube (Only Games)
+          </Button>
+        </Box>
+      </Box>
+    </Menu>
   );
 }

@@ -89,9 +89,7 @@ export default function Games(props) {
           <Collapse in={showMenu} timeout="auto" unmountOnExit sx={{ minHeight: "auto !important", width: "100%" }}>
             <Box sx={{ display: "flex", p: 1, alignItems: "center" }}>
               <CustomToolTip title={vod.title}>
-                <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", ml: 1 }}>
-                  <Typography fontWeight={550} variant="body1">{`${vod.title}`}</Typography>
-                </Box>
+                <Typography fontWeight={550} variant="body1" noWrap={true}>{`${vod.title}`}</Typography>
               </CustomToolTip>
               <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
                 <Box sx={{ ml: 0.5 }}>

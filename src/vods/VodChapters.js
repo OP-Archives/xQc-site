@@ -36,7 +36,7 @@ export default function Chapters(props) {
   };
 
   return (
-    <Box>
+    <Box sx={{ pr: 1 }}>
       <Tooltip title={chapter.name}>
         <IconButton onClick={handleClick}>
           <img alt="" src={getImage(chapter.image)} style={{ width: "40px", height: "53px" }} />

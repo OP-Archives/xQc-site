@@ -139,9 +139,7 @@ export default function Vod(props) {
             <Box sx={{ display: "flex", p: 1, alignItems: "center" }}>
               {chapter && <Chapters chapters={vod.chapters} chapter={chapter} setPart={setPart} youtube={youtube} setChapter={setChapter} />}
               <CustomToolTip title={vod.title}>
-                <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", ml: 1 }}>
-                  <Typography fontWeight={550} variant="body1">{`${vod.title}`}</Typography>
-                </Box>
+                <Typography fontWeight={550} variant="body1" noWrap={true}>{`${vod.title}`}</Typography>
               </CustomToolTip>
               <Box sx={{ marginLeft: "auto", display: "flex", alignItems: "center" }}>
                 <Box sx={{ ml: 0.5 }}>

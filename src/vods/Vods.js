@@ -8,7 +8,6 @@ import Loading from "../utils/Loading";
 import Vod from "./Vod";
 import Search from "./Search";
 
-const limit = 20;
 const API_BASE = process.env.REACT_APP_VODS_API_BASE;
 
 export default function Vods() {
@@ -18,6 +17,7 @@ export default function Vods() {
   const [page, setPage] = useState(null);
   const [totalVods, setTotalVods] = useState(null);
   const [cdn, setCdn] = useState(null);
+  const limit = isMobile ? 10 : 20;
 
   useEffect(() => {
     document.title = `VODS - xQc`;
@@ -59,7 +59,7 @@ export default function Vods() {
     fetchCDNStatus();
 
     return;
-  }, []);
+  }, [limit]);
 
   const handlePageChange = (_, value) => {
     if (page === value) return;
