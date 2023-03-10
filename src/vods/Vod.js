@@ -7,7 +7,7 @@ import CustomWidthTooltip from "../utils/CustomToolTip";
 import { useState } from "react";
 
 export default function Vod(props) {
-  const { vod, gridSize } = props;
+  const { vod, gridSize, isCdnAvailable } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const DEFAULT_THUMBNAIL = vod.thumbnail_url ? vod.thumbnail_url : vod.games.length > 0 ? vod.games[0].thumbnail_url : Thumbnail;
 
@@ -54,7 +54,7 @@ export default function Vod(props) {
               </span>
             </CustomWidthTooltip>
           </Box>
-          <WatchMenu vod={vod} anchorEl={anchorEl} setAnchorEl={setAnchorEl} />
+          <WatchMenu vod={vod} anchorEl={anchorEl} setAnchorEl={setAnchorEl} isCdnAvailable={isCdnAvailable} />
         </Box>
       </Box>
     </Grid>

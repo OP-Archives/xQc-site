@@ -4,7 +4,7 @@ import { Menu, Button, Box } from "@mui/material";
 import OndemandVideo from "@mui/icons-material/OndemandVideo";
 
 export default function WatchMenu(props) {
-  const { vod, anchorEl, setAnchorEl } = props;
+  const { vod, anchorEl, setAnchorEl, isCdnAvailable } = props;
 
   return (
     <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
@@ -17,7 +17,7 @@ export default function WatchMenu(props) {
         <Box>
           <Button
             color="primary"
-            disabled={Date.now() - new Date(vod.createdAt).getTime() >= 14 * 24 * 60 * 60 * 1000}
+            disabled={Date.now() - new Date(vod.createdAt).getTime() >= 14 * 24 * 60 * 60 * 1000 || !isCdnAvailable}
             href={`/cdn/${vod.id}`}
             startIcon={<OndemandVideo />}
             size="large"

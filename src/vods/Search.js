@@ -6,7 +6,8 @@ import debounce from "lodash.debounce";
 
 const API_BASE = process.env.REACT_APP_VODS_API_BASE;
 
-export default function Search() {
+export default function Search(props) {
+  const { isCdnAvailable } = props;
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState(undefined);
   const [searchResults, setSearchResults] = useState([]);
@@ -54,7 +55,8 @@ export default function Search() {
       filterOptions={(options, _) => options}
       loading={loading}
       renderOption={(props, vod) => {
-        const DEFAULT_VOD = vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 14 * 24 * 60 * 60 * 1000 ? `/cdn/${vod.id}` : `/manual/${vod.id}`;
+        const DEFAULT_VOD =
+          vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 14 * 24 * 60 * 60 * 1000 && isCdnAvailable ? `/cdn/${vod.id}` : `/manual/${vod.id}`;
         const DEFAULT_THUMBNAIL = vod.thumbnail_url ? vod.thumbnail_url : Thumbnail;
         return (
           <MenuItem {...props}>

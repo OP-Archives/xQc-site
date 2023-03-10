@@ -86,6 +86,7 @@ export default function Vods() {
   if (loading) return <Loading />;
 
   const totalPages = Math.ceil(totalVods / limit);
+  const isCdnAvailable = cdn && cdn.enabled && cdn.available;
 
   return (
     <SimpleBar style={{ minHeight: 0, height: "100%" }}>
@@ -96,7 +97,7 @@ export default function Vods() {
           </ErrorBoundary>
         </Box>
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2, flexDirection: "column", alignItems: "center" }}>
-          {cdn && cdn.enabled && !cdn.available && (
+          {!isCdnAvailable && (
             <Alert severity="warning">
               <AlertTitle>CDN Playback is currently disabled due to 50TB Bandwidth Monthly Cap! Despairge.</AlertTitle>
               Consider using the "Manual" playback and Download the Vod using the Download button.
@@ -108,12 +109,12 @@ export default function Vods() {
         </Box>
         <Box sx={{ display: "flex", mt: 1, justifyContent: "center", alignItems: "center" }}>
           <Box sx={{ width: isMobile ? "100%" : "50%" }}>
-            <Search />
+            <Search isCdnAvailable={isCdnAvailable} />
           </Box>
         </Box>
         <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
           {vods.map((vod, _) => (
-            <Vod gridSize={2.1} key={vod.id} vod={vod} isMobile={isMobile} />
+            <Vod gridSize={2.1} key={vod.id} vod={vod} isMobile={isMobile} isCdnAvailable={isCdnAvailable} />
           ))}
         </Grid>
       </Box>
