@@ -5,9 +5,10 @@ import humanize from "humanize-duration";
 import { toHMS } from "../utils/helpers";
 
 export default function Chapters(props) {
-  const { vod } = props;
+  const { vod, isCdnAvailable } = props;
   const [anchorEl, setAnchorEl] = useState(null);
-  const DEFAULT_VOD = vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 ? `/cdn/${vod.id}` : `/manual/${vod.id}`;
+  const DEFAULT_VOD =
+    vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 14 * 24 * 60 * 60 * 1000 && isCdnAvailable ? `/cdn/${vod.id}` : `/manual/${vod.id}`;
 
   const handleClose = () => {
     setAnchorEl(null);

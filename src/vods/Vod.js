@@ -41,7 +41,7 @@ export default function Vod(props) {
         </Box>
       </Box>
       <Box sx={{ mt: 1, mb: 1, display: "flex" }}>
-        {vod.chapters && vod.chapters.length > 0 && <Chapters vod={vod} />}
+        {vod.chapters && vod.chapters.length > 0 && <Chapters vod={vod} isCdnAvailable={isCdnAvailable} />}
         <Box sx={{ minWidth: 0, width: "100%" }}>
           <Box sx={{ p: 0.5 }}>
             <CustomWidthTooltip title={vod.title} placement="top">
