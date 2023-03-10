@@ -8,6 +8,7 @@ import RedditIcon from "@mui/icons-material/Reddit";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import Drawer from "./Drawer";
 import OndemandVideoIcon from "@mui/icons-material/OndemandVideo";
+import ReportIcon from "@mui/icons-material/Report";
 
 const socials = [
   { path: `https://reddit.com/r/xqcow`, icon: <RedditIcon color="primary" /> },
@@ -73,6 +74,16 @@ export default function Navbar() {
 
           {!isMobile && (
             <Box sx={{ display: "flex", justifyContent: "end", flex: 1 }}>
+              <Box sx={{ mr: 2 }}>
+                <CustomLink href={`${process.env.REACT_APP_GITHUB}/issues`} rel="noopener noreferrer" target="_blank">
+                  <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                    <ReportIcon color="primary" sx={{ mr: 0.5 }} />
+                    <Typography color="primary" variant="h6">
+                      Report an Issue
+                    </Typography>
+                  </Box>
+                </CustomLink>
+              </Box>
               <Box sx={{ mr: 2 }}>
                 <CustomLink href="/vods">
                   <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
