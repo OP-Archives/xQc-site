@@ -10,6 +10,7 @@ import { toHHMMSS } from "../utils/helpers";
 import SettingsIcon from "@mui/icons-material/Settings";
 
 const GLOBAL_TWITCH_BADGES_API = "https://badges.twitch.tv/v1/badges/global/display?language=en";
+const SEVENTV_API = "https://api.7tv.app/v2";
 const BASE_TWITCH_CDN = "https://static-cdn.jtvnw.net";
 const BASE_FFZ_EMOTE_CDN = "https://cdn.frankerfacez.com/emote";
 //Needs CORS for mobile devices.
@@ -87,8 +88,24 @@ export default function Chat(props) {
         });
     };
 
-    const loadEmotes = () => {
-      fetch(`${API_BASE}/emotes?vod_id=${vodId}`, {
+    const load7TVGlobalEmotes = () => {
+      fetch(`${SEVENTV_API}/emotes/global`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          emotes.current["7tv_emotes"] = emotes.current["7tv_emotes"].concat(data);
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    };
+
+    const loadEmotes = async () => {
+      await fetch(`${API_BASE}/emotes?vod_id=${vodId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -102,6 +119,7 @@ export default function Chat(props) {
         .catch((e) => {
           console.error(e);
         });
+      load7TVGlobalEmotes();
     };
 
     loadEmotes();
