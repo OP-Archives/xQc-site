@@ -72,7 +72,7 @@ export default function Vods() {
   };
 
   const totalPages = Math.ceil(totalVods / limit);
-  const isCdnAvailable = cdn && cdn.enabled && cdn.available;
+  const isCdnAvailable = cdn?.enabled && cdn?.available;
 
   return (
     <SimpleBar style={{ minHeight: 0, height: "100%" }}>
@@ -83,7 +83,7 @@ export default function Vods() {
           </ErrorBoundary>
         </Box>
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2, flexDirection: "column", alignItems: "center" }}>
-          {!isCdnAvailable && (
+          {cdn && !isCdnAvailable && (
             <Alert severity="warning">
               <AlertTitle>CDN Playback is currently disabled due to 50TB Bandwidth Monthly Cap! Despairge.</AlertTitle>
               Consider using the "Manual" playback and Download the Vod using the Download button.
