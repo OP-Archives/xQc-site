@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Pagination, Grid, useMediaQuery, Alert, AlertTitle } from "@mui/material";
+import { Box, Typography, Pagination, Grid, useMediaQuery, Alert, AlertTitle, PaginationItem } from "@mui/material";
 import SimpleBar from "simplebar-react";
 import ErrorBoundary from "../utils/ErrorBoundary";
 import AdSense from "react-adsense";
@@ -7,22 +7,24 @@ import Footer from "../utils/Footer";
 import Loading from "../utils/Loading";
 import Vod from "./Vod";
 import Search from "./Search";
+import { Link, useLocation } from "react-router-dom";
 
 const API_BASE = process.env.REACT_APP_VODS_API_BASE;
 
 export default function Vods() {
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
   const isMobile = useMediaQuery("(max-width: 900px)");
-  const [vods, setVods] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(null);
+  const [vods, setVods] = useState(null);
   const [totalVods, setTotalVods] = useState(null);
   const [cdn, setCdn] = useState(null);
+  const page = parseInt(query.get("page") || "1", 10);
   const limit = isMobile ? 10 : 20;
 
   useEffect(() => {
-    document.title = `VODS - xQc`;
+    setVods(null);
     const fetchVods = async () => {
-      await fetch(`${API_BASE}/vods?$limit=${limit}&$sort[createdAt]=-1`, {
+      await fetch(`${API_BASE}/vods?$limit=${limit}&$skip=${(page - 1) * limit}&$sort[createdAt]=-1`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -30,17 +32,19 @@ export default function Vods() {
       })
         .then((response) => response.json())
         .then((response) => {
-          setPage(1);
           setVods(response.data);
           setTotalVods(response.total);
-          setLoading(false);
         })
         .catch((e) => {
           console.error(e);
         });
     };
     fetchVods();
+    return;
+  }, [limit, page]);
 
+  useEffect(() => {
+    document.title = `VODS - xQc`;
     const fetchCDNStatus = async () => {
       await fetch(`${API_BASE}/cdn`, {
         method: "GET",
@@ -57,33 +61,9 @@ export default function Vods() {
         });
     };
     fetchCDNStatus();
+  }, []);
 
-    return;
-  }, [limit]);
-
-  const handlePageChange = (_, value) => {
-    if (page === value) return;
-    setLoading(true);
-    setPage(value);
-
-    fetch(`${API_BASE}/vods?$limit=${limit}&$skip=${(value - 1) * limit}&$sort[createdAt]=-1`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.data.length === 0) return;
-        setVods(response.data);
-        setLoading(false);
-      })
-      .catch((e) => {
-        console.error(e);
-      });
-  };
-
-  if (loading) return <Loading />;
+  if (!vods || !cdn) return <Loading />;
 
   const totalPages = Math.ceil(totalVods / limit);
   const isCdnAvailable = cdn && cdn.enabled && cdn.available;
@@ -119,7 +99,15 @@ export default function Vods() {
         </Grid>
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 2 }}>
-        {totalPages !== null && <Pagination count={totalPages} disabled={totalPages <= 1} color="primary" page={page} onChange={handlePageChange} />}
+        {totalPages !== null && (
+          <Pagination
+            count={totalPages}
+            disabled={totalPages <= 1}
+            color="primary"
+            page={page}
+            renderItem={(item) => <PaginationItem component={Link} to={`${location.pathname}${item.page === 1 ? "" : `?page=${item.page}`}`} {...item} />}
+          />
+        )}
       </Box>
       <Footer />
     </SimpleBar>
