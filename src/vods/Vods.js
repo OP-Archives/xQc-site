@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Pagination, Grid, useMediaQuery, Alert, AlertTitle, PaginationItem } from "@mui/material";
+import { Box, Typography, Pagination, Grid, useMediaQuery, Alert, AlertTitle, PaginationItem, TextField, InputAdornment } from "@mui/material";
 import SimpleBar from "simplebar-react";
 import ErrorBoundary from "../utils/ErrorBoundary";
 import AdSense from "react-adsense";
@@ -7,11 +7,12 @@ import Footer from "../utils/Footer";
 import Loading from "../utils/Loading";
 import Vod from "./Vod";
 import Search from "./Search";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const API_BASE = process.env.REACT_APP_VODS_API_BASE;
 
 export default function Vods() {
+  const navigate = useNavigate();
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const isMobile = useMediaQuery("(max-width: 900px)");
@@ -63,7 +64,12 @@ export default function Vods() {
     fetchCDNStatus();
   }, []);
 
-  if (!vods || !cdn) return <Loading />;
+  const handleSubmit = (e) => {
+    const value = e.target.value;
+    if (e.which === 13 && !isNaN(value) && value > 0) {
+      navigate(`${location.pathname}?page=${value}`);
+    }
+  };
 
   const totalPages = Math.ceil(totalVods / limit);
   const isCdnAvailable = cdn && cdn.enabled && cdn.available;
@@ -83,30 +89,53 @@ export default function Vods() {
               Consider using the "Manual" playback and Download the Vod using the Download button.
             </Alert>
           )}
-          <Typography variant="h4" color="primary" sx={{ textTransform: "uppercase", fontWeight: "550" }}>
-            {`${totalVods} Vods Archived`}
-          </Typography>
+          {totalVods && (
+            <Typography variant="h4" color="primary" sx={{ textTransform: "uppercase", fontWeight: "550" }}>
+              {`${totalVods} Vods Archived`}
+            </Typography>
+          )}
         </Box>
         <Box sx={{ display: "flex", mt: 1, justifyContent: "center", alignItems: "center" }}>
           <Box sx={{ width: isMobile ? "100%" : "50%" }}>
             <Search isCdnAvailable={isCdnAvailable} />
           </Box>
         </Box>
-        <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
-          {vods.map((vod, _) => (
-            <Vod gridSize={2.1} key={vod.id} vod={vod} isMobile={isMobile} isCdnAvailable={isCdnAvailable} />
-          ))}
-        </Grid>
+        {vods ? (
+          <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
+            {vods.map((vod, _) => (
+              <Vod gridSize={2.1} key={vod.id} vod={vod} isMobile={isMobile} isCdnAvailable={isCdnAvailable} />
+            ))}
+          </Grid>
+        ) : (
+          <Loading />
+        )}
       </Box>
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 2, alignItems: "center", flexDirection: isMobile ? "column" : "row" }}>
         {totalPages !== null && (
-          <Pagination
-            count={totalPages}
-            disabled={totalPages <= 1}
-            color="primary"
-            page={page}
-            renderItem={(item) => <PaginationItem component={Link} rel="canonical" to={`${location.pathname}${item.page === 1 ? "" : `?page=${item.page}`}`} {...item} />}
-          />
+          <>
+            <Pagination
+              shape="rounded"
+              variant="outlined"
+              count={totalPages}
+              disabled={totalPages <= 1}
+              color="primary"
+              page={page}
+              renderItem={(item) => <PaginationItem component={Link} to={`${location.pathname}${item.page === 1 ? "" : `?page=${item.page}`}`} {...item} />}
+            />
+            <TextField
+              inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+              InputProps={{
+                startAdornment: <InputAdornment position="start">Page</InputAdornment>,
+              }}
+              sx={{
+                width: "100px",
+                m: 1,
+              }}
+              size="small"
+              type="text"
+              onKeyDown={handleSubmit}
+            />
+          </>
         )}
       </Box>
       <Footer />
