@@ -105,7 +105,7 @@ export default function Vods() {
             disabled={totalPages <= 1}
             color="primary"
             page={page}
-            renderItem={(item) => <PaginationItem component={Link} to={`${location.pathname}${item.page === 1 ? "" : `?page=${item.page}`}`} {...item} />}
+            renderItem={(item) => <PaginationItem component={Link} rel="canonical" to={`${location.pathname}${item.page === 1 ? "" : `?page=${item.page}`}`} {...item} />}
           />
         )}
       </Box>
