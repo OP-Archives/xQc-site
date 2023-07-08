@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^4.5.8",
     "@mui/icons-material": "^5.10.9",
     "@mui/material": "^5.10.12",
-    "@mui/styled-engine-sc": "^5.10.6",
+    "@mui/system": "^5.13.7",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
@@ -23,7 +25,6 @@
     "react-twemoji": "^0.5.0",
     "react-youtube": "^10.0.0",
     "simplebar-react": "^2.4.3",
-    "styled-components": "^5.3.6",
     "tinyduration": "^3.2.3",
     "video.js": "^7.20.3",
     "videojs-hotkeys": "^0.2.28",
@@ -54,6 +55,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "babel-plugin-import": "^1.13.5",
     "cross-env": "^7.0.3",
     "customize-cra": "^1.0.0",
