@@ -23,7 +23,6 @@ export default function Vods() {
   const [vods, setVods] = useState(null);
   const [games, setGames] = useState(null);
   const [totalVods, setTotalVods] = useState(null);
-  const [cdn, setCdn] = useState(null);
   const [filter, setFilter] = useState(FILTERS[0]);
   const [filterStartDate, setFilterStartDate] = useState(dayjs(START_DATE));
   const [filterEndDate, setFilterEndDate] = useState(dayjs());
@@ -91,26 +90,6 @@ export default function Vods() {
     return;
   }, [limit, page, filter, filterStartDate, filterEndDate, filterGame]);
 
-  useEffect(() => {
-    document.title = `VODS - xQc`;
-    const fetchCDNStatus = async () => {
-      await fetch(`${API_BASE}/cdn`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          setCdn(response);
-        })
-        .catch((e) => {
-          console.error(e);
-        });
-    };
-    fetchCDNStatus();
-  }, []);
-
   const handleSubmit = (e) => {
     const value = e.target.value;
     if (e.which === 13 && !isNaN(value) && value > 0) {
@@ -128,7 +107,7 @@ export default function Vods() {
   );
 
   const totalPages = Math.ceil(totalVods / limit);
-  const isCdnAvailable = cdn?.enabled && cdn?.available;
+  const isCdnAvailable = true;
 
   return (
     <SimpleBar style={{ minHeight: 0, height: "100%" }}>
@@ -139,7 +118,7 @@ export default function Vods() {
           </ErrorBoundary>
         </Box>
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2, flexDirection: "column", alignItems: "center" }}>
-          {cdn && !isCdnAvailable && (
+          {!isCdnAvailable && (
             <Alert severity="warning">
               <AlertTitle>CDN Playback is currently disabled due to 50TB Bandwidth Monthly Cap! Despairge.</AlertTitle>
               Consider using the "Manual" playback and Download the Vod using the Download button.
