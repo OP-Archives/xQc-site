@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createTheme, ThemeProvider, responsiveFontSizes } from "@mui/material/styles";
 import { CssBaseline, styled } from "@mui/material";
 import Loading from "./utils/Loading";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const Vods = lazy(() => import("./vods/Vods"));
 const YoutubeVod = lazy(() => import("./vods/YoutubeVod"));
@@ -43,37 +45,39 @@ export default function App() {
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <BrowserRouter>
-        <Parent>
-          <Suspense fallback={<Loading />}>
-            <Routes>
-              <Route path="*" element={<NotFound />} />
-              <Route
-                exact
-                path="/"
-                element={
-                  <>
-                    <Navbar />
-                    <Vods />
-                  </>
-                }
-              />
-              <Route
-                exact
-                path="/vods"
-                element={
-                  <>
-                    <Navbar />
-                    <Vods />
-                  </>
-                }
-              />
-              <Route exact path="/youtube/:vodId" element={<YoutubeVod type="live" />} />
-              <Route exact path="/manual/:vodId" element={<CustomVod type="manual" />} />
-              <Route exact path="/cdn/:vodId" element={<CustomVod type="cdn" />} />
-              <Route exact path="/games/:vodId" element={<Games />} />
-            </Routes>
-          </Suspense>
-        </Parent>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <Parent>
+            <Suspense fallback={<Loading />}>
+              <Routes>
+                <Route path="*" element={<NotFound />} />
+                <Route
+                  exact
+                  path="/"
+                  element={
+                    <>
+                      <Navbar />
+                      <Vods />
+                    </>
+                  }
+                />
+                <Route
+                  exact
+                  path="/vods"
+                  element={
+                    <>
+                      <Navbar />
+                      <Vods />
+                    </>
+                  }
+                />
+                <Route exact path="/youtube/:vodId" element={<YoutubeVod type="live" />} />
+                <Route exact path="/manual/:vodId" element={<CustomVod type="manual" />} />
+                <Route exact path="/cdn/:vodId" element={<CustomVod type="cdn" />} />
+                <Route exact path="/games/:vodId" element={<Games />} />
+              </Routes>
+            </Suspense>
+          </Parent>
+        </LocalizationProvider>
       </BrowserRouter>
     </ThemeProvider>
   );

@@ -5,6 +5,9 @@ import Chapters from "./ChaptersMenu";
 import WatchMenu from "./WatchMenu";
 import CustomWidthTooltip from "../utils/CustomToolTip";
 import { useState } from "react";
+import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat.js";
+dayjs.extend(localizedFormat);
 
 export default function Vod(props) {
   const { vod, gridSize, isCdnAvailable } = props;
@@ -28,7 +31,7 @@ export default function Vod(props) {
         <Box sx={{ pointerEvents: "none", position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
           <Box sx={{ position: "absolute", bottom: 0, left: 0 }}>
             <Typography variant="caption" sx={{ p: 0.3, backgroundColor: "rgba(0,0,0,.6)" }}>
-              {`${vod.date}`}
+              {`${dayjs(vod.createdAt).format('LL')}`}
             </Typography>
           </Box>
         </Box>

@@ -1,15 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { Box, Typography, Pagination, Grid, useMediaQuery, Alert, AlertTitle, PaginationItem, TextField, InputAdornment } from "@mui/material";
+import React, { useEffect, useState, useMemo } from "react";
+import { Box, Typography, Pagination, Grid, useMediaQuery, Alert, AlertTitle, PaginationItem, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import SimpleBar from "simplebar-react";
 import ErrorBoundary from "../utils/ErrorBoundary";
 import AdSense from "react-adsense";
 import Footer from "../utils/Footer";
 import Loading from "../utils/Loading";
 import Vod from "./Vod";
-import Search from "./Search";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
+import debounce from "lodash.debounce";
 
 const API_BASE = process.env.REACT_APP_VODS_API_BASE;
+const FILTERS = ["Default", "Date", "Games"];
+const START_DATE = process.env.REACT_APP_START_DATE;
 
 export default function Vods() {
   const navigate = useNavigate();
@@ -17,32 +21,75 @@ export default function Vods() {
   const query = new URLSearchParams(location.search);
   const isMobile = useMediaQuery("(max-width: 900px)");
   const [vods, setVods] = useState(null);
+  const [games, setGames] = useState(null);
   const [totalVods, setTotalVods] = useState(null);
   const [cdn, setCdn] = useState(null);
+  const [filter, setFilter] = useState(FILTERS[0]);
+  const [filterStartDate, setFilterStartDate] = useState(dayjs(START_DATE));
+  const [filterEndDate, setFilterEndDate] = useState(dayjs());
+  const [filterGame, setFilterGame] = useState("");
   const page = parseInt(query.get("page") || "1", 10);
   const limit = isMobile ? 10 : 20;
 
   useEffect(() => {
     setVods(null);
     const fetchVods = async () => {
-      await fetch(`${API_BASE}/vods?$limit=${limit}&$skip=${(page - 1) * limit}&$sort[createdAt]=-1`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          setVods(response.data);
-          setTotalVods(response.total);
-        })
-        .catch((e) => {
-          console.error(e);
-        });
+      switch (filter) {
+        case "Date":
+          if (filterStartDate > filterEndDate) break;
+          await fetch(`${API_BASE}/vods?createdAt[$gte]=${filterStartDate}&createdAt[$lte]=${filterEndDate}&$limit=${limit}&$skip=${(page - 1) * limit}&$sort[createdAt]=-1`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => response.json())
+            .then((response) => {
+              setVods(response.data);
+              setTotalVods(response.total);
+            })
+            .catch((e) => {
+              console.error(e);
+            });
+          break;
+        case "Games":
+          if (filterGame.length === 0) break;
+          await fetch(`${API_BASE}/games?game_name[$iLike]=${filterGame}%&$limit=${limit}&$skip=${(page - 1) * limit}&$sort[createdAt]=-1`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => response.json())
+            .then((response) => {
+              //Remove duplicate vods that have multiple of the same games.
+              setGames(response.data.filter((value, index, self) => index === self.findIndex((t) => t.vod.id === value.vod.id)));
+              setTotalVods(response.total);
+            })
+            .catch((e) => {
+              console.error(e);
+            });
+          break;
+        default:
+          await fetch(`${API_BASE}/vods?$limit=${limit}&$skip=${(page - 1) * limit}&$sort[createdAt]=-1`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then((response) => response.json())
+            .then((response) => {
+              setVods(response.data);
+              setTotalVods(response.total);
+            })
+            .catch((e) => {
+              console.error(e);
+            });
+      }
     };
     fetchVods();
     return;
-  }, [limit, page]);
+  }, [limit, page, filter, filterStartDate, filterEndDate, filterGame]);
 
   useEffect(() => {
     document.title = `VODS - xQc`;
@@ -71,6 +118,15 @@ export default function Vods() {
     }
   };
 
+  const handleGameChange = useMemo(
+    () =>
+      debounce((evt) => {
+        if (evt.target.value.length === 0) return;
+        setFilterGame(evt.target.value);
+      }, 1000),
+    [setFilterGame]
+  );
+
   const totalPages = Math.ceil(totalVods / limit);
   const isCdnAvailable = cdn?.enabled && cdn?.available;
 
@@ -95,19 +151,71 @@ export default function Vods() {
             </Typography>
           )}
         </Box>
-        <Box sx={{ display: "flex", mt: 1, justifyContent: "center", alignItems: "center" }}>
-          <Box sx={{ width: isMobile ? "100%" : "50%" }}>
-            <Search isCdnAvailable={isCdnAvailable} />
-          </Box>
+        <Box sx={{ pl: 15, pr: 15, pt: 2, display: "flex", flexDirection: "row", alignItems: "center" }}>
+          <FormControl>
+            <InputLabel id="select-label">Filter</InputLabel>
+            <Select labelId="select-label" label={filter} value={filter} onChange={(evt) => setFilter(evt.target.value)} autoWidth>
+              {FILTERS.map((data, i) => {
+                return (
+                  <MenuItem key={i} value={data}>
+                    {data}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+          {filter === "Date" && (
+            <Box sx={{ ml: 1 }}>
+              <DatePicker
+                minDate={dayjs(START_DATE)}
+                maxDate={dayjs()}
+                sx={{ mr: 1 }}
+                label="Start Date"
+                defaultValue={filterStartDate}
+                onAccept={(newDate) => setFilterStartDate(newDate.format("YYYY/MM/DD"))}
+                views={["year", "month", "day"]}
+              />
+              <DatePicker
+                minDate={dayjs(START_DATE)}
+                maxDate={dayjs()}
+                label="End Date"
+                defaultValue={filterEndDate}
+                onAccept={(newDate) => setFilterEndDate(newDate.format("YYYY/MM/DD"))}
+                views={["year", "month", "day"]}
+              />
+            </Box>
+          )}
+          {filter === "Games" && (
+            <Box sx={{ ml: 1 }}>
+              <TextField fullWidth label="Search a Game" type="text" onChange={handleGameChange} defaultValue={filterGame} />
+            </Box>
+          )}
         </Box>
-        {vods ? (
-          <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
-            {vods.map((vod, _) => (
-              <Vod gridSize={2.1} key={vod.id} vod={vod} isMobile={isMobile} isCdnAvailable={isCdnAvailable} />
-            ))}
-          </Grid>
+        {filter !== "Games" ? (
+          vods ? (
+            <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
+              {vods.map((vod, _) => (
+                <Vod gridSize={2.1} key={vod.id} vod={vod} isMobile={isMobile} isCdnAvailable={isCdnAvailable} />
+              ))}
+            </Grid>
+          ) : (
+            <Loading />
+          )
         ) : (
-          <Loading />
+          <></>
+        )}
+        {filter === "Games" ? (
+          games ? (
+            <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
+              {games.map((game, _) => (
+                <Vod gridSize={2.1} key={game.id} vod={game.vod} isMobile={isMobile} isCdnAvailable={isCdnAvailable} />
+              ))}
+            </Grid>
+          ) : (
+            <Loading />
+          )
+        ) : (
+          <></>
         )}
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 2, alignItems: "center", flexDirection: isMobile ? "column" : "row" }}>
