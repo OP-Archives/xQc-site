@@ -32,6 +32,7 @@ export default function Vods() {
 
   useEffect(() => {
     setVods(null);
+    setGames(null);
     const fetchVods = async () => {
       switch (filter) {
         case "Date":
