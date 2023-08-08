@@ -131,7 +131,7 @@ export default function Vods() {
             </Typography>
           )}
         </Box>
-        <Box sx={{ pl: 15, pr: 15, pt: 1, display: "flex", flexDirection: "row", alignItems: "center" }}>
+        <Box sx={{ pl: !isMobile ? 15 : 5, pr: !isMobile ? 15 : 5, pt: 1, display: "flex", flexDirection: "row", alignItems: "center" }}>
           <FormControl>
             <InputLabel id="select-label">Filter</InputLabel>
             <Select labelId="select-label" label={filter} value={filter} onChange={(evt) => setFilter(evt.target.value)} autoWidth>
