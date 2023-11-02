@@ -79,7 +79,7 @@ export default function Chat(props) {
       })
         .then((response) => response.json())
         .then((data) => {
-          emotes.current["7tv_emotes"] = emotes.current["7tv_emotes"].concat(data);
+          emotes.current["7tv_emotes"] = emotes.current["7tv_emotes"].concat(data.emotes);
         })
         .catch((e) => {
           console.error(e);
