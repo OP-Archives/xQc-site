@@ -9,7 +9,7 @@ import Settings from "./Settings";
 import { toHHMMSS } from "../utils/helpers";
 import SettingsIcon from "@mui/icons-material/Settings";
 
-const SEVENTV_API = "https://api.7tv.app/v2";
+const SEVENTV_API = "https://7tv.io/v3";
 const BASE_TWITCH_CDN = "https://static-cdn.jtvnw.net";
 const BASE_FFZ_EMOTE_CDN = "https://cdn.frankerfacez.com/emote";
 //Needs CORS for mobile devices.
@@ -71,7 +71,7 @@ export default function Chat(props) {
     };
 
     const load7TVGlobalEmotes = () => {
-      fetch(`${SEVENTV_API}/emotes/global`, {
+      fetch(`${SEVENTV_API}/emote-sets/global`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
