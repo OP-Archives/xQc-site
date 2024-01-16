@@ -108,7 +108,7 @@ export default function Vods() {
   );
 
   const totalPages = Math.ceil(totalVods / limit);
-  const isCdnAvailable = true;
+  const isCdnAvailable = false;
 
   return (
     <SimpleBar style={{ minHeight: 0, height: "100%" }}>
@@ -120,9 +120,9 @@ export default function Vods() {
         </Box>
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2, flexDirection: "column", alignItems: "center" }}>
           {!isCdnAvailable && (
-            <Alert severity="warning">
-              <AlertTitle>CDN Playback is currently disabled due to 50TB Bandwidth Monthly Cap! Despairge.</AlertTitle>
-              Consider using the "Manual" playback and Download the Vod using the Download button.
+            <Alert severity="error">
+              <AlertTitle>CDN Playback is currently disabled!</AlertTitle>
+              Won't be back until xQc answers DMs! Bug him if you want it fixed!
             </Alert>
           )}
           {totalVods && (
