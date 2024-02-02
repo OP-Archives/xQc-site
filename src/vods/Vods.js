@@ -121,7 +121,7 @@ export default function Vods() {
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2, flexDirection: "column", alignItems: "center" }}>
           {!isCdnAvailable && (
             <Alert severity="error">
-              <AlertTitle>CDN Playback is currently disabled!</AlertTitle>
+              <AlertTitle>All Vods & CDN Playback is currently disabled!</AlertTitle>
               Won't be back until xQc answers DMs! Bug him if you want it fixed!
             </Alert>
           )}
