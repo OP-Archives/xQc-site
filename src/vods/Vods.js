@@ -179,7 +179,7 @@ export default function Vods() {
           )}
           {totalVods && (
             <Typography variant="h4" color="primary" sx={{ textTransform: "uppercase", fontWeight: "550" }}>
-              {`${totalVods} Vods Archived`}
+              {`${totalVods} Vods`}
             </Typography>
           )}
         </Box>
