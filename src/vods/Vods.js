@@ -10,9 +10,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import debounce from "lodash.debounce";
+import vodsClient from "./client";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-const API_BASE = process.env.REACT_APP_VODS_API_BASE;
-const FILTERS = ["Default", "Date", "Games"];
+const FILTERS = ["Default", "Date", "Title", "Game"];
 const START_DATE = process.env.REACT_APP_START_DATE;
 
 export default function Vods() {
@@ -21,29 +23,36 @@ export default function Vods() {
   const query = new URLSearchParams(location.search);
   const isMobile = useMediaQuery("(max-width: 900px)");
   const [vods, setVods] = useState(null);
-  const [games, setGames] = useState(null);
   const [totalVods, setTotalVods] = useState(null);
   const [filter, setFilter] = useState(FILTERS[0]);
   const [filterStartDate, setFilterStartDate] = useState(dayjs(START_DATE));
   const [filterEndDate, setFilterEndDate] = useState(dayjs());
+  const [filterTitle, setFilterTitle] = useState("");
   const [filterGame, setFilterGame] = useState("");
   const page = parseInt(query.get("page") || "1", 10);
   const limit = isMobile ? 10 : 20;
 
   useEffect(() => {
     setVods(null);
-    setGames(null);
     const fetchVods = async () => {
       switch (filter) {
         case "Date":
           if (filterStartDate > filterEndDate) break;
-          await fetch(`${API_BASE}/vods?createdAt[$gte]=${filterStartDate}&createdAt[$lte]=${filterEndDate}&$limit=${limit}&$skip=${(page - 1) * limit}&$sort[createdAt]=-1`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          })
-            .then((response) => response.json())
+          vodsClient
+            .service("vods")
+            .find({
+              query: {
+                createdAt: {
+                  $gte: filterStartDate.format("YYYY/MM/DD"),
+                  $lte: filterEndDate.format("YYYY/MM/DD"),
+                },
+                $limit: limit,
+                $skip: (page - 1) * limit,
+                $sort: {
+                  createdAt: -1,
+                },
+              },
+            })
             .then((response) => {
               setVods(response.data);
               setTotalVods(response.total);
@@ -52,18 +61,48 @@ export default function Vods() {
               console.error(e);
             });
           break;
-        case "Games":
-          if (filterGame.length === 0) break;
-          await fetch(`${API_BASE}/games?game_name[$iLike]=${filterGame}%&$limit=${limit}&$skip=${(page - 1) * limit}&$sort[createdAt]=-1`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          })
-            .then((response) => response.json())
+        case "Title":
+          if (filterTitle.length === 0) break;
+          vodsClient
+            .service("vods")
+            .find({
+              query: {
+                title: {
+                  $iLike: `%${filterTitle}%`,
+                },
+                $limit: limit,
+                $skip: (page - 1) * limit,
+                $sort: {
+                  createdAt: -1,
+                },
+              },
+            })
             .then((response) => {
-              //Remove duplicate vods that have multiple of the same games.
-              setGames(response.data.filter((value, index, self) => index === self.findIndex((t) => t.vod.id === value.vod.id)));
+              setVods(response.data);
+              setTotalVods(response.total);
+            })
+            .catch((e) => {
+              console.error(e);
+            });
+          break;
+        case "Game":
+          if (filterGame.length === 0) break;
+          vodsClient
+            .service("vods")
+            .find({
+              query: {
+                chapters: {
+                  name: filterGame,
+                },
+                $limit: limit,
+                $skip: (page - 1) * limit,
+                $sort: {
+                  createdAt: -1,
+                },
+              },
+            })
+            .then((response) => {
+              setVods(response.data);
               setTotalVods(response.total);
             })
             .catch((e) => {
@@ -71,13 +110,17 @@ export default function Vods() {
             });
           break;
         default:
-          await fetch(`${API_BASE}/vods?$limit=${limit}&$skip=${(page - 1) * limit}&$sort[createdAt]=-1`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          })
-            .then((response) => response.json())
+          vodsClient
+            .service("vods")
+            .find({
+              query: {
+                $limit: limit,
+                $skip: (page - 1) * limit,
+                $sort: {
+                  createdAt: -1,
+                },
+              },
+            })
             .then((response) => {
               setVods(response.data);
               setTotalVods(response.total);
@@ -89,7 +132,7 @@ export default function Vods() {
     };
     fetchVods();
     return;
-  }, [limit, page, filter, filterStartDate, filterEndDate, filterGame]);
+  }, [limit, page, filter, filterStartDate, filterEndDate, filterTitle, filterGame]);
 
   const handleSubmit = (e) => {
     const value = e.target.value;
@@ -97,6 +140,15 @@ export default function Vods() {
       navigate(`${location.pathname}?page=${value}`);
     }
   };
+
+  const handleTitleChange = useMemo(
+    () =>
+      debounce((evt) => {
+        if (evt.target.value.length === 0) return;
+        setFilterTitle(evt.target.value);
+      }, 1000),
+    [setFilterTitle]
+  );
 
   const handleGameChange = useMemo(
     () =>
@@ -145,57 +197,47 @@ export default function Vods() {
             </Select>
           </FormControl>
           {filter === "Date" && (
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Box sx={{ ml: 1 }}>
+                <DatePicker
+                  minDate={dayjs(START_DATE)}
+                  maxDate={dayjs()}
+                  sx={{ mr: 1 }}
+                  label="Start Date"
+                  defaultValue={filterStartDate}
+                  onAccept={(newDate) => setFilterStartDate(newDate)}
+                  views={["year", "month", "day"]}
+                />
+                <DatePicker
+                  minDate={dayjs(START_DATE)}
+                  maxDate={dayjs()}
+                  label="End Date"
+                  defaultValue={filterEndDate}
+                  onAccept={(newDate) => setFilterEndDate(newDate)}
+                  views={["year", "month", "day"]}
+                />
+              </Box>
+            </LocalizationProvider>
+          )}
+          {filter === "Title" && (
             <Box sx={{ ml: 1 }}>
-              <DatePicker
-                minDate={dayjs(START_DATE)}
-                maxDate={dayjs()}
-                sx={{ mr: 1 }}
-                label="Start Date"
-                defaultValue={filterStartDate}
-                onAccept={(newDate) => setFilterStartDate(newDate.format("YYYY/MM/DD"))}
-                views={["year", "month", "day"]}
-              />
-              <DatePicker
-                minDate={dayjs(START_DATE)}
-                maxDate={dayjs()}
-                label="End Date"
-                defaultValue={filterEndDate}
-                onAccept={(newDate) => setFilterEndDate(newDate.format("YYYY/MM/DD"))}
-                views={["year", "month", "day"]}
-              />
+              <TextField fullWidth label="Search by Title" type="text" onChange={handleTitleChange} defaultValue={filterTitle} />
             </Box>
           )}
-          {filter === "Games" && (
+          {filter === "Game" && (
             <Box sx={{ ml: 1 }}>
-              <TextField fullWidth label="Search a Game" type="text" onChange={handleGameChange} defaultValue={filterGame} />
+              <TextField fullWidth label="Search by Game" type="text" onChange={handleGameChange} defaultValue={filterGame} />
             </Box>
           )}
         </Box>
-        {filter !== "Games" ? (
-          vods ? (
-            <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
-              {vods.map((vod, _) => (
-                <Vod gridSize={2.1} key={vod.id} vod={vod} isMobile={isMobile} isCdnAvailable={isCdnAvailable} />
-              ))}
-            </Grid>
-          ) : (
-            <Loading />
-          )
+        {vods ? (
+          <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
+            {vods.map((vod, _) => (
+              <Vod gridSize={2.1} key={vod.id} vod={vod} isMobile={isMobile} />
+            ))}
+          </Grid>
         ) : (
-          <></>
-        )}
-        {filter === "Games" ? (
-          games ? (
-            <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
-              {games.map((game, _) => (
-                <Vod gridSize={2.1} key={game.id} vod={game.vod} isMobile={isMobile} isCdnAvailable={isCdnAvailable} />
-              ))}
-            </Grid>
-          ) : (
-            <Loading />
-          )
-        ) : (
-          <></>
+          <Loading />
         )}
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 2, alignItems: "center", flexDirection: isMobile ? "column" : "row" }}>
