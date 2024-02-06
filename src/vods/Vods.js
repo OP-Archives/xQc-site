@@ -43,8 +43,8 @@ export default function Vods() {
             .find({
               query: {
                 createdAt: {
-                  $gte: filterStartDate.format("YYYY/MM/DD"),
-                  $lte: filterEndDate.format("YYYY/MM/DD"),
+                  $gte: filterStartDate.toISOString(),
+                  $lte: filterEndDate.toISOString(),
                 },
                 $limit: limit,
                 $skip: (page - 1) * limit,
