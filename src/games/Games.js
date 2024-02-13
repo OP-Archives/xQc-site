@@ -79,7 +79,7 @@ export default function Games(props) {
       <Box sx={{ display: "flex", flexDirection: isPortrait ? "column" : "row", height: "100%", width: "100%" }}>
         <Box sx={{ display: "flex", height: "100%", width: "100%", flexDirection: "column", alignItems: "flex-start", minWidth: 0, overflow: "hidden", position: "relative" }}>
           <YoutubePlayer playerRef={playerRef} part={part} games={games} setPart={setPart} setPlaying={setPlaying} delay={delay} />
-          <Box sx={{ position: "absolute", bottom: 0, left: "50%", width: "100%" }}>
+          <Box sx={{ position: "absolute", bottom: 0, left: "50%" }}>
             <Tooltip title={showMenu ? "Collapse" : "Expand"}>
               <ExpandMore expand={showMenu} onClick={handleExpandClick} aria-expanded={showMenu} aria-label="show menu">
                 <ExpandMoreIcon />
