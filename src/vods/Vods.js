@@ -171,12 +171,6 @@ export default function Vods() {
           </ErrorBoundary>
         </Box>
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2, flexDirection: "column", alignItems: "center" }}>
-          {!isCdnAvailable && (
-            <Alert severity="error">
-              <AlertTitle>All Vods & CDN Playback is currently disabled!</AlertTitle>
-              Won't be back until xQc answers DMs! Bug him if you want it fixed!
-            </Alert>
-          )}
           {totalVods && (
             <Typography variant="h4" color="primary" sx={{ textTransform: "uppercase", fontWeight: "550" }}>
               {`${totalVods} Vods`}
