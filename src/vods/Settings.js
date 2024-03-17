@@ -32,9 +32,10 @@ export default function Settings(props) {
               fullWidth
               label="Chat Delay"
               size="small"
-              type="text"
+              type="number"
               onChange={delayChange}
               defaultValue={userChatDelay}
+              onFocus={(evt) => evt.target.select()}
             />
           </Box>
         </Box>
