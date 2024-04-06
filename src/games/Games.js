@@ -68,6 +68,7 @@ export default function Games(props) {
 
   useEffect(() => {
     console.info(`Chat Delay: ${userChatDelay + delay} seconds`);
+    return;
   }, [userChatDelay]);
 
   if (vod === undefined || drive === undefined || part === undefined || delay === undefined) return <Loading />;
