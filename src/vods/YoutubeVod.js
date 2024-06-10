@@ -96,6 +96,10 @@ export default function Vod(props) {
     const vodDuration = toSeconds(vod.duration);
     let totalYoutubeDuration = 0;
     for (let data of youtube) {
+      if (!data.duration) {
+        totalYoutubeDuration += process.env.REACT_APP_DEFAULT_DELAY;
+        continue;
+      }
       totalYoutubeDuration += data.duration;
     }
     const tmpDelay = vodDuration - totalYoutubeDuration < 0 ? 0 : vodDuration - totalYoutubeDuration;

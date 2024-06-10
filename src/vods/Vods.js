@@ -160,7 +160,7 @@ export default function Vods() {
   );
 
   const totalPages = Math.ceil(totalVods / limit);
-  const isCdnAvailable = false;
+  const isCdnAvailable = true;
 
   return (
     <SimpleBar style={{ minHeight: 0, height: "100%" }}>

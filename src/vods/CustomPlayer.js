@@ -5,7 +5,7 @@ import VideoJS from "./VideoJS";
 import "videojs-hotkeys";
 import { toSeconds } from "../utils/helpers";
 
-const CDN_BASE = "https://videos.xqc.wtf";
+const CDN_BASE = "https://cdn.xqc.wtf";
 
 export default function Player(props) {
   const { playerRef, setCurrentTime, setPlaying, type, vod, timestamp, delay, setDelay } = props;
@@ -52,7 +52,7 @@ export default function Player(props) {
       setPlaying({ playing: false });
     });
 
-    if (type === "cdn") setSource(`${CDN_BASE}/${vod.stream_id}/${vod.stream_id}.m3u8`);
+    if (type === "cdn") setSource(`${CDN_BASE}/videos/${vod.id}.mp4`);
   };
 
   const timeUpdate = () => {
