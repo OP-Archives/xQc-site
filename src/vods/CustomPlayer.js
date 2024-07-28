@@ -54,7 +54,7 @@ export default function Player(props) {
 
     player.on("error", () => {
       const error = player.error();
-      if(error.code === 4) {
+      if(error.code === 4 && type === "cdn") {
         setSource(`${CDN_BASE}/videos/${vod.id}.mp4`)
       }
     })
