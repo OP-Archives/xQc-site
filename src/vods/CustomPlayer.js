@@ -52,7 +52,14 @@ export default function Player(props) {
       setPlaying({ playing: false });
     });
 
-    if (type === "cdn") setSource(`${CDN_BASE}/videos/${vod.id}.mp4`);
+    player.on("error", () => {
+      const error = player.error();
+      if(error.code === 4) {
+        setSource(`${CDN_BASE}/videos/${vod.id}.mp4`)
+      }
+    })
+
+    if (type === "cdn") setSource(`${CDN_BASE}/videos/${vod.id}/${vod.id}.m3u8`);
   };
 
   const timeUpdate = () => {
