@@ -8,7 +8,7 @@ export default function Chapters(props) {
   const { vod, isCdnAvailable } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const DEFAULT_VOD =
-    vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 14 * 24 * 60 * 60 * 1000 && isCdnAvailable ? `/cdn/${vod.id}` : `/manual/${vod.id}`;
+    vod.youtube.length > 0 ? `/youtube/${vod.id}` : Date.now() - new Date(vod.createdAt).getTime() < 14 * 24 * 60 * 60 * 1000 && isCdnAvailable ? `/cdn/${vod.id}` : `#`;
 
   const handleClose = () => {
     setAnchorEl(null);

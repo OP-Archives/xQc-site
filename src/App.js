@@ -71,7 +71,6 @@ export default function App() {
                   }
                 />
                 <Route exact path="/youtube/:vodId" element={<YoutubeVod />} />
-                <Route exact path="/manual/:vodId" element={<CustomVod type="manual" />} />
                 <Route exact path="/cdn/:vodId" element={<CustomVod type="cdn" />} />
                 <Route exact path="/games/:vodId" element={<Games />} />
               </Routes>

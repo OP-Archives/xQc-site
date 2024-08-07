@@ -28,11 +28,6 @@ export default function WatchMenu(props) {
           </Button>
         </Box>
         <Box>
-          <Button color="primary" href={`/manual/${vod.id}`} startIcon={<OpenInBrowserIcon />} size="large" fullWidth sx={{ justifyContent: "flex-start" }}>
-            Manual (VOD)
-          </Button>
-        </Box>
-        <Box>
           <Button color="primary" disabled={vod.games.length === 0} href={`/games/${vod.id}`} startIcon={<YouTubeIcon />} size="large" fullWidth sx={{ justifyContent: "flex-start" }}>
             Youtube (Only Games)
           </Button>
