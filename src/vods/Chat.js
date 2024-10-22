@@ -14,7 +14,7 @@ const BASE_TWITCH_CDN = "https://static-cdn.jtvnw.net";
 const BASE_FFZ_EMOTE_CDN = "https://cdn.frankerfacez.com/emote";
 //Needs CORS for mobile devices.
 const BASE_BTTV_EMOTE_CDN = "https://bttv.xqc.wtf";
-const BASE_7TV_EMOTE_CDN = "https://7tv.xqc.wtf";
+const BASE_7TV_EMOTE_CDN = "https://cdn.7tv.app/emote";
 const API_BASE = process.env.REACT_APP_VODS_API_BASE;
 
 let messageCount = 0;
