@@ -1,5 +1,4 @@
 import YouTubeIcon from "@mui/icons-material/YouTube";
-import OpenInBrowserIcon from "@mui/icons-material/OpenInBrowser";
 import { Menu, Button, Box } from "@mui/material";
 import OndemandVideo from "@mui/icons-material/OndemandVideo";
 
