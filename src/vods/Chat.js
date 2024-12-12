@@ -621,7 +621,7 @@ const CustomCollapse = styled(({ _, ...props }) => <Collapse {...props} />)({
   },
 });
 
-const ExpandMore = styled(React.forwardRef(({ expand, ...props }, ref) => <IconButton {...props} />))`
+const ExpandMore = styled(({ expand, ...props }, ref) => <IconButton {...props} />)`
   margin-left: auto;
   transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
   ${(props) =>
