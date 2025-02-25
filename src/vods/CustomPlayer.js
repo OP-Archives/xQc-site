@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from "react";
-import canAutoPlay from "can-autoplay";
 import { Button, Box, Alert, Paper } from "@mui/material";
 import VideoJS from "./VideoJS";  // Make sure this import matches the default export
 import "videojs-hotkeys";
@@ -215,7 +214,3 @@ export default function Player(props) {
     </Box>
   );
 }
-
-const sleep = (ms) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};

@@ -6,8 +6,7 @@ import "video.js/dist/video-js.css";
 const VideoJS = (props) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
-  const { options, onReady, vodId } = props;
-  const [isReady, setIsReady] = useState(false);
+  const { options, onReady } = props;
 
   // Initialize player once
   useEffect(() => {
@@ -35,7 +34,6 @@ const VideoJS = (props) => {
 
     player.ready(() => {
       console.log('Player is ready');
-      setIsReady(true);
       if (onReady) {
         onReady(player);
       }
@@ -46,7 +44,6 @@ const VideoJS = (props) => {
       if (playerRef.current) {
         playerRef.current.dispose();
         playerRef.current = null;
-        setIsReady(false);
       }
     };
   }, []); // Empty dependency array - only initialize once
