@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import canAutoPlay from "can-autoplay";
 import { Button, Box, Alert, Paper } from "@mui/material";
-import VideoJS from "./VideoJS";
+import VideoJS from "./VideoJS";  // Make sure this import matches the default export
 import "videojs-hotkeys";
 import { toSeconds } from "../utils/helpers";
 
@@ -18,11 +18,65 @@ export default function Player(props) {
     responsive: false,
     fluid: false,
     poster: vod.thumbnail_url,
+    sources: source ? [
+      {
+        src: typeof source === 'string' ? source : source.src,
+        type: typeof source === 'string' ? 'application/x-mpegURL' : source.type,
+        withCredentials: false
+      }
+    ] : [],
+    html5: {
+      vhs: {
+        overrideNative: true,
+        enableLowInitialPlaylist: true
+      },
+      nativeAudioTracks: false,
+      nativeVideoTracks: false
+    }
+  };
+
+  // Add new function to handle position saving
+  const savePosition = (player) => {
+    const currentTime = player.currentTime();
+    localStorage.setItem(`video-position-${vod.id}`, currentTime);
   };
 
   const onReady = (player) => {
+    if (!player) return;
     playerRef.current = player;
 
+    // Restore last position after source is loaded
+    player.one('loadedmetadata', () => {
+      const savedPosition = localStorage.getItem(`video-position-${vod.id}`);
+      if (savedPosition) {
+        const position = parseFloat(savedPosition);
+        if (!isNaN(position)) {
+          player.currentTime(position);
+        }
+      }
+    });
+
+    // Save position periodically and on pause
+    player.on('timeupdate', () => {
+      // Save every 5 seconds
+      if (Math.floor(player.currentTime()) % 5 === 0) {
+        savePosition(player);
+      }
+    });
+
+    player.on('pause', () => {
+      savePosition(player);
+      clearTimeUpdate();
+      setPlaying({ playing: false });
+    });
+
+    player.on('ended', () => {
+      localStorage.removeItem(`video-position-${vod.id}`);
+      clearTimeUpdate();
+      setPlaying({ playing: false });
+    });
+
+    // Set up hotkeys
     player.hotkeys({
       alwaysCaptureHotkeys: true,
       volumeStep: 0.1,
@@ -32,10 +86,12 @@ export default function Player(props) {
       enableFullscreen: true,
     });
 
-    canAutoPlay.video().then(({ result }) => {
-      if (!result) playerRef.current.muted(true);
-    });
+    // Initialize source if needed
+    if (type === "cdn" && !source) {
+      setSource(`${CDN_BASE}/videos/${vod.id}/${vod.id}.m3u8`);
+    }
 
+    // Set up event handlers
     player.on("play", () => {
       timeUpdate();
       loopTimeUpdate();
@@ -47,28 +103,31 @@ export default function Player(props) {
       setPlaying({ playing: false });
     });
 
-    player.on("end", () => {
+    player.on("ended", () => {
       clearTimeUpdate();
       setPlaying({ playing: false });
     });
 
     player.on("error", () => {
       const error = player.error();
-      if(error.code === 4 && type === "cdn") {
-        setSource(`${CDN_BASE}/videos/${vod.id}.mp4`)
+      if (error && error.code === 4 && type === "cdn") {
+        setSource(`${CDN_BASE}/videos/${vod.id}.mp4`);
       }
-    })
-
-    if (type === "cdn") setSource(`${CDN_BASE}/videos/${vod.id}/${vod.id}.m3u8`);
+    });
   };
 
   const timeUpdate = () => {
-    if (!playerRef.current) return;
-    if (playerRef.current.paused()) return;
-    let currentTime = 0;
-    currentTime += playerRef.current.currentTime();
-    currentTime += delay;
-    setCurrentTime(currentTime);
+    const player = playerRef.current;
+    if (!player || !player.isReady_) return;
+    
+    try {
+      if (player.paused()) return;
+      let currentTime = player.currentTime();
+      currentTime += delay;
+      setCurrentTime(currentTime);
+    } catch (error) {
+      console.error('Error in timeUpdate:', error);
+    }
   };
 
   const loopTimeUpdate = () => {
@@ -94,23 +153,48 @@ export default function Player(props) {
   };
 
   useEffect(() => {
-    if (!source || !playerRef.current) return;
-    playerRef.current.src(source);
-    if (timestamp) playerRef.current.currentTime(timestamp);
+    const player = playerRef.current;
+    if (!player || !source) return;
 
-    const set = async () => {
-      let playerDuration = playerRef.current.duration();
-      while (isNaN(playerDuration) || playerDuration === 0) {
-        playerDuration = playerRef.current.duration();
-        await sleep(100);
+    const currentSrc = player.currentSrc();
+    const newSrc = typeof source === 'string' ? source : source.src;
+    
+    // Only update if source has actually changed
+    if (currentSrc !== newSrc) {
+      console.log('Updating source to:', newSrc);
+      
+      const sourceObject = {
+        src: newSrc,
+        type: typeof source === 'string' ? 'application/x-mpegURL' : source.type
+      };
+
+      player.src(sourceObject);
+
+      // Handle timestamp after source change
+      if (timestamp) {
+        player.one('loadedmetadata', () => {
+          player.currentTime(timestamp);
+        });
       }
-      const vodDuration = toSeconds(vod.duration);
-      const tmpDelay = vodDuration - playerDuration < 0 ? 0 : vodDuration - playerDuration;
-      setDelay(tmpDelay);
-    };
 
-    set();
-  }, [source, playerRef, timestamp, vod, setDelay]);
+      // Update duration/delay after source change
+      player.one('loadedmetadata', async () => {
+        let playerDuration = player.duration();
+        const vodDuration = toSeconds(vod.duration);
+        const tmpDelay = vodDuration - playerDuration < 0 ? 0 : vodDuration - playerDuration;
+        setDelay(tmpDelay);
+      });
+    }
+  }, [source]); // Only depend on source changes
+
+  // Add cleanup for localStorage
+  useEffect(() => {
+    return () => {
+      if (playerRef.current) {
+        savePosition(playerRef.current);
+      }
+    };
+  }, [vod.id]);
 
   return (
     <Box sx={{ height: "100%", width: "100%" }}>
@@ -126,7 +210,7 @@ export default function Player(props) {
         </Paper>
       )}
       <Box style={{ visibility: !source ? "hidden" : "visible", height: "100%", width: "100%", outline: "none" }}>
-        <VideoJS options={videoJsOptions} onReady={onReady} />
+        <VideoJS options={videoJsOptions} onReady={onReady} vodId={vod.id} />
       </Box>
     </Box>
   );

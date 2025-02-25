@@ -8,6 +8,7 @@ import Twemoji from "react-twemoji";
 import Settings from "./Settings";
 import { toHHMMSS } from "../utils/helpers";
 import SettingsIcon from "@mui/icons-material/Settings";
+import MessageTooltip from "./MessageTooltip";
 
 const SEVENTV_API = "https://7tv.io/v3";
 const BASE_TWITCH_CDN = "https://static-cdn.jtvnw.net";
@@ -519,6 +520,35 @@ export default function Chat(props) {
     };
   }, [playing, vodId, getCurrentTime, loop]);
 
+  // Add an effect to re-sync chat after the video has been set to the saved time
+  useEffect(() => {
+    const syncChat = () => {
+      if (playerRef.current && typeof playerRef.current.currentTime === 'function') {
+        const videoTime = playerRef.current.currentTime();
+        console.log("Syncing chat to video time:", videoTime);
+        // Option 1: trigger a full chat re-fetch:
+        // Optionally clear current messages and restart the comment loop
+        stoppedAtIndex.current = 0;
+        setShownMessages([]);
+        // Re-fetch chat comments using the current video time:
+        fetch(`${API_BASE}/v1/vods/${vodId}/comments?content_offset_seconds=${videoTime}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        })
+          .then(response => response.json())
+          .then(data => {
+            comments.current = data.comments;
+            cursor.current = data.cursor;
+            loop();  // restart the chat updating loop
+          })
+          .catch(e => console.error(e));
+      }
+    };
+    // Delay a bit so that the player’s time is updated after loadedmetadata
+    const timer = setTimeout(syncChat, 500);
+    return () => clearTimeout(timer);
+  }, [vodId, playerRef, getCurrentTime, loop]);
+
   const stopLoop = () => {
     if (loopRef.current !== null) clearInterval(loopRef.current);
   };
@@ -633,10 +663,3 @@ const ExpandMore = styled(({ expand, ...props }, ref) => <IconButton {...props} 
           transform: rotate(90deg);
         `}
 `;
-
-const MessageTooltip = styled(({ className, ...props }) => <Tooltip {...props} PopperProps={{ disablePortal: true }} classes={{ popper: className }} />)(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: "#fff",
-    color: "rgba(0, 0, 0, 0.87)",
-  },
-}));

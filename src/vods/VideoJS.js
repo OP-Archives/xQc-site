@@ -1,27 +1,66 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
 
-export const VideoJS = (props) => {
-  const videoRef = React.useRef(null);
-  const playerRef = React.useRef(null);
-  const { options, onReady } = props;
+// Remove the named export and use default export directly
+const VideoJS = (props) => {
+  const videoRef = useRef(null);
+  const playerRef = useRef(null);
+  const { options, onReady, vodId } = props;
+  const [isReady, setIsReady] = useState(false);
 
+  // Initialize player once
   useEffect(() => {
-    if (!playerRef.current) {
-      if (!videoRef.current) return;
+    if (!videoRef.current || playerRef.current) return;
 
-      const player = (playerRef.current = videojs(videoRef.current, options, () => {
-        onReady && onReady(player);
-      }));
-    }
-  }, [options, videoRef, onReady]);
+    const videoElement = videoRef.current;
+    const player = videojs(videoElement, {
+      ...options,
+      controls: true,
+      fluid: true,
+      preload: 'auto',
+      playsinline: true,
+      muted: true,
+      html5: {
+        vhs: {
+          overrideNative: true,
+          enableLowInitialPlaylist: true,
+        },
+        nativeAudioTracks: false,
+        nativeVideoTracks: false
+      }
+    });
+
+    playerRef.current = player;
+
+    player.ready(() => {
+      console.log('Player is ready');
+      setIsReady(true);
+      if (onReady) {
+        onReady(player);
+      }
+    });
+
+    // Cleanup
+    return () => {
+      if (playerRef.current) {
+        playerRef.current.dispose();
+        playerRef.current = null;
+        setIsReady(false);
+      }
+    };
+  }, []); // Empty dependency array - only initialize once
 
   return (
     <div data-vjs-player>
-      <video ref={videoRef} autoPlay playsInline className="video-js" style={{ height: "100%", width: "100%" }} />
+      <video
+        ref={videoRef}
+        className="video-js vjs-big-play-centered"
+        playsInline
+      />
     </div>
   );
 };
 
+// Change to default export only
 export default VideoJS;
