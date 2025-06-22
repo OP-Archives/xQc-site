@@ -21,6 +21,17 @@ export default function Player(props) {
     poster: vod.thumbnail_url,
   };
 
+  // Save current position to localStorage
+  const savePosition = (player) => {
+    if (!player) return;
+    const currentTime = player.currentTime();
+    localStorage.setItem(`video-position-${vod.id}`, currentTime);
+  };
+
+  const clearPosition = () => {
+    localStorage.removeItem(`video-position-${vod.id}`);
+  };
+
   const onReady = (player) => {
     playerRef.current = player;
 
@@ -37,29 +48,44 @@ export default function Player(props) {
       if (!result) playerRef.current.muted(true);
     });
 
-    player.on("play", () => {
-      timeUpdate();
-      loopTimeUpdate();
-      setPlaying({ playing: true });
+    // Restore last position after metadata is loaded
+    player.on("loadedmetadata", function () {
+      // If a timestamp is provided, prefer it, else restore from localStorage
+      if (timestamp) {
+        player.currentTime(timestamp);
+      } else {
+        const savedPosition = localStorage.getItem(`video-position-${vod.id}`);
+        if (savedPosition) {
+          const position = parseFloat(savedPosition);
+          if (!isNaN(position)) {
+            player.currentTime(position);
+          }
+        }
+      }
+    });
+
+    // Save position every 5 seconds
+    player.on("timeupdate", () => {
+      if (Math.floor(player.currentTime()) % 5 === 0) {
+        savePosition(player);
+      }
     });
 
     player.on("pause", () => {
+      savePosition(player);
       clearTimeUpdate();
       setPlaying({ playing: false });
     });
 
     player.on("end", () => {
+      clearPosition();
       clearTimeUpdate();
       setPlaying({ playing: false });
     });
 
-    player.on("loadedmetadata", function () {
-      player.currentTime(player.seekable().start(0));
-    });
-
     player.on("error", () => {
       const error = player.error();
-      if (error.code === 4 && type === "cdn") {
+      if (error && error.code === 4 && type === "cdn") {
         setSource(`${CDN_BASE}/videos/${vod.id}.mp4`);
       }
     });
@@ -101,8 +127,8 @@ export default function Player(props) {
   useEffect(() => {
     if (!source || !playerRef.current) return;
     playerRef.current.src(source);
-    if (timestamp) playerRef.current.currentTime(timestamp);
 
+    // Delay/duration logic
     const set = async () => {
       let playerDuration = playerRef.current.duration();
       while (isNaN(playerDuration) || playerDuration === 0) {
@@ -113,9 +139,17 @@ export default function Player(props) {
       const tmpDelay = vodDuration - playerDuration < 0 ? 0 : vodDuration - playerDuration;
       setDelay(tmpDelay);
     };
-
     set();
-  }, [source, playerRef, timestamp, vod, setDelay]);
+  }, [source, playerRef, vod, setDelay]);
+
+  // On unmount, save position
+  useEffect(() => {
+    return () => {
+      if (playerRef.current) {
+        savePosition(playerRef.current);
+      }
+    };
+  }, [vod.id]);
 
   return (
     <Box sx={{ height: "100%", width: "100%" }}>
