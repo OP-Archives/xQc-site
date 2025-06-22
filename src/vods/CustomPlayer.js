@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import canAutoPlay from "can-autoplay";
 import { Button, Box, Alert, Paper } from "@mui/material";
 import VideoJS from "./VideoJS";
@@ -22,11 +22,14 @@ export default function Player(props) {
   };
 
   // Save current position to localStorage
-  const savePosition = (player) => {
-    if (!player) return;
-    const currentTime = player.currentTime();
-    localStorage.setItem(`video-position-${vod.id}`, currentTime);
-  };
+  const savePosition = useCallback(
+    (player) => {
+      if (!player) return;
+      const currentTime = player.currentTime();
+      localStorage.setItem(`video-position-${vod.id}`, currentTime);
+    },
+    [vod.id]
+  );
 
   const clearPosition = () => {
     localStorage.removeItem(`video-position-${vod.id}`);
@@ -69,6 +72,12 @@ export default function Player(props) {
       if (Math.floor(player.currentTime()) % 5 === 0) {
         savePosition(player);
       }
+    });
+
+    player.on("play", () => {
+      timeUpdate();
+      loopTimeUpdate();
+      setPlaying({ playing: true });
     });
 
     player.on("pause", () => {
@@ -149,7 +158,7 @@ export default function Player(props) {
         savePosition(playerRef.current);
       }
     };
-  }, [vod.id]);
+  }, [vod.id, playerRef, savePosition]);
 
   return (
     <Box sx={{ height: "100%", width: "100%" }}>
