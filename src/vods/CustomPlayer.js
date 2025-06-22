@@ -17,6 +17,7 @@ export default function Player(props) {
     controls: true,
     responsive: false,
     fluid: false,
+    liveui: true,
     poster: vod.thumbnail_url,
   };
 
@@ -52,12 +53,16 @@ export default function Player(props) {
       setPlaying({ playing: false });
     });
 
+    player.on("loadedmetadata", function () {
+      player.currentTime(player.seekable().start(0));
+    });
+
     player.on("error", () => {
       const error = player.error();
-      if(error.code === 4 && type === "cdn") {
-        setSource(`${CDN_BASE}/videos/${vod.id}.mp4`)
+      if (error.code === 4 && type === "cdn") {
+        setSource(`${CDN_BASE}/videos/${vod.id}.mp4`);
       }
-    })
+    });
 
     if (type === "cdn") setSource(`${CDN_BASE}/videos/${vod.id}/${vod.id}.m3u8`);
   };
