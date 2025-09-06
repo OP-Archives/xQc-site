@@ -37,7 +37,7 @@ export default function Chapters(props) {
 
   return (
     <Box sx={{ pr: 1 }}>
-      <Tooltip title={chapter.name}>
+      <Tooltip title={chapter.name ?? "Chapter 1"}>
         <IconButton onClick={handleClick}>
           <img alt="" src={getImage(chapter.image)} style={{ width: "40px", height: "53px" }} />
         </IconButton>
@@ -51,7 +51,7 @@ export default function Chapters(props) {
                   <img alt="" src={getImage(data.image)} style={{ width: "40px", height: "53px" }} />
                 </Box>
                 <Box sx={{ display: "flex", flexDirection: "column" }}>
-                  <Typography color="inherit" variant="body2" noWrap>{`${data.name}`}</Typography>
+                  <Typography color="inherit" variant="body2" noWrap>{`${data.name ?? "Chapter 1"}`}</Typography>
                   <Typography variant="caption" color="textSecondary" noWrap>{`${humanize(data.end * 1000, { largest: 2 })}`}</Typography>
                 </Box>
               </Box>
@@ -65,5 +65,6 @@ export default function Chapters(props) {
 
 //Support older vods that had {width}x{height} in the link
 const getImage = (link) => {
+  if (!link) return `https://static-cdn.jtvnw.net/ttv-static/404_boxart.jpg`;
   return link.replace("{width}x{height}", "40x53");
 };
