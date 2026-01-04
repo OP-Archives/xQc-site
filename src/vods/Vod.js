@@ -1,4 +1,3 @@
-import React from "react";
 import { Box, Typography, Grid, Button } from "@mui/material";
 import Thumbnail from "../assets/default_thumbnail.png";
 import Chapters from "./ChaptersMenu";
@@ -15,7 +14,7 @@ export default function Vod(props) {
   const DEFAULT_THUMBNAIL = vod.thumbnail_url ? vod.thumbnail_url : vod.games.length > 0 ? vod.games[0].thumbnail_url : Thumbnail;
 
   return (
-    <Grid item xs={gridSize} sx={{ maxWidth: "18rem", flexBasis: "18rem" }}>
+    <Grid size={{ xs: gridSize }} sx={{ maxWidth: "18rem", flexBasis: "18rem" }}>
       <Box
         sx={{
           overflow: "hidden",
@@ -31,7 +30,7 @@ export default function Vod(props) {
         <Box sx={{ pointerEvents: "none", position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
           <Box sx={{ position: "absolute", bottom: 0, left: 0 }}>
             <Typography variant="caption" sx={{ p: 0.3, backgroundColor: "rgba(0,0,0,.6)" }}>
-              {`${dayjs(vod.createdAt).format('LL')}`}
+              {`${dayjs(vod.createdAt).format("LL")}`}
             </Typography>
           </Box>
         </Box>

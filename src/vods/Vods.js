@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Box, Typography, Pagination, Grid, useMediaQuery, PaginationItem, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import SimpleBar from "simplebar-react";
 import ErrorBoundary from "../utils/ErrorBoundary";
@@ -15,6 +15,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const FILTERS = ["Default", "Date", "Title", "Game"];
+const PLATFORMS = ["All", "Twitch", "Kick"];
 const START_DATE = process.env.REACT_APP_START_DATE;
 
 export default function Vods() {
@@ -29,116 +30,97 @@ export default function Vods() {
   const [filterEndDate, setFilterEndDate] = useState(dayjs());
   const [filterTitle, setFilterTitle] = useState("");
   const [filterGame, setFilterGame] = useState("");
+  const [platform, setPlatform] = useState(PLATFORMS[0]);
   const page = parseInt(query.get("page") || "1", 10);
   const limit = isMobile ? 10 : 20;
 
   useEffect(() => {
     setVods(null);
     const fetchVods = async () => {
+      let query = {
+        $limit: limit,
+        $skip: (page - 1) * limit,
+        $sort: {
+          createdAt: -1,
+        },
+        $and: [],
+      };
+      if (platform !== PLATFORMS[0]) {
+        query.$and.push({ platform: platform.toLowerCase() });
+      }
       switch (filter) {
         case "Date":
-          if (filterStartDate > filterEndDate) break;
-          vodsClient
-            .service("vods")
-            .find({
-              query: {
-                createdAt: {
-                  $gte: filterStartDate.toISOString(),
-                  $lte: filterEndDate.toISOString(),
-                },
-                $limit: limit,
-                $skip: (page - 1) * limit,
-                $sort: {
-                  createdAt: -1,
-                },
-              },
-            })
-            .then((response) => {
-              setVods(response.data);
-              setTotalVods(response.total);
-            })
-            .catch((e) => {
-              console.error(e);
-            });
+          if (filterStartDate > filterEndDate) {
+            query = null;
+            break;
+          }
+          query.$and.push({
+            createdAt: {
+              $gte: filterStartDate.toISOString(),
+              $lte: filterEndDate.toISOString(),
+            },
+          });
           break;
         case "Title":
-          if (filterTitle.length === 0) break;
-          vodsClient
-            .service("vods")
-            .find({
-              query: {
-                title: {
-                  $iLike: `%${filterTitle}%`,
-                },
-                $limit: limit,
-                $skip: (page - 1) * limit,
-                $sort: {
-                  createdAt: -1,
-                },
-              },
-            })
-            .then((response) => {
-              setVods(response.data);
-              setTotalVods(response.total);
-            })
-            .catch((e) => {
-              console.error(e);
-            });
+          if (filterTitle.length === 0) {
+            query = null;
+            break;
+          }
+          query.$and.push({
+            title: {
+              $iLike: `%${filterTitle}%`,
+            },
+          });
           break;
         case "Game":
-          if (filterGame.length === 0) break;
-          vodsClient
-            .service("vods")
-            .find({
-              query: {
-                chapters: {
-                  name: filterGame,
-                },
-                $limit: limit,
-                $skip: (page - 1) * limit,
-                $sort: {
-                  createdAt: -1,
-                },
+          if (filterGame.length === 0) {
+            query = null;
+            break;
+          }
+          if (platform === PLATFORMS[0]) {
+            query.chapters = {
+              name: filterGame,
+            };
+          } else {
+            query.$and.push({
+              chapters: {
+                name: filterGame,
               },
-            })
-            .then((response) => {
-              setVods(response.data);
-              setTotalVods(response.total);
-            })
-            .catch((e) => {
-              console.error(e);
             });
+          }
           break;
         default:
-          vodsClient
-            .service("vods")
-            .find({
-              query: {
-                $limit: limit,
-                $skip: (page - 1) * limit,
-                $sort: {
-                  createdAt: -1,
-                },
-              },
-            })
-            .then((response) => {
-              setVods(response.data);
-              setTotalVods(response.total);
-            })
-            .catch((e) => {
-              console.error(e);
-            });
+          break;
       }
+      if (query == null) return;
+      vodsClient
+        .service("vods")
+        .find({
+          query: query,
+        })
+        .then((response) => {
+          setVods(response.data);
+          setTotalVods(response.total);
+        })
+        .catch((e) => {
+          console.error(e);
+        });
     };
     fetchVods();
     return;
-  }, [limit, page, filter, filterStartDate, filterEndDate, filterTitle, filterGame]);
+  }, [limit, page, filter, filterStartDate, filterEndDate, filterTitle, filterGame, platform]);
 
   const changeFilter = (evt) => {
-    setFilter(evt.target.value)
+    setFilter(evt.target.value);
     //reset page to 1 when filter changes
     navigate(`${location.pathname}?page=1`);
-  }
+  };
+
+  const changePlatform = (evt) => {
+    setPlatform(evt.target.value);
+    //reset page to 1 when platform changes
+    navigate(`${location.pathname}?page=1`);
+  };
 
   const handleSubmit = (e) => {
     const value = e.target.value;
@@ -183,8 +165,8 @@ export default function Vods() {
             </Typography>
           )}
         </Box>
-        <Box sx={{ pl: !isMobile ? 15 : 5, pr: !isMobile ? 15 : 5, pt: 1, display: "flex", flexDirection: "row", alignItems: "center" }}>
-          <FormControl>
+        <Box sx={{ pl: !isMobile ? 5 : 3, pr: !isMobile ? 5 : 3, pt: 1, display: "flex", flexDirection: "row", alignItems: "center" }}>
+          <FormControl sx={{ display: "flex" }}>
             <InputLabel id="select-label">Filter</InputLabel>
             <Select labelId="select-label" label={filter} value={filter} onChange={changeFilter} autoWidth>
               {FILTERS.map((data, i) => {
@@ -229,9 +211,21 @@ export default function Vods() {
               <TextField fullWidth label="Search by Game" type="text" onChange={handleGameChange} defaultValue={filterGame} />
             </Box>
           )}
+          <FormControl sx={{ ml: 1, display: "flex", minWidth: "5rem" }}>
+            <InputLabel id="platform-select-label">Platform</InputLabel>
+            <Select labelId="platform-select-label" label={platform} value={platform} onChange={changePlatform} autoWidth>
+              {PLATFORMS.map((data, i) => {
+                return (
+                  <MenuItem key={i} value={data}>
+                    {data}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         </Box>
         {vods ? (
-          <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
+          <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center", width: "100%" }}>
             {vods.map((vod, _) => (
               <Vod gridSize={2.1} key={vod.id} vod={vod} isMobile={isMobile} isCdnAvailable={isCdnAvailable} />
             ))}
