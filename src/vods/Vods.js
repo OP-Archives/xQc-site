@@ -225,7 +225,7 @@ export default function Vods() {
           </FormControl>
         </Box>
         {vods ? (
-          <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center", width: "100%" }}>
+          <Grid container spacing={2} sx={{ mt: 1, justifyContent: "center" }}>
             {vods.map((vod, _) => (
               <Vod gridSize={2.1} key={vod.id} vod={vod} isMobile={isMobile} isCdnAvailable={isCdnAvailable} />
             ))}
