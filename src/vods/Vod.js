@@ -11,7 +11,7 @@ dayjs.extend(localizedFormat);
 export default function Vod(props) {
   const { vod, gridSize, isCdnAvailable } = props;
   const [anchorEl, setAnchorEl] = useState(null);
-  const DEFAULT_THUMBNAIL = vod.thumbnail_url ? vod.thumbnail_url : vod.games.length > 0 ? vod.games[0].thumbnail_url : Thumbnail;
+  const DEFAULT_THUMBNAIL = vod.youtube.length > 0 ? vod.youtube[0].thumbnail_url : vod.games.length > 0 ? vod.games[0].thumbnail_url : vod.thumbnail_url ? vod.thumbnail_url : Thumbnail;
 
   return (
     <Grid size={{ xs: gridSize }} sx={{ maxWidth: "18rem", flexBasis: "18rem" }}>
