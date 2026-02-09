@@ -558,8 +558,8 @@ export default function Chat(props) {
 
     let messageHeight = 0;
     for (let message of newMessages.current) {
-      if (!message.ref.current) continue;
-      messageHeight += message.ref.current.scrollHeight;
+      if (!message.props.ref.current) continue;
+      messageHeight += message.props.ref.current.scrollHeight;
     }
     const height = chatRef.current.scrollHeight - chatRef.current.clientHeight - chatRef.current.scrollTop - messageHeight;
     const atBottom = height < 512;

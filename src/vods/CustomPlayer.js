@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import canAutoPlay from "can-autoplay";
 import { Button, Box, Alert, Paper } from "@mui/material";
 import VideoJS from "./VideoJS";

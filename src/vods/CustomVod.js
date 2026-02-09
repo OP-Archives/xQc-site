@@ -80,6 +80,16 @@ export default function Vod(props) {
     return;
   }, [userChatDelay, delay]);
 
+  useEffect(() => {
+    if (!playerRef.current) return;
+    if (timestamp >= 0) {
+      //need to pause/play to reset chat position.
+      playerRef.current.pause();
+      playerRef.current.currentTime(timestamp);
+      playerRef.current.play();
+    }
+  }, [timestamp, playerRef]);
+
   const copyTimestamp = () => {
     navigator.clipboard.writeText(`${window.location.origin}${window.location.pathname}?t=${toHMS(currentTime)}`);
   };
