@@ -33,7 +33,7 @@ Fixes ESLint errors automatically.
 - React 19
 - Vite
 - Material-UI
-- Video.js (via @op-archives/vod-components)
+- @op-archives/vod-components (Players/Chat)
 
 ## License
 
