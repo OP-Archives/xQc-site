@@ -84,6 +84,7 @@ export default function App() {
                   element={<YoutubeVod logo={Logo} origin={origin} channel={channel} archiveApiBase={archiveApiBase} defaultDelay={defaultDelay} twitchId={twitchId} />}
                 />
                 <Route exact path="/cdn/:vodId" element={<CustomVod type="cdn" logo={Logo} channel={channel} archiveApiBase={archiveApiBase} twitchId={twitchId} cdnBase={cdnBase} />} />
+                <Route exact path="/manual/:vodId" element={<CustomVod type="manual" logo={Logo} channel={channel} archiveApiBase={archiveApiBase} twitchId={twitchId} cdnBase={cdnBase} />} />
                 <Route exact path="/games/:vodId" element={<Games channel={channel} logo={Logo} origin={origin} archiveApiBase={archiveApiBase} twitchId={twitchId} />} />
               </Routes>
             </ErrorBoundary>
