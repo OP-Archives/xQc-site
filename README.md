@@ -1,6 +1,6 @@
-# MOONMOON
+# XQC
 
-Watch all of MOONMOON's Vods with Chat Replay!
+Watch all of xQc's Vods with Chat Replay!
 
 ## Available Scripts
 
