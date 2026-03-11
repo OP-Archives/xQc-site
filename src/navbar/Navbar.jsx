@@ -1,14 +1,18 @@
-import React from "react";
-import { AppBar, Toolbar, Typography, useMediaQuery, Box, Divider } from "@mui/material";
-import Logo from "../assets/logo.png";
-import CustomLink from "../utils/CustomLink";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import SvgIcon from "@mui/material/SvgIcon";
-import RedditIcon from "@mui/icons-material/Reddit";
-import YouTubeIcon from "@mui/icons-material/YouTube";
-import Drawer from "./Drawer";
-import OndemandVideoIcon from "@mui/icons-material/OndemandVideo";
-import ReportIcon from "@mui/icons-material/Report";
+import Logo from '../assets/logo.png';
+import CustomLink from '../utils/CustomLink';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import SvgIcon from '@mui/material/SvgIcon';
+import RedditIcon from '@mui/icons-material/Reddit';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import Drawer from './Drawer';
+import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
+import ReportIcon from '@mui/icons-material/Report';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
 
 const socials = [
   { path: `https://reddit.com/r/xqcow`, icon: <RedditIcon color="primary" /> },
@@ -36,18 +40,18 @@ const socials = [
 ];
 
 export default function Navbar() {
-  const isMobile = useMediaQuery("(max-width: 900px)");
+  const isMobile = useMediaQuery('(max-width: 900px)');
 
   return (
     <Box sx={{ flex: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
             {isMobile && <Drawer socials={socials} />}
 
             <Box sx={{ mr: 2 }}>
               <a href="/">
-                <img alt="" style={{ maxWidth: "45px", height: "auto" }} src={Logo} />
+                <img alt="" style={{ maxWidth: '45px', height: 'auto' }} src={Logo} />
               </a>
             </Box>
 
@@ -75,10 +79,10 @@ export default function Navbar() {
           </Box>
 
           {!isMobile && (
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flex: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
               <Box sx={{ mr: 2 }}>
                 <CustomLink href="/vods">
-                  <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <OndemandVideoIcon color="primary" sx={{ mr: 0.5 }} />
                     <Typography color="primary" variant="h6">
                       Vods
@@ -90,10 +94,10 @@ export default function Navbar() {
           )}
 
           {!isMobile && (
-            <Box sx={{ display: "flex", justifyContent: "end", flex: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'end', flex: 1 }}>
               <Box sx={{ mr: 2 }}>
-                <CustomLink href={`${process.env.REACT_APP_GITHUB}/issues`} rel="noopener noreferrer" target="_blank">
-                  <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <CustomLink href={`${import.meta.env.VITE_GITHUB}/issues`} rel="noopener noreferrer" target="_blank">
+                  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <ReportIcon color="primary" sx={{ mr: 0.5 }} />
                     <Typography color="primary" variant="h6">
                       Issues

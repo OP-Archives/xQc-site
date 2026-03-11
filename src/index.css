@@ -30,7 +30,7 @@ a:active {
   height: 100%;
 }
 
-.youtube-player {
+.player {
   height: 100%;
   width: 100%;
 }
@@ -46,6 +46,6 @@ a:active {
   border: none;
 }
 
-ins.adsbygoogle[data-ad-status="unfilled"] {
+ins.adsbygoogle[data-ad-status='unfilled'] {
   display: none !important;
 }

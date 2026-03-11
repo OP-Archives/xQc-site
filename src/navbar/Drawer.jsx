@@ -1,14 +1,22 @@
-import { useState } from "react";
-import { Drawer, ListItem, List, ListItemText, IconButton, Divider, Box, Link, ListItemIcon } from "@mui/material";
-import { Menu } from "@mui/icons-material";
-import HomeIcon from "@mui/icons-material/Home";
-import OndemandVideoIcon from "@mui/icons-material/OndemandVideo";
-import ReportIcon from "@mui/icons-material/Report";
+import { useState } from 'react';
+import Drawer from '@mui/material/Drawer';
+import ListItem from '@mui/material/ListItem';
+import List from '@mui/material/List';
+import ListItemText from '@mui/material/ListItemText';
+import IconButton from '@mui/material/IconButton';
+import Divider from '@mui/material/Divider';
+import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import Menu from '@mui/icons-material/Menu';
+import HomeIcon from '@mui/icons-material/Home';
+import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
+import ReportIcon from '@mui/icons-material/Report';
 
 const mainLinks = [
   { title: `Home`, path: `/`, icon: <HomeIcon color="primary" /> },
   { title: `Vods`, path: `/vods`, icon: <OndemandVideoIcon color="primary" /> },
-  { title: `Issues`, path: `${process.env.REACT_APP_GITHUB}/issues`, icon: <ReportIcon color="primary" /> },
+  { title: `Issues`, path: `${import.meta.env.VITE_GITHUB}/issues`, icon: <ReportIcon color="primary" /> },
 ];
 
 export default function DrawerComponent(props) {
@@ -33,7 +41,7 @@ export default function DrawerComponent(props) {
             </Box>
           ))}
           <Divider />
-          <Box sx={{ display: "flex", p: 2 }}>
+          <Box sx={{ display: 'flex', p: 2 }}>
             {socials.map(({ path, icon }) => (
               <Box key={path} sx={{ mr: 2 }}>
                 <Link href={path} rel="noopener noreferrer" target="_blank">

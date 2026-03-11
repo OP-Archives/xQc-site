@@ -1,72 +1,51 @@
 {
   "name": "xqc",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@feathersjs/rest-client": "^5.0.37",
-    "@fontsource/roboto": "^5.2.9",
-    "@mui/icons-material": "^7.3.6",
-    "@mui/material": "^7.3.6",
-    "@mui/system": "^7.3.6",
-    "@mui/x-date-pickers": "^8.21.0",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.1",
-    "@videojs/themes": "^1.0.1",
-    "can-autoplay": "^3.0.2",
+    "@feathersjs/rest-client": "^5.0.42",
+    "@mui/icons-material": "^7.3.9",
+    "@mui/material": "^7.3.9",
+    "@mui/system": "^7.3.9",
+    "@mui/x-date-pickers": "^8.27.2",
+    "@op-archives/vod-components": "^0.1.14",
     "dayjs": "^1.11.19",
-    "humanize-duration": "^3.33.1",
+    "humanize-duration": "^3.33.2",
     "lodash.debounce": "^4.0.8",
-    "postcss": "^8.5.6",
-    "react": "^19.2.1",
-    "react-adsense": "^0.1.0",
-    "react-dom": "^19.2.1",
-    "react-router-dom": "^7.10.1",
-    "react-scripts": "5.0.1",
-    "react-twemoji": "^0.6.0",
-    "react-youtube": "^10.1.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.1",
     "simplebar-react": "^3.3.2",
-    "tinyduration": "^3.4.1",
-    "video.js": "^8.23.4",
-    "videojs-hotkeys": "^0.2.30",
-    "web-vitals": "^5.1.0"
+    "tinyduration": "^3.4.1"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "cross-env react-app-rewired build && rm -rf prod/ && mv build/ prod/",
-    "test": "react-app-rewired test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all",
-      "not safari < 10",
-      "not chrome < 51",
-      "not android < 5",
-      "not ie < 12"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "dev": "vite --force --no-open",
+    "start": "nodemon --signal SIGKILL --watch .yalc --exec npm run dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "mui:imports": "npx @mui/codemod@latest v5.0.0/path-imports src/",
+    "mui:deprecations": "npx @mui/codemod@latest deprecations/all src/"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "babel-plugin-import": "^1.13.8",
-    "cross-env": "^10.1.0",
-    "customize-cra": "^1.0.0",
-    "react-app-rewired": "^2.2.1",
-    "react-git-info": "^2.0.1"
+    "@babel/preset-env": "^7.29.0",
+    "@babel/preset-react": "^7.28.5",
+    "@eslint/js": "^10.0.1",
+    "@vitejs/plugin-react": "^5.1.4",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.8.1",
+    "vite": "^7.3.1",
+    "yalc": "^1.0.0-pre.53"
   }
 }
