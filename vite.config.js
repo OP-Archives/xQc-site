@@ -33,12 +33,12 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          muiCore: ['@mui/material', '@mui/system', '@mui/icons-material'],
-          muiX: ['@mui/x-date-pickers'],
-          emotion: ['@emotion/react', '@emotion/styled'],
-          date: ['dayjs'],
-          react: ['react', 'react-dom', 'react-router-dom'],
+        manualChunks(id) {
+          if (id.includes('@mui/x-date-pickers')) return 'muiX';
+          if (id.includes('@mui/material') || id.includes('@mui/system') || id.includes('@mui/icons-material')) return 'muiCore';
+          if (id.includes('@emotion/react') || id.includes('@emotion/styled')) return 'emotion';
+          if (id.includes('dayjs')) return 'date';
+          if (id.includes('react-router-dom') || id.includes('react-dom') || id.includes('node_modules/react/')) return 'react';
         },
       },
     },

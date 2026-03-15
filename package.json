@@ -13,8 +13,8 @@
     "@mui/material": "^7.3.9",
     "@mui/system": "^7.3.9",
     "@mui/x-date-pickers": "^8.27.2",
-    "@op-archives/vod-components": "^0.1.14",
-    "dayjs": "^1.11.19",
+    "@op-archives/vod-components": "^0.1.16",
+    "dayjs": "^1.11.20",
     "humanize-duration": "^3.33.2",
     "lodash.debounce": "^4.0.8",
     "react": "^19.2.4",
@@ -37,7 +37,7 @@
     "@babel/preset-env": "^7.29.0",
     "@babel/preset-react": "^7.28.5",
     "@eslint/js": "^10.0.1",
-    "@vitejs/plugin-react": "^5.1.4",
+    "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
@@ -45,7 +45,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "nodemon": "^3.1.14",
     "prettier": "^3.8.1",
-    "vite": "^7.3.1",
+    "vite": "^8.0.0",
     "yalc": "^1.0.0-pre.53"
   }
 }
