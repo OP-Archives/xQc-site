@@ -8,18 +8,18 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@feathersjs/rest-client": "^5.0.42",
+    "@feathersjs/rest-client": "^5.0.44",
     "@mui/icons-material": "^7.3.9",
     "@mui/material": "^7.3.9",
     "@mui/system": "^7.3.9",
     "@mui/x-date-pickers": "^8.27.2",
-    "@op-archives/vod-components": "^0.1.17",
+    "@op-archives/vod-components": "^0.1.18",
     "dayjs": "^1.11.20",
     "humanize-duration": "^3.33.2",
     "lodash.debounce": "^4.0.8",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "react-router-dom": "^7.13.1",
+    "react-router-dom": "^7.14.0",
     "simplebar-react": "^3.3.2",
     "tinyduration": "^3.4.1"
   },
@@ -34,18 +34,18 @@
     "mui:deprecations": "npx @mui/codemod@latest deprecations/all src/"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
     "@babel/preset-react": "^7.28.5",
     "@eslint/js": "^10.0.1",
     "@vitejs/plugin-react": "^6.0.1",
-    "eslint": "^10.0.3",
+    "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "nodemon": "^3.1.14",
     "prettier": "^3.8.1",
-    "vite": "^8.0.0",
+    "vite": "^8.0.3",
     "yalc": "^1.0.0-pre.53"
   }
 }
