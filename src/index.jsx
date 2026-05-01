@@ -4,7 +4,14 @@ import './index.css';
 import 'simplebar-react/dist/simplebar.min.css';
 import EnvironmentError from './utils/EnvironmentError';
 
-const requiredEnvVars = ['VITE_ARCHIVE_API_BASE', 'VITE_TWITCH_ID', 'VITE_CHANNEL', 'VITE_DEFAULT_DELAY', 'VITE_DOMAIN', 'VITE_CDN'];
+const requiredEnvVars = [
+  'VITE_ARCHIVE_API_BASE',
+  'VITE_TWITCH_ID',
+  'VITE_CHANNEL',
+  'VITE_DEFAULT_DELAY',
+  'VITE_DOMAIN',
+  'VITE_CDN',
+];
 
 const missingVars = requiredEnvVars.filter((varName) => !import.meta.env[varName]);
 

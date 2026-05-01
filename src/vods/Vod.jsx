@@ -32,7 +32,13 @@ export default memo(function Vod({ vod, isCdnAvailable }) {
           },
         }}
       >
-        <img style={{ cursor: 'pointer' }} onClick={(e) => setAnchorEl(e.currentTarget)} className="thumbnail" alt="" src={DEFAULT_THUMBNAIL} />
+        <img
+          style={{ cursor: 'pointer' }}
+          onClick={(e) => setAnchorEl(e.currentTarget)}
+          className="thumbnail"
+          alt=""
+          src={DEFAULT_THUMBNAIL}
+        />
         <Box sx={{ pointerEvents: 'none', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
           <Box sx={{ position: 'absolute', bottom: 0, left: 0 }}>
             <Typography variant="caption" sx={{ p: 0.3, backgroundColor: 'rgba(0,0,0,.6)' }}>

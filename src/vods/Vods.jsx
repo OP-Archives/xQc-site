@@ -170,14 +170,25 @@ export default function Vods() {
           </Typography>
         ) : (
           <>
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, flexDirection: 'column', alignItems: 'center' }}>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'center', mt: 2, flexDirection: 'column', alignItems: 'center' }}
+            >
               {totalVods !== null && (
                 <Typography variant="h4" color="primary" sx={{ textTransform: 'uppercase', fontWeight: '550' }}>
                   {`${totalVods} Vods`}
                 </Typography>
               )}
             </Box>
-            <Box sx={{ pl: !isMobile ? 12 : 1, pr: !isMobile ? 12 : 1, pt: 1, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            <Box
+              sx={{
+                pl: !isMobile ? 12 : 1,
+                pr: !isMobile ? 12 : 1,
+                pt: 1,
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
               <FormControl sx={{ display: 'flex' }}>
                 <InputLabel id="select-label">Filter</InputLabel>
                 <Select labelId="select-label" label={filter} value={filter} onChange={changeFilter} autoWidth>
@@ -215,17 +226,35 @@ export default function Vods() {
               )}
               {filter === 'Title' && (
                 <Box sx={{ ml: 1 }}>
-                  <TextField fullWidth label="Search by Title" type="text" onChange={(e) => handleTitleChange(e.target.value)} defaultValue={filterTitle} />
+                  <TextField
+                    fullWidth
+                    label="Search by Title"
+                    type="text"
+                    onChange={(e) => handleTitleChange(e.target.value)}
+                    defaultValue={filterTitle}
+                  />
                 </Box>
               )}
               {filter === 'Game' && (
                 <Box sx={{ ml: 1 }}>
-                  <TextField fullWidth label="Search by Game" type="text" onChange={(e) => handleGameChange(e.target.value)} defaultValue={filterGame} />
+                  <TextField
+                    fullWidth
+                    label="Search by Game"
+                    type="text"
+                    onChange={(e) => handleGameChange(e.target.value)}
+                    defaultValue={filterGame}
+                  />
                 </Box>
               )}
               <FormControl sx={{ ml: 1, display: 'flex', minWidth: '5rem' }}>
                 <InputLabel id="platform-select-label">Platform</InputLabel>
-                <Select labelId="platform-select-label" label={platform} value={platform} onChange={changePlatform} autoWidth>
+                <Select
+                  labelId="platform-select-label"
+                  label={platform}
+                  value={platform}
+                  onChange={changePlatform}
+                  autoWidth
+                >
                   {PLATFORMS.map((data, i) => {
                     return (
                       <MenuItem key={i} value={data}>
@@ -238,13 +267,27 @@ export default function Vods() {
             </Box>
             {loading ? <Loading /> : <></>}
             {vods && vods.length > 0 && (
-              <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }} sx={{ mt: 2, justifyContent: 'center' }}>
+              <Grid
+                container
+                rowSpacing={1}
+                columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+                sx={{ mt: 2, justifyContent: 'center' }}
+              >
                 {vods.map((vod) => (
                   <Vod key={vod.id} vod={vod} isMobile={isMobile} isCdnAvailable={isCdnAvailable} />
                 ))}
               </Grid>
             )}
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 2, alignItems: 'center', flexDirection: isMobile ? 'column' : 'row' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                mt: 2,
+                mb: 2,
+                alignItems: 'center',
+                flexDirection: isMobile ? 'column' : 'row',
+              }}
+            >
               {totalPages !== null && (
                 <>
                   <Pagination
@@ -254,7 +297,13 @@ export default function Vods() {
                     disabled={totalPages <= 1}
                     color="primary"
                     page={page}
-                    renderItem={(item) => <PaginationItem component={Link} to={`${location.pathname}${item.page === 1 ? '' : `?page=${item.page}`}`} {...item} />}
+                    renderItem={(item) => (
+                      <PaginationItem
+                        component={Link}
+                        to={`${location.pathname}${item.page === 1 ? '' : `?page=${item.page}`}`}
+                        {...item}
+                      />
+                    )}
                   />
                   <TextField
                     slotProps={{
