@@ -25,16 +25,12 @@ export default function GameCard({ game_id, name, image, count }: GameCardProps)
           style={{ aspectRatio: '400/530' }}
         >
           <motion.div className="absolute inset-0 overflow-hidden rounded-t bg-[#222230]" whileHover={{ x: -6, y: -6 }}>
-            {image ? (
-              <img
-                src={getImage(image, 400, 530)}
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover"
-                loading="lazy"
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-sm text-[#9ca3af]">?</div>
-            )}
+            <img
+              src={getImage(image, 400, 530)}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+              loading="lazy"
+            />
           </motion.div>
         </div>
       </motion.div>

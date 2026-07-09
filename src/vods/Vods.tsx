@@ -10,7 +10,6 @@ import Footer from '../utils/Footer';
 import Loading from '../utils/Loading';
 import PaginationControls from '../utils/PaginationControls';
 import { queryClient } from '../utils/queryClient';
-import { useMediaQuery } from '../utils/useMediaQuery';
 import { useVods, prefetchNextPageVods } from '../utils/useVods';
 import AdSenseBanner from '../utils/AdSenseBanner';
 import Vod from './Vod';
@@ -71,7 +70,6 @@ export default function Vods() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const isMobile = useMediaQuery('(max-width: 900px)');
   const location = useLocation();
   const todayString = new Date().toISOString().split('T')[0];
 
@@ -85,7 +83,7 @@ export default function Vods() {
   const page = parseInt(searchParams.get('page') || '1', 10);
   const gameId = searchParams.get('game_id');
   const platform = searchParams.get('platform') || PLATFORMS[0];
-  const limit = isMobile ? 10 : 20;
+  const limit = 20;
 
   const memoizedDateRange = (() => {
     if (filter !== 'Date' || !filterStartDate || !filterEndDate) return null;
@@ -358,10 +356,12 @@ export default function Vods() {
 
         {vods && vods.length > 0 && (
           <div
-            className={`max-w-[1600px] mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mt-2 transition-opacity duration-200 ${isBackgroundFetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
+            className={`max-w-[1600px] mx-auto grid grid-cols-1 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 mt-2 transition-opacity duration-200 ${isBackgroundFetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
           >
             {vods.map((vod, index) => (
-              <Vod key={vod.id} vod={vod} isMobile={isMobile} priority={index < (isMobile ? 4 : 10)} />
+              <div key={vod.id}>
+                <Vod vod={vod} priority={index < 10} />
+              </div>
             ))}
           </div>
         )}

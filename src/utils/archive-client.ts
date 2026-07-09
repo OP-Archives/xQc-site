@@ -70,6 +70,7 @@ export interface VodData {
   title: string;
   created_at: string;
   duration: number;
+  is_live?: boolean;
   platform?: string;
   thumbnail_url?: string;
   chapters?: ChapterItem[];

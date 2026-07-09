@@ -9,7 +9,6 @@ import WatchMenu from './WatchMenu';
 
 interface VodProps {
   vod: VodData;
-  isMobile?: boolean;
   priority?: boolean;
 }
 
@@ -91,6 +90,14 @@ export default function Vod({ vod, priority }: VodProps) {
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-sm text-[#9ca3af]">?</div>
+            )}
+            {vod.is_live && (
+              <div className="absolute top-2 left-2 z-10">
+                <span className="inline-flex items-center gap-1.5 rounded bg-[#E40005]/90 px-2 py-0.5 text-[10px] font-bold text-white">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
+                  LIVE
+                </span>
+              </div>
             )}
             {platform && (
               <div className="absolute top-2 right-2 z-10">
