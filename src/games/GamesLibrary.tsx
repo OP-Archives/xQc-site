@@ -1,11 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { X } from 'lucide-react';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useSearchParams, useLocation } from 'react-router-dom';
 import type SimpleBarCore from 'simplebar-core';
 import SimpleBar from 'simplebar-react';
 import { getGamesLibrary } from '../utils/archive-client';
 import type { LibraryGameItem } from '../utils/archive-client';
-import FilterBar from '../utils/FilterBar';
 import { useDebouncedSetter } from '../utils/debounceHelper';
 import { useListFilters } from '../utils/useListFilters';
 import Footer from '../utils/Footer';
@@ -42,7 +42,7 @@ export const gamesLibraryLoader = async ({ request }: import('react-router-dom')
   return null;
 };
 
-const FILTERS = ['Recently Played', 'Most Played', 'Game Name'] as const;
+const SORTS = ['Recently Played', 'Most Played', 'Game Name'];
 
 export default function GamesLibrary() {
   const queryClient = useQueryClient();
@@ -54,13 +54,12 @@ export default function GamesLibrary() {
 
   const urlSort = searchParams.get('sort') || 'recent';
   const apiSort = urlSort === 'recent' ? 'recent' : urlSort === 'game_name' ? 'game_name' : 'count';
-  const displaySort = urlSort === 'recent' ? 'Recently Played' : urlSort === 'game_name' ? 'Game Name' : 'Most Played';
 
   const {
     state,
     updateParams,
   } = useListFilters({
-    filterOptions: FILTERS,
+    filterOptions: SORTS,
     searchParamKey: { search: 'search', from: 'from', to: 'to' },
     defaultFilter: 'Recently Played',
   });
@@ -134,10 +133,13 @@ export default function GamesLibrary() {
     };
   }, [state.page, location.key]);
 
-  const changeFilterSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSort = e.target.value;
-    const apiValue = newSort === 'Recently Played' ? 'recent' : newSort === 'Game Name' ? 'game_name' : 'count';
-    updateParams({ sort: apiValue, page: '1' });
+  const changeSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    updateParams({ sort: e.target.value, page: '1' });
+  };
+
+  const handleClearSearch = () => {
+    setInputSearch('');
+    updateParams({ search: null, page: '1' });
   };
 
   return (
@@ -150,35 +152,42 @@ export default function GamesLibrary() {
           )}
         </div>
         <div className="max-w-[1100px] mx-auto">
-          <FilterBar
-            mode="library"
-            filterValue={displaySort}
-            onFilterChange={() => {}}
-            searchValue={inputSearch}
-            onSearchChange={setInputSearch}
-            debouncedOnSearchChange={debouncedSetSearch}
-            onSearchClear={() => {
-              setInputSearch('');
-              updateParams({ search: null, page: '1' });
-            }}
-            showSearch
-            searchPlaceholder="Search by Game"
-            showFilter={false}
-            filterOptions={FILTERS}
-            extraControls={
-              <select
-                value={displaySort}
-                onChange={changeFilterSelect}
-                className="border-border bg-bg-surface text-text-primary hover:border-border/80 focus:border-primary focus:ring-primary/30 h-9 w-max rounded-md border px-3 text-sm transition-all duration-200 focus:ring-1 focus:outline-none sm:ml-1"
-              >
-                {FILTERS.map((data) => (
-                  <option key={data} value={data}>
-                    {data}
-                  </option>
-                ))}
-              </select>
-            }
-          />
+          <div className="flex flex-row flex-wrap items-center gap-2 pt-1">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by Game"
+                onChange={(e) => {
+                  setInputSearch(e.target.value);
+                  debouncedSetSearch(e.target.value);
+                }}
+                value={inputSearch}
+                className="border-border bg-bg-surface text-text-primary placeholder-text-secondary hover:border-border/80 focus:border-primary focus:ring-primary/30 h-9 w-44 rounded-md border px-3 pr-8 text-sm transition-all duration-200 focus:ring-1 focus:outline-none"
+              />
+              {inputSearch && (
+                <button
+                  onClick={handleClearSearch}
+                  className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-[#9ca3af] transition-colors hover:text-[#f0f0f5]"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+            <select
+              value={urlSort}
+              onChange={changeSort}
+              className="border-border bg-bg-surface text-text-primary hover:border-border/80 focus:border-primary focus:ring-primary/30 ml-auto h-9 w-max rounded-md border px-3 text-sm transition-all duration-200 focus:ring-1 focus:outline-none"
+            >
+              {SORTS.map((data) => (
+                <option
+                  key={data}
+                  value={data === 'Recently Played' ? 'recent' : data === 'Game Name' ? 'game_name' : 'count'}
+                >
+                  {data}
+                </option>
+              ))}
+            </select>
+          </div>
           {isLoading && <Loading />}
 
           {!isLoading && games && games.length === 0 && (

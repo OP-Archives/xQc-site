@@ -88,7 +88,9 @@ export default function Vods() {
     todayString,
   });
 
-  const [platformState, setPlatformState] = useState(PLATFORMS[0]);
+  const [platformState, setPlatformState] = useState(() => {
+    return searchParams.get('platform') || PLATFORMS[0];
+  });
   const [inputGame, setInputGame] = useState(() => {
     const chapter = searchParams.get('chapter') || '';
     return chapter;
@@ -103,6 +105,11 @@ export default function Vods() {
     const chapter = searchParams.get('chapter') || '';
     setInputGame(chapter);
   }, [searchParams.get('chapter')]);
+
+  useEffect(() => {
+    const platform = searchParams.get('platform') || PLATFORMS[0];
+    setPlatformState(platform);
+  }, [searchParams]);
 
   const debouncedSetTitle = useDebouncedSetter((val: string) => {
     updateParams({ title: val, filter: 'Title', page: '1' });

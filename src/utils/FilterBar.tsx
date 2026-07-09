@@ -78,7 +78,7 @@ export default function FilterBar({
             ))}
           </select>
         )}
-        {extraControls && <div className="sm:hidden ml-auto">{extraControls}</div>}
+        <div className="sm:hidden">{extraControls}</div>
       </div>
       {showDateRange &&
         onDateStartChange &&
@@ -86,13 +86,13 @@ export default function FilterBar({
         dateStartValue !== undefined &&
         dateEndValue !== undefined &&
         !gameId && (
-          <div className="flex w-full items-center gap-2 sm:w-auto sm:gap-1">
+          <div className="flex w-full items-center gap-2 sm:ml-1 sm:w-auto sm:gap-1">
             <DatePicker value={dateStartValue} onChange={onDateStartChange} maxDate={maxDate} minDate={minDate} />
             <DatePicker value={dateEndValue} onChange={onDateEndChange} maxDate={maxDate} minDate={minDate} />
           </div>
         )}
       {showSearch && (
-        <div className="relative w-full sm:flex-1 sm:min-w-0 sm:w-auto">
+        <div className="relative w-full sm:ml-1 sm:w-auto">
           <input
             type="text"
             placeholder={searchPlaceholder ?? (mode === 'vods' ? 'Search by Title' : 'Search by Game')}
