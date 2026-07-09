@@ -10,8 +10,8 @@ export default function CustomWidthTooltip({ title, placement = 'top', children 
   if (!title) return <>{children}</>;
 
   return (
-    <div className="group relative block w-full">
-      {children}
+    <div className="group relative inline-flex max-w-full min-w-0 items-center">
+      <span className="contents">{children}</span>
 
       <div
         className="pointer-events-none absolute z-50 w-max max-w-[calc(100vw-2rem)] invisible opacity-0 transition-opacity duration-200 group-hover:visible group-hover:opacity-100"

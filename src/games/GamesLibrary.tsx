@@ -1,20 +1,19 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { X } from 'lucide-react';
-import { useEffect, useState, useRef, startTransition } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { type LoaderFunctionArgs, useSearchParams, useLocation } from 'react-router-dom';
 import type SimpleBarCore from 'simplebar-core';
 import SimpleBar from 'simplebar-react';
 import { getGamesLibrary } from '../utils/archive-client';
 import type { LibraryGameItem } from '../utils/archive-client';
-import CustomWidthTooltip from '../utils/CustomToolTip';
 import Footer from '../utils/Footer';
-import { getImage } from '../utils/helpers';
 import Loading from '../utils/Loading';
 import PaginationControls from '../utils/PaginationControls';
 import { queryClient } from '../utils/queryClient';
 import AdSenseBanner from '../utils/AdSenseBanner';
 import { useGamesLibrary, prefetchNextPageGamesLibrary } from '../utils/useGamesLibrary';
 import { useMediaQuery } from '../utils/useMediaQuery';
+import GameCard from './GameCard';
 
 export const gamesLibraryLoader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -57,10 +56,12 @@ export default function GamesLibrary() {
   const limit = isMobile ? 10 : 20;
 
   const [inputSearch, setInputSearch] = useState(searchTerm);
-  const nativeInputRef = useRef<HTMLInputElement>(null);
+  const isTypingRef = useRef(false);
 
   useEffect(() => {
-    setInputSearch(searchTerm);
+    if (!isTypingRef.current) {
+      setInputSearch(searchTerm);
+    }
   }, [searchTerm]);
 
   useEffect(() => {
@@ -93,20 +94,18 @@ export default function GamesLibrary() {
   }, [page, location.key]);
 
   const updateUrlParams = (updates: Record<string, string | null>) => {
-    startTransition(() => {
-      setSearchParams(
-        (prev) => {
-          const nextParams = new URLSearchParams(prev);
+    setSearchParams(
+      (prev) => {
+        const nextParams = new URLSearchParams(prev);
 
-          for (const [key, val] of Object.entries(updates)) {
-            if (val) nextParams.set(key, val);
-            else nextParams.delete(key);
-          }
-          return nextParams;
-        },
-        { replace: true }
-      );
-    });
+        for (const [key, val] of Object.entries(updates)) {
+          if (val) nextParams.set(key, val);
+          else nextParams.delete(key);
+        }
+        return nextParams;
+      },
+      { replace: true }
+    );
   };
 
   const apiSort = sort === 'recent' ? 'recent' : sort === 'game_name' ? 'game_name' : 'count';
@@ -146,7 +145,6 @@ export default function GamesLibrary() {
   const handleClearSearch = () => {
     setInputSearch('');
     updateUrlParams({ search: null, page: '1' });
-    if (nativeInputRef.current) nativeInputRef.current.value = '';
   };
 
   return (
@@ -162,12 +160,15 @@ export default function GamesLibrary() {
           <div className="flex justify-between items-center py-1 pb-2 gap-2">
             <div className="w-52 relative">
               <input
-                ref={nativeInputRef}
                 type="text"
                 placeholder="Search by Game Name"
                 onChange={(e) => {
+                  isTypingRef.current = true;
                   setInputSearch(e.target.value);
                   updateUrlParams({ search: e.target.value, page: '1' });
+                  setTimeout(() => {
+                    isTypingRef.current = false;
+                  }, 500);
                 }}
                 value={inputSearch}
                 className="w-full bg-dark-light border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500 pr-8"
@@ -204,38 +205,14 @@ export default function GamesLibrary() {
               <div
                 className={`mt-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1.5 transition-opacity duration-200 ${isBackgroundFetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
               >
-                {games.map((game: LibraryGameItem, index: number) => (
-                  <div
+                {games.map((game: LibraryGameItem) => (
+                  <GameCard
                     key={game.game_id}
-                    className="rounded cursor-pointer no-underline block hover:shadow-glow transition-shadow min-w-0 flex flex-col"
-                  >
-                    <a href={`/games?game_id=${game.game_id}`} className="block flex-1">
-                      <div className="w-full relative overflow-hidden rounded-t aspect-[400/530] bg-dark-light">
-                        {game.chapter_image ? (
-                          <img
-                            src={getImage(game.chapter_image, 400, 530)}
-                            alt=""
-                            width={400}
-                            height={530}
-                            className="absolute inset-0 w-full h-full object-cover"
-                            loading={index < (isMobile ? 4 : 10) ? 'eager' : 'lazy'}
-                            fetchPriority={index < (isMobile ? 4 : 10) ? 'high' : 'auto'}
-                            decoding="async"
-                          />
-                        ) : (
-                          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary text-xs">
-                            No image
-                          </span>
-                        )}
-                      </div>
-                    </a>
-                    <div className="px-1 py-0.5 text-center min-w-0 w-full">
-                      <CustomWidthTooltip title={game.game_name}>
-                        <span className="text-primary font-medium block text-xs truncate">{game.game_name}</span>
-                      </CustomWidthTooltip>
-                      <span className="text-primary text-xs">{game.count || 0} EPs</span>
-                    </div>
-                  </div>
+                    game_id={game.game_id}
+                    name={game.game_name}
+                    image={game.chapter_image}
+                    count={game.count}
+                  />
                 ))}
               </div>
             </>

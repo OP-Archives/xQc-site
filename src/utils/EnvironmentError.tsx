@@ -8,9 +8,7 @@ export default function EnvironmentError({ missingVars }: { missingVars: string[
       <div className="bg-black/30 p-2 rounded my-2 font-mono text-red-400 text-sm whitespace-pre-line">
         {missingVars.join('\n')}
       </div>
-      <p className="text-gray-400 text-sm">
-        Please ensure all required environment variables are set in your .env file.
-      </p>
+      <p className="text-gray-400 text-sm">Please ensure all required environment variables are set in your .env file.</p>
     </div>
   );
 }

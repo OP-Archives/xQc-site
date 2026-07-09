@@ -51,12 +51,12 @@ export default function Game({ game, isMobile: _isMobile, priority: _priority }:
       </div>
       <div className="mt-1 mb-1 flex items-start">
         <GameImage game={game} />
-        <div className="min-w-0 flex-1 pl-2 mt-2">
+        <div className="min-w-0 flex-1 pl-2">
           <div className="p-0.5 min-w-0 w-full">
-            <CustomWidthTooltip title={game.title} placement="top">
+            <CustomWidthTooltip title={game.title || game.game_name || ''} placement="top">
               <span>
                 <CustomLink href={gameRoute} className="block overflow-hidden">
-                  <span className="text-primary font-medium block text-xs truncate">{game.title}</span>
+                  <span className="text-primary font-medium block text-xs truncate">{game.title || game.game_name || ''}</span>
                 </CustomLink>
               </span>
             </CustomWidthTooltip>
