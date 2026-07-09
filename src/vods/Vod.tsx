@@ -40,10 +40,6 @@ const getPlatform = (vod: VodData) => {
   return null;
 };
 
-const prefetchPlayerChunk = () => {
-  import('@op-archives/vod-components').catch(() => {});
-};
-
 export default function Vod({ vod, priority }: VodProps) {
   const DEFAULT_VOD = getVodLink(vod);
   const DEFAULT_THUMBNAIL = getThumbnail(vod);
@@ -65,7 +61,7 @@ export default function Vod({ vod, priority }: VodProps) {
             whileHover={{ x: -6, y: -6 }}
           >
             {DEFAULT_VOD ? (
-              <Link to={DEFAULT_VOD} className="absolute inset-0 block" onMouseEnter={prefetchPlayerChunk}>
+              <Link to={DEFAULT_VOD} className="absolute inset-0 block">
                 <img
                   className="thumbnail h-full w-full object-cover"
                   alt=""
@@ -138,7 +134,6 @@ export default function Vod({ vod, priority }: VodProps) {
                 <Link
                   to={DEFAULT_VOD}
                   className="inline-flex max-w-full min-w-0 no-underline"
-                  onMouseEnter={prefetchPlayerChunk}
                 >
                   <CustomWidthTooltip title={vod.title}>
                     <span className="truncate text-sm font-medium text-[#f0f0f5] transition-colors hover:text-primary">

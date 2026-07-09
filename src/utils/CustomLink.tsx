@@ -25,7 +25,7 @@ export default function CustomLink({ children, className = '', href, ...props }:
   }
 
   return (
-    <Link to={href} className={`hover:opacity-50 transition-opacity ${className}`} prefetch="intent" {...props}>
+    <Link to={href} className={`hover:opacity-50 transition-opacity ${className}`} {...props}>
       {children}
     </Link>
   );

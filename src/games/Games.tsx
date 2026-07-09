@@ -3,59 +3,16 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type SimpleBarCore from 'simplebar-core';
 import SimpleBar from 'simplebar-react';
-import { listGames, type GameData } from '../utils/archive-client';
+import { type GameData } from '../utils/archive-client';
 import FilterBar from '../utils/FilterBar';
 import { useDebouncedSetter } from '../utils/debounceHelper';
 import { useListFilters } from '../utils/useListFilters';
 import Footer from '../utils/Footer';
 import Loading from '../utils/Loading';
 import PaginationControls from '../utils/PaginationControls';
-import { queryClient } from '../utils/queryClient';
 import { useGames, prefetchNextPageGames } from '../utils/useGames';
 import AdSenseBanner from '../utils/AdSenseBanner';
 import Game from './Game';
-
-export const gamesLoader = async ({ request }: import('react-router-dom').LoaderFunctionArgs) => {
-  const url = new URL(request.url);
-  const filter = url.searchParams.get('filter') || 'Default';
-  const from = url.searchParams.get('from') || FORMATTED_START;
-  const currentDayString = new Date().toISOString().split('T')[0];
-  const to = url.searchParams.get('to') || currentDayString;
-  const filterGame = url.searchParams.get('game') || '';
-  const page = parseInt(url.searchParams.get('page') || '1', 10);
-  const gameId = url.searchParams.get('game_id');
-  const limit = 20;
-
-  const memoizedDateRange = (() => {
-    if (filter !== 'Date' || !from || !to) return null;
-    try {
-      return {
-        from: new Date(from).toISOString(),
-        to: new Date(to).toISOString(),
-      };
-    } catch {
-      return null;
-    }
-  })();
-
-  const queryKeyParams = {
-    limit,
-    page,
-    sort: 'created_at',
-    order: 'desc',
-    ...(gameId ? { game_id: gameId } : {}),
-    ...(memoizedDateRange ? memoizedDateRange : {}),
-    ...(filter === 'Game' && filterGame ? { game_name: filterGame } : {}),
-  };
-
-  await queryClient.ensureQueryData({
-    queryKey: ['games', queryKeyParams],
-    queryFn: ({ signal }: { signal: AbortSignal }) => listGames({ ...queryKeyParams, signal }),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  return null;
-};
 
 const FILTERS = ['Default', 'Date', 'Game'] as const;
 const START_DATE = import.meta.env.VITE_START_DATE;

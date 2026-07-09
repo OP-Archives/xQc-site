@@ -7,10 +7,6 @@ interface WatchMenuProps {
   vod: VodData;
 }
 
-const prefetchPlayerChunk = () => {
-  import('@op-archives/vod-components').catch(() => {});
-};
-
 export default function WatchMenu({ vod }: WatchMenuProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [coords, setCoords] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
@@ -65,7 +61,6 @@ export default function WatchMenu({ vod }: WatchMenuProps) {
       <button
         onMouseDown={(e) => e.stopPropagation()}
         onClick={handleClick}
-        onMouseEnter={prefetchPlayerChunk}
         className="border border-primary text-primary font-semibold flex items-center gap-1 px-3 py-1 rounded hover:bg-primary/10 transition-colors cursor-pointer"
       >
         <Play size={16} /> Watch

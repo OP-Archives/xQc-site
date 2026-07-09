@@ -4,43 +4,17 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { useSearchParams, useLocation } from 'react-router-dom';
 import type SimpleBarCore from 'simplebar-core';
 import SimpleBar from 'simplebar-react';
-import { getGamesLibrary } from '../utils/archive-client';
+
 import type { LibraryGameItem } from '../utils/archive-client';
 import { useDebouncedSetter } from '../utils/debounceHelper';
 import { useListFilters } from '../utils/useListFilters';
 import Footer from '../utils/Footer';
 import Loading from '../utils/Loading';
 import PaginationControls from '../utils/PaginationControls';
-import { queryClient } from '../utils/queryClient';
 import AdSenseBanner from '../utils/AdSenseBanner';
 import { useGamesLibrary, prefetchNextPageGamesLibrary } from '../utils/useGamesLibrary';
 import { useMediaQuery } from '../utils/useMediaQuery';
 import GameCard from './GameCard';
-
-export const gamesLibraryLoader = async ({ request }: import('react-router-dom').LoaderFunctionArgs) => {
-  const url = new URL(request.url);
-  const searchTerm = url.searchParams.get('search') || '';
-  const sort = url.searchParams.get('sort') || 'recent';
-  const page = parseInt(url.searchParams.get('page') || '1', 10);
-  const limit = 20;
-
-  const apiSort = sort === 'recent' ? 'recent' : sort === 'game_name' ? 'game_name' : 'count';
-  const queryKeyParams = {
-    page,
-    limit,
-    ...(searchTerm.length > 0 ? { game_name: searchTerm } : {}),
-    sort: apiSort,
-    order: sort === 'game_name' ? 'asc' : 'desc',
-  };
-
-  await queryClient.ensureQueryData({
-    queryKey: ['games-library', queryKeyParams],
-    queryFn: ({ signal }: { signal: AbortSignal }) => getGamesLibrary({ ...queryKeyParams, signal }),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  return null;
-};
 
 const SORTS = ['Recently Played', 'Most Played', 'Game Name'];
 
