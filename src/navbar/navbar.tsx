@@ -1,5 +1,5 @@
 import { Gamepad2, Library, AlertCircle, Video } from 'lucide-react';
-import { KickSolidIcon } from '../assets/icons';
+import { KickIcon } from '../assets/icons';
 import Logo from '../assets/logo.png';
 import CustomLink from '../utils/CustomLink';
 import { useMediaQuery } from '../utils/useMediaQuery';
@@ -22,7 +22,7 @@ const socials = [
   },
   {
     path: `https://kick.com/xqc`,
-    icon: <KickSolidIcon className="text-primary" />,
+    icon: <KickIcon className="text-primary" />,
   },
 ];
 
