@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@daypicker/react": "^10.0.1",
-    "@op-archives/vod-components": "^0.1.53",
+    "@op-archives/vod-components": "^0.1.55",
     "@tanstack/react-query": "^5.101.2",
     "framer-motion": "^12.42.2",
     "humanize-duration": "^3.34.0",
