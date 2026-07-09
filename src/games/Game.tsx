@@ -96,5 +96,6 @@ export default function Game({ game, isMobile: _isMobile, priority: _priority }:
           </div>
         </div>
       </div>
+    </div>
   );
 }
