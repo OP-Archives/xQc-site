@@ -1,4 +1,4 @@
-import { Home, Gamepad2, Menu, BookOpen, AlertCircle } from 'lucide-react';
+import { Home, Gamepad2, Menu, BookOpen, AlertCircle, Film } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import CustomLink from '../utils/CustomLink';
 
@@ -13,6 +13,7 @@ interface DrawerProps {
 
 const mainLinks = [
   { title: `Home`, path: `/`, icon: <Home className="text-primary" size={20} /> },
+  { title: `Vods`, path: `/vods`, icon: <Film className="text-primary" size={20} /> },
   { title: `Games`, path: `/games`, icon: <Gamepad2 className="text-primary" size={20} /> },
   { title: 'Library', path: '/library', icon: <BookOpen className="text-primary" size={20} /> },
   {
