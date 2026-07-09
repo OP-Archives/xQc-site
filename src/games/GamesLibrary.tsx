@@ -1,11 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { X } from 'lucide-react';
-import { useEffect, useState, useRef } from 'react';
-import { type LoaderFunctionArgs, useSearchParams, useLocation } from 'react-router-dom';
+import { useEffect, useState, useRef, useMemo } from 'react';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import type SimpleBarCore from 'simplebar-core';
 import SimpleBar from 'simplebar-react';
 import { getGamesLibrary } from '../utils/archive-client';
 import type { LibraryGameItem } from '../utils/archive-client';
+import FilterBar from '../utils/FilterBar';
+import { useDebouncedSetter } from '../utils/debounceHelper';
+import { useListFilters } from '../utils/useListFilters';
 import Footer from '../utils/Footer';
 import Loading from '../utils/Loading';
 import PaginationControls from '../utils/PaginationControls';
@@ -15,7 +17,7 @@ import { useGamesLibrary, prefetchNextPageGamesLibrary } from '../utils/useGames
 import { useMediaQuery } from '../utils/useMediaQuery';
 import GameCard from './GameCard';
 
-export const gamesLibraryLoader = async ({ request }: LoaderFunctionArgs) => {
+export const gamesLibraryLoader = async ({ request }: import('react-router-dom').LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const searchTerm = url.searchParams.get('search') || '';
   const sort = url.searchParams.get('sort') || 'recent';
@@ -40,29 +42,68 @@ export const gamesLibraryLoader = async ({ request }: LoaderFunctionArgs) => {
   return null;
 };
 
-const FILTERS = ['Recently Played', 'Most Played', 'Game Name'];
+const FILTERS = ['Recently Played', 'Most Played', 'Game Name'] as const;
 
 export default function GamesLibrary() {
   const queryClient = useQueryClient();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const isMobile = useMediaQuery('(max-width: 900px)');
   const location = useLocation();
 
   const scrollRef = useRef<SimpleBarCore | null>(null);
 
-  const searchTerm = searchParams.get('search') || '';
-  const sort = searchParams.get('sort') || 'recent';
-  const page = parseInt(searchParams.get('page') || '1', 10);
+  const urlSort = searchParams.get('sort') || 'recent';
+  const apiSort = urlSort === 'recent' ? 'recent' : urlSort === 'game_name' ? 'game_name' : 'count';
+  const displaySort = urlSort === 'recent' ? 'Recently Played' : urlSort === 'game_name' ? 'Game Name' : 'Most Played';
+
+  const {
+    state,
+    updateParams,
+  } = useListFilters({
+    filterOptions: FILTERS,
+    searchParamKey: { search: 'search', from: 'from', to: 'to' },
+    defaultFilter: 'Recently Played',
+  });
+
   const limit = isMobile ? 10 : 20;
 
-  const [inputSearch, setInputSearch] = useState(searchTerm);
-  const isTypingRef = useRef(false);
+  const [inputSearch, setInputSearch] = useState(state.inputSearch);
 
   useEffect(() => {
-    if (!isTypingRef.current) {
-      setInputSearch(searchTerm);
+    setInputSearch(state.inputSearch);
+  }, [state.inputSearch]);
+
+  const debouncedSetSearch = useDebouncedSetter((val: string) => {
+    updateParams({ search: val, page: '1' });
+  }, 500);
+
+  const queryKeyParams = useMemo(
+    () => ({
+      page: state.page,
+      limit,
+      ...(state.inputSearch.length > 0 ? { game_name: state.inputSearch } : {}),
+      sort: apiSort,
+      order: urlSort === 'game_name' ? 'asc' : 'desc',
+    }),
+    [state.page, limit, state.inputSearch, apiSort, urlSort]
+  );
+
+  const { data, isLoading, isFetching } = useGamesLibrary(queryKeyParams);
+  const games = data?.data ?? null;
+  const totalGames = data?.meta?.total ?? null;
+  const totalPages = Math.ceil((totalGames || 0) / limit);
+  const isBackgroundFetching = isFetching && !isLoading;
+
+  const paginationParams = {
+    ...(state.inputSearch ? { search: state.inputSearch } : {}),
+    sort: urlSort,
+  };
+
+  useEffect(() => {
+    if (totalPages !== null && state.page < totalPages) {
+      prefetchNextPageGamesLibrary(queryClient, { ...queryKeyParams, page: state.page + 1 });
     }
-  }, [searchTerm]);
+  }, [state.page, totalPages, queryKeyParams, queryClient]);
 
   useEffect(() => {
     const el = scrollRef.current?.getScrollElement();
@@ -91,60 +132,12 @@ export default function GamesLibrary() {
       el.removeEventListener('scroll', handleScroll);
       if (scrollTimeout) window.clearTimeout(scrollTimeout);
     };
-  }, [page, location.key]);
+  }, [state.page, location.key]);
 
-  const updateUrlParams = (updates: Record<string, string | null>) => {
-    setSearchParams(
-      (prev) => {
-        const nextParams = new URLSearchParams(prev);
-
-        for (const [key, val] of Object.entries(updates)) {
-          if (val) nextParams.set(key, val);
-          else nextParams.delete(key);
-        }
-        return nextParams;
-      },
-      { replace: true }
-    );
-  };
-
-  const apiSort = sort === 'recent' ? 'recent' : sort === 'game_name' ? 'game_name' : 'count';
-  const displaySort = sort === 'recent' ? 'Recently Played' : sort === 'game_name' ? 'Game Name' : 'Most Played';
-
-  const queryKeyParams = {
-    page,
-    limit,
-    ...(searchTerm.length > 0 ? { game_name: searchTerm } : {}),
-    sort: apiSort,
-    order: sort === 'game_name' ? 'asc' : 'desc',
-  };
-
-  const { data, isLoading, isFetching } = useGamesLibrary(queryKeyParams);
-  const games = data?.data ?? null;
-  const totalGames = data?.meta?.total ?? null;
-  const totalPages = Math.ceil((totalGames || 0) / limit);
-  const isBackgroundFetching = isFetching && !isLoading;
-
-  const paginationParams = {
-    ...(searchTerm ? { search: searchTerm } : {}),
-    sort,
-  };
-
-  useEffect(() => {
-    if (totalPages !== null && page < totalPages) {
-      prefetchNextPageGamesLibrary(queryClient, { ...queryKeyParams, page: page + 1 });
-    }
-  }, [page, totalPages, queryKeyParams, queryClient]);
-
-  const changeFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const changeFilterSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSort = e.target.value;
     const apiValue = newSort === 'Recently Played' ? 'recent' : newSort === 'Game Name' ? 'game_name' : 'count';
-    updateUrlParams({ sort: apiValue, page: '1' });
-  };
-
-  const handleClearSearch = () => {
-    setInputSearch('');
-    updateUrlParams({ search: null, page: '1' });
+    updateParams({ sort: apiValue, page: '1' });
   };
 
   return (
@@ -157,43 +150,35 @@ export default function GamesLibrary() {
           )}
         </div>
         <div className="max-w-[1100px] mx-auto">
-          <div className="flex justify-between items-center py-1 pb-2 gap-2">
-            <div className="w-52 relative">
-              <input
-                type="text"
-                placeholder="Search by Game Name"
-                onChange={(e) => {
-                  isTypingRef.current = true;
-                  setInputSearch(e.target.value);
-                  updateUrlParams({ search: e.target.value, page: '1' });
-                  setTimeout(() => {
-                    isTypingRef.current = false;
-                  }, 500);
-                }}
-                value={inputSearch}
-                className="w-full bg-dark-light border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500 pr-8"
-              />
-              {inputSearch && (
-                <button
-                  onClick={handleClearSearch}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-            <select
-              value={displaySort}
-              onChange={changeFilter}
-              className="mt-1 sm:mt-0 bg-dark-light border border-gray-600 rounded px-3 py-1.5 text-sm w-max"
-            >
-              {FILTERS.map((data) => (
-                <option key={data} value={data}>
-                  {data}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FilterBar
+            mode="library"
+            filterValue={displaySort}
+            onFilterChange={() => {}}
+            searchValue={inputSearch}
+            onSearchChange={setInputSearch}
+            debouncedOnSearchChange={debouncedSetSearch}
+            onSearchClear={() => {
+              setInputSearch('');
+              updateParams({ search: null, page: '1' });
+            }}
+            showSearch
+            searchPlaceholder="Search by Game"
+            showFilter={false}
+            filterOptions={FILTERS}
+            extraControls={
+              <select
+                value={displaySort}
+                onChange={changeFilterSelect}
+                className="border-border bg-bg-surface text-text-primary hover:border-border/80 focus:border-primary focus:ring-primary/30 h-9 w-max rounded-md border px-3 text-sm transition-all duration-200 focus:ring-1 focus:outline-none sm:ml-1"
+              >
+                {FILTERS.map((data) => (
+                  <option key={data} value={data}>
+                    {data}
+                  </option>
+                ))}
+              </select>
+            }
+          />
           {isLoading && <Loading />}
 
           {!isLoading && games && games.length === 0 && (
@@ -220,7 +205,7 @@ export default function GamesLibrary() {
         </div>
 
         <PaginationControls
-          page={page}
+          page={state.page}
           totalPages={totalPages}
           preserveParams={paginationParams}
           onHoverPage={(targetPage) =>

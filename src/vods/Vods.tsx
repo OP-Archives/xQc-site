@@ -1,11 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, X } from 'lucide-react';
-import { useEffect, useState, useRef, startTransition } from 'react';
-import { type LoaderFunctionArgs, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState, useRef, useMemo } from 'react';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import type SimpleBarCore from 'simplebar-core';
 import SimpleBar from 'simplebar-react';
 import { listVods } from '../utils/archive-client';
+import FilterBar from '../utils/FilterBar';
 import { useDebouncedSetter } from '../utils/debounceHelper';
+import { useListFilters } from '../utils/useListFilters';
 import Footer from '../utils/Footer';
 import Loading from '../utils/Loading';
 import PaginationControls from '../utils/PaginationControls';
@@ -14,7 +15,7 @@ import { useVods, prefetchNextPageVods } from '../utils/useVods';
 import AdSenseBanner from '../utils/AdSenseBanner';
 import Vod from './Vod';
 
-export const vodsLoader = async ({ request }: LoaderFunctionArgs) => {
+export const vodsLoader = async ({ request }: import('react-router-dom').LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const filter = url.searchParams.get('filter') || 'Default';
   const from = url.searchParams.get('from') || FORMATTED_START;
@@ -60,7 +61,7 @@ export const vodsLoader = async ({ request }: LoaderFunctionArgs) => {
   return null;
 };
 
-const FILTERS = ['Default', 'Date', 'Title', 'Game'];
+const FILTERS = ['Default', 'Date', 'Title', 'Game'] as const;
 const PLATFORMS = ['All', 'Twitch', 'Kick'];
 const START_DATE = import.meta.env.VITE_START_DATE;
 
@@ -69,51 +70,101 @@ const FORMATTED_START = START_DATE ? new Date(START_DATE).toISOString().split('T
 export default function Vods() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const location = useLocation();
   const todayString = new Date().toISOString().split('T')[0];
 
   const scrollRef = useRef<SimpleBarCore | null>(null);
 
-  const filter = searchParams.get('filter') || FILTERS[0];
-  const filterStartDate = searchParams.get('from') || FORMATTED_START;
-  const filterEndDate = searchParams.get('to') || todayString;
-  const filterTitle = searchParams.get('title') || '';
-  const filterGame = searchParams.get('chapter') || '';
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const gameId = searchParams.get('game_id');
-  const platform = searchParams.get('platform') || PLATFORMS[0];
-  const limit = 20;
+  const {
+    state,
+    updateParams,
+    changeFilter,
+    queryKeyParams: baseParams,
+  } = useListFilters({
+    filterOptions: FILTERS,
+    searchParamKey: { search: 'title', from: 'from', to: 'to' },
+    defaultFilter: 'Default',
+    todayString,
+  });
 
-  const memoizedDateRange = (() => {
-    if (filter !== 'Date' || !filterStartDate || !filterEndDate) return null;
-    try {
-      return {
-        from: new Date(filterStartDate).toISOString(),
-        to: new Date(filterEndDate).toISOString(),
-      };
-    } catch {
-      return null;
+  const [platformState, setPlatformState] = useState(PLATFORMS[0]);
+  const [inputGame, setInputGame] = useState(() => {
+    const chapter = searchParams.get('chapter') || '';
+    return chapter;
+  });
+  const [inputTitle, setInputTitle] = useState(state.inputSearch);
+
+  useEffect(() => {
+    setInputTitle(state.inputSearch);
+  }, [state.inputSearch]);
+
+  useEffect(() => {
+    const chapter = searchParams.get('chapter') || '';
+    setInputGame(chapter);
+  }, [searchParams.get('chapter')]);
+
+  const debouncedSetTitle = useDebouncedSetter((val: string) => {
+    updateParams({ title: val, filter: 'Title', page: '1' });
+  }, 500);
+
+  const debouncedSetGame = useDebouncedSetter((val: string) => {
+    updateParams({ chapter: val, filter: 'Game', page: '1' });
+  }, 500);
+
+  const filterTitle = inputTitle;
+  const filterGame = inputGame;
+
+  const queryKeyParams = useMemo(
+    () => ({
+      ...baseParams,
+      sort: 'created_at',
+      order: 'desc',
+      ...(platformState !== PLATFORMS[0] ? { platform: platformState.toLowerCase() } : {}),
+      ...(state.filter === 'Title' && filterTitle ? { title: filterTitle } : {}),
+      ...(state.filter === 'Game' && filterGame ? { chapter: filterGame } : {}),
+    }),
+    [baseParams, platformState, state.filter, filterTitle, filterGame]
+  );
+
+  const handleClearTitle = () => {
+    setInputTitle('');
+    updateParams({ title: null, filter: 'Title', page: '1' });
+  };
+
+  const handleClearGame = () => {
+    setInputGame('');
+    updateParams({ chapter: null, filter: 'Game', page: '1' });
+  };
+
+  const changePlatform = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPlatformState(e.target.value);
+    updateParams({
+      platform: e.target.value === PLATFORMS[0] ? null : e.target.value,
+      page: '1',
+    });
+  };
+
+  const { data, isLoading, isFetching } = useVods(queryKeyParams);
+  const vods = data?.data ?? null;
+  const totalVods = data?.meta?.total ?? null;
+  const totalPages = Math.ceil((totalVods || 0) / 20);
+  const isBackgroundFetching = isFetching && !isLoading;
+
+  const paginationParams = {
+    ...(state.gameId ? { game_id: state.gameId } : {}),
+    ...(platformState !== PLATFORMS[0] ? { platform: platformState.toLowerCase() } : {}),
+    ...(state.filter !== 'Default' ? { filter: state.filter } : {}),
+    ...(state.filter === 'Date' ? { from: state.filterStartDate, to: state.filterEndDate } : {}),
+    ...(filterTitle ? { title: filterTitle } : {}),
+    ...(filterGame ? { chapter: filterGame } : {}),
+  };
+
+  useEffect(() => {
+    if (totalPages !== null && state.page < totalPages) {
+      prefetchNextPageVods(queryClient, { ...queryKeyParams, page: state.page + 1 });
     }
-  })();
-
-  const [inputTitle, setInputTitle] = useState(filterTitle);
-  const [inputGame, setInputGame] = useState(filterGame);
-  const [inputStartDate, setInputStartDate] = useState(filterStartDate);
-  const [inputEndDate, setInputEndDate] = useState(filterEndDate);
-
-  useEffect(() => {
-    setInputTitle(filterTitle);
-  }, [filterTitle]);
-  useEffect(() => {
-    setInputGame(filterGame);
-  }, [filterGame]);
-  useEffect(() => {
-    setInputStartDate(filterStartDate);
-  }, [filterStartDate]);
-  useEffect(() => {
-    setInputEndDate(filterEndDate);
-  }, [filterEndDate]);
+  }, [state.page, totalPages, queryKeyParams, queryClient]);
 
   useEffect(() => {
     const el = scrollRef.current?.getScrollElement();
@@ -142,100 +193,7 @@ export default function Vods() {
       el.removeEventListener('scroll', handleScroll);
       if (scrollTimeout) window.clearTimeout(scrollTimeout);
     };
-  }, [page, location.key]);
-
-  const updateUrlParams = (updates: Record<string, string | null>) => {
-    startTransition(() => {
-      setSearchParams(
-        (prev) => {
-          const nextParams = new URLSearchParams(prev);
-
-          for (const [key, val] of Object.entries(updates)) {
-            if (val) nextParams.set(key, val);
-            else nextParams.delete(key);
-          }
-          if (gameId) nextParams.set('game_id', gameId);
-          return nextParams;
-        },
-        { replace: true }
-      );
-    });
-  };
-
-  const debouncedSetFilterTitle = useDebouncedSetter((val: string) => {
-    updateUrlParams({ title: val, filter: 'Title', page: '1' });
-  }, 500);
-
-  const debouncedSetFilterGame = useDebouncedSetter((val: string) => {
-    updateUrlParams({ chapter: val, filter: 'Game', page: '1' });
-  }, 500);
-
-  const debouncedSetStartDate = useDebouncedSetter((val: string) => {
-    updateUrlParams({ from: val, page: '1' });
-  }, 600);
-
-  const debouncedSetEndDate = useDebouncedSetter((val: string) => {
-    updateUrlParams({ to: val, page: '1' });
-  }, 600);
-
-  const queryKeyParams = {
-    limit,
-    page,
-    sort: 'created_at',
-    order: 'desc',
-    ...(gameId ? { game_id: gameId } : {}),
-    ...(platform !== PLATFORMS[0] ? { platform: platform.toLowerCase() } : {}),
-    ...(memoizedDateRange ? memoizedDateRange : {}),
-    ...(filter === 'Title' && filterTitle ? { title: filterTitle } : {}),
-    ...(filter === 'Game' && filterGame ? { chapter: filterGame } : {}),
-  };
-
-  const { data, isLoading, isFetching } = useVods(queryKeyParams);
-  const vods = data?.data ?? null;
-  const totalVods = data?.meta?.total ?? null;
-  const totalPages = Math.ceil((totalVods || 0) / limit);
-  const isBackgroundFetching = isFetching && !isLoading;
-
-  const paginationParams = {
-    ...(gameId ? { game_id: gameId } : {}),
-    ...(platform !== PLATFORMS[0] ? { platform: platform.toLowerCase() } : {}),
-    ...(filter !== 'Default' ? { filter } : {}),
-    ...(filter === 'Date' ? { from: filterStartDate, to: filterEndDate } : {}),
-    ...(filterTitle ? { title: filterTitle } : {}),
-    ...(filterGame ? { chapter: filterGame } : {}),
-  };
-
-  useEffect(() => {
-    if (totalPages !== null && page < totalPages) {
-      prefetchNextPageVods(queryClient, { ...queryKeyParams, page: page + 1 });
-    }
-  }, [page, totalPages, queryKeyParams, queryClient]);
-
-  const handleClearTitle = () => {
-    setInputTitle('');
-    updateUrlParams({ title: null, filter: 'Title', page: '1' });
-  };
-
-  const handleClearGame = () => {
-    setInputGame('');
-    updateUrlParams({ chapter: null, filter: 'Game', page: '1' });
-  };
-
-  const changeFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newFilter = e.target.value;
-    const updates: Record<string, string | null> = { page: '1', filter: newFilter === 'Default' ? null : newFilter };
-    if (newFilter !== 'Title') updates.title = null;
-    if (newFilter !== 'Game') updates.chapter = null;
-    if (newFilter !== 'Date') {
-      updates.from = null;
-      updates.to = null;
-    }
-    updateUrlParams(updates);
-  };
-
-  const changePlatform = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    updateUrlParams({ platform: e.target.value === PLATFORMS[0] ? null : e.target.value, page: '1' });
-  };
+  }, [state.page, location.key]);
 
   return (
     <SimpleBar ref={scrollRef} className="min-h-0 h-full w-full">
@@ -244,109 +202,62 @@ export default function Vods() {
         <div className="flex justify-center mt-2 flex-col items-center">
           {totalVods !== null && <h4 className="text-primary text-3xl uppercase font-medium">{`${totalVods} Vods`}</h4>}
         </div>
-        <div className="max-w-[1600px] mx-auto pt-1 flex flex-row items-center">
-          {gameId && (
-            <button
-              onClick={() => navigate(-1)}
-              className="mr-2 bg-primary/20 border border-primary text-primary px-3 py-1.5 rounded hover:bg-primary/10 transition-colors flex items-center gap-1 text-sm"
+        <div className="max-w-[1600px] mx-auto">
+          <FilterBar
+          mode="vods"
+          filterValue={state.filter}
+          onFilterChange={(val) => {
+            const e = { target: { value: val } } as React.ChangeEvent<HTMLSelectElement>;
+            changeFilter(e);
+          }}
+          searchValue={state.filter === 'Title' ? inputTitle : inputGame}
+          onSearchChange={(val) => {
+            if (state.filter === 'Title') {
+              setInputTitle(val);
+            } else {
+              setInputGame(val);
+            }
+          }}
+          debouncedOnSearchChange={(val) => {
+            if (state.filter === 'Title') {
+              debouncedSetTitle(val);
+            } else {
+              debouncedSetGame(val);
+            }
+          }}
+          onSearchClear={() => {
+            if (state.filter === 'Title') handleClearTitle();
+            else handleClearGame();
+          }}
+          dateStartValue={state.inputStartDate}
+          dateEndValue={state.inputEndDate}
+          onDateStartChange={(val) => updateParams({ from: val, page: '1' })}
+          onDateEndChange={(val) => updateParams({ to: val, page: '1' })}
+          maxDate={todayString}
+          minDate={FORMATTED_START}
+          showDateRange={state.filter === 'Date'}
+          showSearch={state.filter === 'Title' || state.filter === 'Game'}
+          searchPlaceholder={state.filter === 'Game' ? 'Search by Game' : 'Search by Title'}
+          disabled={!!state.gameId}
+          gameId={state.gameId}
+          onBack={() => navigate(-1)}
+          hasBackButton={!!state.gameId}
+          extraControls={
+            <select
+              disabled={!!state.gameId}
+              value={platformState}
+              onChange={changePlatform}
+              className="border-border bg-bg-surface text-text-primary hover:border-border/80 focus:border-primary focus:ring-primary/30 h-9 w-max rounded-md border px-3 text-sm transition-all duration-200 focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:ml-1"
             >
-              <ArrowLeft size={16} /> Back
-            </button>
-          )}
-          <select
-            disabled={!!gameId}
-            value={filter}
-            onChange={changeFilter}
-            className="bg-dark-light border border-gray-600 rounded px-3 py-1.5 text-sm mr-1 text-white w-max"
-          >
-            {FILTERS.map((data) => (
-              <option key={data} value={data}>
-                {data}
-              </option>
-            ))}
-          </select>
-          {filter === 'Date' && !gameId && (
-            <div className="flex items-center gap-1 ml-1">
-              <input
-                type="date"
-                min={FORMATTED_START}
-                max={todayString}
-                value={inputStartDate}
-                onChange={(e) => {
-                  setInputStartDate(e.target.value);
-                  debouncedSetStartDate(e.target.value);
-                }}
-                className="bg-dark-light border border-gray-600 rounded px-2 py-1.5 text-sm text-white"
-              />
-              <input
-                type="date"
-                min={FORMATTED_START}
-                max={todayString}
-                value={inputEndDate}
-                onChange={(e) => {
-                  setInputEndDate(e.target.value);
-                  debouncedSetEndDate(e.target.value);
-                }}
-                className="bg-dark-light border border-gray-600 rounded px-2 py-1.5 text-sm text-white"
-              />
-            </div>
-          )}
-          {filter === 'Title' && !gameId && (
-            <div className="ml-1 relative">
-              <input
-                type="text"
-                placeholder="Search by Title"
-                onChange={(e) => {
-                  setInputTitle(e.target.value);
-                  debouncedSetFilterTitle(e.target.value);
-                }}
-                value={inputTitle}
-                className="w-44 bg-dark-light border border-gray-600 rounded px-3 py-1.5 text-sm text-white placeholder-gray-500 pr-8"
-              />
-              {inputTitle && (
-                <button
-                  onClick={handleClearTitle}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors cursor-pointer"
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-          )}
-          {filter === 'Game' && !gameId && (
-            <div className="ml-1 relative">
-              <input
-                type="text"
-                placeholder="Search by Game"
-                onChange={(e) => {
-                  setInputGame(e.target.value);
-                  debouncedSetFilterGame(e.target.value);
-                }}
-                value={inputGame}
-                className="w-44 bg-dark-light border border-gray-600 rounded px-2 py-1.5 text-sm text-white placeholder-gray-500 pr-8"
-              />
-              {inputGame && (
-                <button
-                  onClick={handleClearGame}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors cursor-pointer"
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-          )}
-          <select
-            disabled={!!gameId}
-            value={platform}
-            onChange={changePlatform}
-            className="bg-dark-light border border-gray-600 rounded px-3 py-1.5 text-sm ml-1 text-white w-max"
-          >
-            {PLATFORMS.map((data) => (
-              <option key={data} value={data}>
-                {data}
-              </option>
-            ))}
-          </select>
+              {PLATFORMS.map((data) => (
+                <option key={data} value={data}>
+                  {data}
+                </option>
+              ))}
+            </select>
+          }
+          filterOptions={FILTERS}
+          />
         </div>
         {isLoading && <Loading />}
 
@@ -367,7 +278,7 @@ export default function Vods() {
         )}
         <div className={`flex justify-center ${totalPages <= 1 ? 'mt-2' : 'mt-4'} items-center flex-col md:flex-row`}>
           <PaginationControls
-            page={page}
+            page={state.page}
             totalPages={totalPages}
             preserveParams={paginationParams}
             onHoverPage={(targetPage) => prefetchNextPageVods(queryClient, { ...queryKeyParams, page: targetPage })}
