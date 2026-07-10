@@ -1,10 +1,8 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { X } from 'lucide-react';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useSearchParams, useLocation } from 'react-router-dom';
 import type SimpleBarCore from 'simplebar-core';
 import SimpleBar from 'simplebar-react';
-
 import type { LibraryGameItem } from '../utils/archive-client';
 import { useDebouncedSetter } from '../utils/debounceHelper';
 import { useListFilters } from '../utils/useListFilters';
@@ -13,13 +11,13 @@ import Loading from '../utils/Loading';
 import PaginationControls from '../utils/PaginationControls';
 import AdSenseBanner from '../utils/AdSenseBanner';
 import { useGamesLibrary, prefetchNextPageGamesLibrary } from '../utils/useGamesLibrary';
+import { queryClient } from '../utils/queryClient';
 import { useMediaQuery } from '../utils/useMediaQuery';
 import GameCard from './GameCard';
 
 const SORTS = ['Recently Played', 'Most Played', 'Game Name'];
 
 export default function GamesLibrary() {
-  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const isMobile = useMediaQuery('(max-width: 900px)');
   const location = useLocation();

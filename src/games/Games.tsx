@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type SimpleBarCore from 'simplebar-core';
@@ -11,6 +10,7 @@ import Footer from '../utils/Footer';
 import Loading from '../utils/Loading';
 import PaginationControls from '../utils/PaginationControls';
 import { useGames, prefetchNextPageGames } from '../utils/useGames';
+import { queryClient } from '../utils/queryClient';
 import AdSenseBanner from '../utils/AdSenseBanner';
 import Game from './Game';
 
@@ -20,7 +20,6 @@ const START_DATE = import.meta.env.VITE_START_DATE;
 const FORMATTED_START = START_DATE ? new Date(START_DATE).toISOString().split('T')[0] : '';
 
 export default function GamesPage() {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
   const todayString = new Date().toISOString().split('T')[0];
