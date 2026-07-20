@@ -83,7 +83,7 @@ export default function WatchMenu({ vod }: WatchMenuProps) {
               <CustomLink
                 href={`/cdn/${vod.id}`}
                 onClick={() => setAnchorEl(null)}
-                className={`flex items-center gap-2 px-3 py-2 w-full text-left rounded hover:bg-dark-hover transition-colors text-white ${vod.vod_uploads.length === 0 ? 'opacity-40 cursor-not-allowed pointer-events-none' : ''}`}
+                className={`flex items-center gap-2 px-3 py-2 w-full text-left rounded hover:bg-dark-hover transition-colors text-white ${vod.is_live ? 'opacity-40 cursor-not-allowed pointer-events-none' : ''}`}
               >
                 <FilePlay size={20} /> CDN
               </CustomLink>
