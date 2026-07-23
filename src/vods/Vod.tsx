@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { TwitchIcon, KickIcon } from '../assets/icons';
 import { type VodData } from '../utils/archive-client';
 import CustomWidthTooltip from '../utils/CustomToolTip';
-import { toHHMMSS, getImage } from '../utils/helpers';
+import { toHHMMSS, getImage, getVodLink } from '../utils/helpers';
 import Chapters from './ChaptersMenu';
 import WatchMenu from './WatchMenu';
 
@@ -22,13 +22,6 @@ const cardHoverVariants = {
   initial: { scale: 1 },
   whileHover: { scale: 1.02, transition: { duration: 0.2, ease: [0.25, 0.4, 0.25, 1] as const } },
   whileTap: { scale: 0.98 },
-};
-
-const getVodLink = (vod: VodData) => {
-  if (vod.vod_uploads?.length > 0) return `/youtube/${vod.id}`;
-  if (Date.now() - new Date(vod.created_at).getTime() <= 14 * 24 * 60 * 60 * 1000 && !vod.is_live) return `/cdn/${vod.id}`;
-  if (vod.games?.length > 0) return `/games/${vod.id}`;
-  return null;
 };
 
 const getThumbnail = (vod: VodData) => {

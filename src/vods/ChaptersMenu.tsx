@@ -3,7 +3,7 @@ import { List } from 'lucide-react';
 import { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { type VodData, type ChapterItem } from '../utils/archive-client';
-import { toHMS, getImage } from '../utils/helpers';
+import { toHMS, getImage, getVodLink } from '../utils/helpers';
 
 interface ChaptersProps {
   vod: VodData;
@@ -28,7 +28,7 @@ export default function Chapters({ vod }: ChaptersProps) {
 
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const DEFAULT_VOD = vod?.vod_uploads?.length > 0 ? `/youtube/${vod.id}` : `/manual/${vod.id}`;
+  const DEFAULT_VOD = getVodLink(vod);
   const isOpen = anchorEl !== null;
 
   useEffect(() => {
