@@ -26,6 +26,7 @@ const cardHoverVariants = {
 
 const getVodLink = (vod: VodData) => {
   if (vod.vod_uploads?.length > 0) return `/youtube/${vod.id}`;
+  if (Date.now() - new Date(vod.created_at).getTime() <= 14 * 24 * 60 * 60 * 1000 && !vod.is_live) return `/cdn/${vod.id}`;
   if (vod.games?.length > 0) return `/games/${vod.id}`;
   return null;
 };
